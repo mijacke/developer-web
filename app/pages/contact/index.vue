@@ -1,0 +1,153 @@
+<template>
+  <div class="contact-page">
+    <!-- Breadcrumbs -->
+    <div class="container">
+      <nav class="breadcrumbs">
+        <NuxtLink to="/">Domov</NuxtLink>
+        <span class="breadcrumbs-separator">/</span>
+        <span>Kontakt</span>
+      </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+      <div class="page-hero-bg placeholder-image"></div>
+      <div class="page-hero-overlay"></div>
+      <div class="page-hero-content">
+        <h1 class="page-title">Kontaktujte nás</h1>
+        <p class="page-subtitle">Radi odpovieme na vaše otázky</p>
+      </div>
+    </section>
+
+    <!-- Contact Cards -->
+    <section class="contact-cards section">
+      <div class="container">
+        <div class="cards-grid">
+          <div class="contact-card">
+            <div class="card-avatar placeholder-image"></div>
+            <div class="card-info">
+              <h4>Mario Lassu</h4>
+              <p class="card-role">Obchodný manažér</p>
+              <div class="card-contact">
+                <a href="tel:+421900111222">+421 900 111 222</a>
+                <a href="mailto:mario.lassu@developer.sk">mario.lassu@developer.sk</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-card">
+            <div class="card-avatar placeholder-image"></div>
+            <div class="card-info">
+              <h4>Mario Lassu</h4>
+              <p class="card-role">Projektový manažér</p>
+              <div class="card-contact">
+                <a href="tel:+421900333444">+421 900 333 444</a>
+                <a href="mailto:mario.lassu@developer.sk">mario.lassu@developer.sk</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="contact-form-section section bg-light">
+      <div class="container">
+        <div class="form-grid">
+          <div class="form-info">
+            <h2>Napíšte nám</h2>
+            <p>
+              Máte záujem o byt v Rezidencii Žilina? Vyplňte kontaktný formulár 
+              a náš tím vás bude kontaktovať v čo najkratšom čase.
+            </p>
+            
+            <div class="info-items">
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>Adresa</strong>
+                  <p>Žilina, Slovensko</p>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>Telefón</strong>
+                  <p>+421 900 000 000</p>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </div>
+                <div>
+                  <strong>E-mail</strong>
+                  <p>info@developer.sk</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form class="contact-form" @submit.prevent="handleSubmit">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">Meno</label>
+                <input type="text" id="firstName" placeholder="Vaše meno" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Priezvisko</label>
+                <input type="text" id="lastName" placeholder="Vaše priezvisko" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input type="email" id="email" placeholder="vas@email.sk" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Telefón</label>
+              <input type="tel" id="phone" placeholder="+421 900 000 000">
+            </div>
+
+            <div class="form-group">
+              <label for="message">Správa</label>
+              <textarea id="message" rows="5" placeholder="Vaša správa..." required></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <input type="checkbox" id="gdpr" required>
+              <label for="gdpr">
+                Súhlasím so spracovaním osobných údajov
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Odoslať správu
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup lang="ts">
+const handleSubmit = () => {
+  alert('Ďakujeme za vašu správu!')
+}
+</script>

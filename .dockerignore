@@ -1,0 +1,7 @@
+.dstore
+node_modules
+.output
+.nuxt
+.git
+backend/vendor
+backend/storage/*.key

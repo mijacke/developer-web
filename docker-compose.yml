@@ -1,0 +1,75 @@
+services:
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rezidencia_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - DB_CONNECTION=mariadb
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=rezidencia_zilina
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin
+    depends_on:
+      - db
+    networks:
+      - rezidencia-network
+
+  # Nuxt Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rezidencia_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/backend # Exclude backend folder from frontend container sync to avoid confusion
+    environment:
+      - NUXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - rezidencia-network
+
+  # MariaDB Database
+  db:
+    image: mariadb:latest
+    container_name: rezidencia_db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=rezidencia_zilina
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - rezidencia-network
+
+  # Adminer (Database GUI)
+  adminer:
+    image: adminer
+    container_name: rezidencia_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - rezidencia-network
+
+volumes:
+  db_data:
+
+networks:
+  rezidencia-network:
+    driver: bridge

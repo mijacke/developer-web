@@ -1,0 +1,113 @@
+/* ================================
+   About Project Page Styles
+   ================================ */
+
+/* About Grid */
+.about-page .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.about-page .about-text h2 {
+    margin-bottom: 1.5rem;
+    color: var(--color-primary-dark);
+}
+
+.about-page .about-text p {
+    color: var(--color-text-muted);
+    line-height: 1.8;
+}
+
+.about-page .about-image {
+    aspect-ratio: 4/3;
+    border-radius: var(--radius-lg);
+}
+
+/* Features List */
+.about-page .features-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.about-page .feature-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--color-bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.about-page .feature-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gold);
+    border-radius: 50%;
+    color: var(--color-primary-dark);
+}
+
+.about-page .feature-info h4 {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.about-page .feature-info p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+/* Stats */
+.about-page .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+}
+
+.about-page .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.about-page .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-gold);
+}
+
+.about-page .stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-page .about-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .about-page .features-list {
+        grid-template-columns: 1fr;
+    }
+
+    .about-page .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-page .stat-number {
+        font-size: 2rem;
+    }
+}

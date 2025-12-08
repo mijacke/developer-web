@@ -19,7 +19,7 @@ class ContactController extends Controller
             'firstName' => 'required|string|min:2|max:100',
             'lastName' => 'required|string|min:2|max:100',
             'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|regex:/^(\+421|0)[0-9]{9}$/',
+            'phone' => ['nullable', 'string', 'regex:/^(\+421|0)[0-9]{9}$/'],
             'message' => 'required|string|min:10|max:2000',
             'gdpr' => 'required|accepted',
         ], [
@@ -36,11 +36,6 @@ class ContactController extends Controller
             'gdpr.required' => 'Musíte súhlasiť so spracovaním osobných údajov',
             'gdpr.accepted' => 'Musíte súhlasiť so spracovaním osobných údajov',
         ]);
-
-        // Here you would typically:
-        // - Send email notification
-        // - Save to database
-        // For now, just return success
 
         return response()->json([
             'message' => 'Ďakujeme za vašu správu! Budeme vás kontaktovať.',

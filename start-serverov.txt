@@ -1,9 +1,0 @@
-# Terminal 1 - Laravel (Backend)
-cd backend && php artisan serve
-
-# Terminal 2 - Nuxt (Frontend)
-npm run dev
-
-# Terminal 3 - MariaDB (Databáza)
-# Beží automaticky na pozadí, ale ak nie:
-brew services start mariadb

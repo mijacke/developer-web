@@ -37,9 +37,9 @@
               @click="selectedFloor = floor.id"
             >
               <span class="floor-number">{{ floor.name }}</span>
-              <span class="floor-info">{{ floor.apartments }} bytov</span>
-              <span class="floor-status" :class="floor.statusClass">
-                {{ floor.statusText }}
+              <span class="floor-info">{{ getFloorApartmentCount(floor.id) }} bytov</span>
+              <span class="floor-status" :class="getFloorStatusClass(floor.id)">
+                {{ getFloorAvailableCount(floor.id) }} voľných
               </span>
             </button>
           </div>
@@ -59,47 +59,53 @@
       <div class="container">
         <h2 class="section-title text-center">Dostupné byty</h2>
         
-        <div class="filter-bar">
-          <button 
-            v-for="filter in filters" 
-            :key="filter.value"
-            class="filter-btn"
-            :class="{ active: activeFilter === filter.value }"
-            @click="activeFilter = filter.value"
-          >
-            {{ filter.label }}
-          </button>
-        </div>
+        <!-- Loading/Error states -->
+        <div v-if="loading" class="text-center py-lg">Načítavam byty zo servera...</div>
+        <div v-else-if="error" class="text-center py-lg text-muted">{{ error }}</div>
+        
+        <template v-else>
+          <div class="filter-bar">
+            <button 
+              v-for="filter in filters" 
+              :key="filter.value"
+              class="filter-btn"
+              :class="{ active: activeFilter === filter.value }"
+              @click="activeFilter = filter.value"
+            >
+              {{ filter.label }}
+            </button>
+          </div>
 
-        <div class="apartments-grid">
-          <div class="apartment-card" v-for="apt in displayedApartments" :key="apt.id">
-            <div class="apt-image placeholder-image"></div>
-            <div class="apt-content">
-              <div class="apt-header">
-                <h4>{{ apt.name }}</h4>
-                <span class="apt-status" :class="apt.statusClass">{{ apt.status }}</span>
-              </div>
-              <div class="apt-details">
-                <div class="apt-detail">
-                  <span class="detail-label">Dispozícia</span>
-                  <span class="detail-value">{{ apt.layout }}</span>
+          <div class="apartments-grid">
+            <div class="apartment-card" v-for="apt in displayedApartments" :key="apt.id">
+              <div class="apt-image placeholder-image"></div>
+              <div class="apt-content">
+                <div class="apt-header">
+                  <h4>{{ apt.name }}</h4>
+                  <span class="apt-status" :class="apt.status">{{ statusLabels[apt.status] }}</span>
                 </div>
-                <div class="apt-detail">
-                  <span class="detail-label">Plocha</span>
-                  <span class="detail-value">{{ apt.area }} m²</span>
+                <div class="apt-details">
+                  <div class="apt-detail">
+                    <span class="detail-label">Dispozícia</span>
+                    <span class="detail-value">{{ apt.layout }}</span>
+                  </div>
+                  <div class="apt-detail">
+                    <span class="detail-label">Plocha</span>
+                    <span class="detail-value">{{ apt.area }} m²</span>
+                  </div>
+                  <div class="apt-detail">
+                    <span class="detail-label">Podlažie</span>
+                    <span class="detail-value">{{ apt.floor }}. NP</span>
+                  </div>
                 </div>
-                <div class="apt-detail">
-                  <span class="detail-label">Podlažie</span>
-                  <span class="detail-value">{{ apt.floor }}. NP</span>
+                <div class="apt-footer">
+                  <span class="apt-price">od {{ Number(apt.price).toLocaleString() }} €</span>
+                  <button class="btn btn-outline-dark">Detail</button>
                 </div>
-              </div>
-              <div class="apt-footer">
-                <span class="apt-price">od {{ apt.price.toLocaleString() }} €</span>
-                <button class="btn btn-outline-dark">Detail</button>
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </section>
 
@@ -126,14 +132,36 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
+const API_URL = config.public.apiUrl
+
+interface Apartment {
+  id: number
+  name: string
+  layout: string
+  area: number
+  floor: number
+  price: number
+  status: 'available' | 'reserved' | 'sold'
+}
+
+const apartments = ref<Apartment[]>([])
+const loading = ref(true)
+const error = ref('')
 const selectedFloor = ref(1)
 const activeFilter = ref('all')
 
+const statusLabels: Record<string, string> = {
+  available: 'Voľný',
+  reserved: 'Rezervovaný',
+  sold: 'Predaný'
+}
+
 const floors = [
-  { id: 4, name: '4. NP', apartments: 12, statusText: '8 voľných', statusClass: 'available' },
-  { id: 3, name: '3. NP', apartments: 12, statusText: '5 voľných', statusClass: 'available' },
-  { id: 2, name: '2. NP', apartments: 12, statusText: '3 voľné', statusClass: 'limited' },
-  { id: 1, name: '1. NP', apartments: 12, statusText: '2 voľné', statusClass: 'limited' },
+  { id: 4, name: '4. NP' },
+  { id: 3, name: '3. NP' },
+  { id: 2, name: '2. NP' },
+  { id: 1, name: '1. NP' },
 ]
 
 const filters = [
@@ -144,17 +172,50 @@ const filters = [
   { label: '4-izbové', value: '4' },
 ]
 
-const apartments = [
-  { id: 1, name: 'Byt A-101', layout: '2-izbový', area: 54, floor: 1, price: 145000, status: 'Voľný', statusClass: 'available' },
-  { id: 2, name: 'Byt A-102', layout: '3-izbový', area: 72, floor: 1, price: 189000, status: 'Rezervovaný', statusClass: 'reserved' },
-  { id: 3, name: 'Byt A-103', layout: '1-izbový', area: 38, floor: 1, price: 98000, status: 'Voľný', statusClass: 'available' },
-  { id: 4, name: 'Byt A-201', layout: '2-izbový', area: 56, floor: 2, price: 152000, status: 'Voľný', statusClass: 'available' },
-  { id: 5, name: 'Byt A-202', layout: '4-izbový', area: 95, floor: 2, price: 265000, status: 'Predaný', statusClass: 'sold' },
-  { id: 6, name: 'Byt A-203', layout: '3-izbový', area: 75, floor: 2, price: 198000, status: 'Voľný', statusClass: 'available' },
-]
+// Fetch apartments from API
+const fetchApartments = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const response = await fetch(`${API_URL}/apartments`)
+    if (!response.ok) throw new Error('Chyba pri načítaní')
+    apartments.value = await response.json()
+  } catch (e) {
+    error.value = 'Nepodarilo sa načítať byty. Skontrolujte či beží Laravel server.'
+  } finally {
+    loading.value = false
+  }
+}
 
+// Filter apartments
 const displayedApartments = computed(() => {
-  if (activeFilter.value === 'all') return apartments
-  return apartments.filter(apt => apt.layout.startsWith(activeFilter.value))
+  let filtered = apartments.value
+  
+  if (activeFilter.value !== 'all') {
+    filtered = filtered.filter(apt => apt.layout.startsWith(activeFilter.value))
+  }
+  
+  return filtered
+})
+
+// Floor helpers
+const getFloorApartmentCount = (floorId: number) => {
+  return apartments.value.filter(a => a.floor === floorId).length
+}
+
+const getFloorAvailableCount = (floorId: number) => {
+  return apartments.value.filter(a => a.floor === floorId && a.status === 'available').length
+}
+
+const getFloorStatusClass = (floorId: number) => {
+  const available = getFloorAvailableCount(floorId)
+  if (available > 3) return 'available'
+  if (available > 0) return 'limited'
+  return 'sold'
+}
+
+// Initialize
+onMounted(() => {
+  fetchApartments()
 })
 </script>

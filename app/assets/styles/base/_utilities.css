@@ -195,6 +195,15 @@
     background-color: var(--color-bg-white);
 }
 
+/* Gradient Backgrounds */
+.bg-gradient-light {
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.bg-gradient-hero {
+    background: linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-primary-darker) 100%);
+}
+
 /* Flex Utilities */
 .flex {
     display: flex;

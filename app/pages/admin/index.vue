@@ -34,13 +34,13 @@
           </thead>
           <tbody>
             <tr v-for="apt in apartments" :key="apt.id">
-              <td>{{ apt.id }}</td>
-              <td>{{ apt.name }}</td>
-              <td>{{ apt.layout }}</td>
-              <td>{{ apt.area }}</td>
-              <td>{{ apt.floor }}. NP</td>
-              <td>{{ Number(apt.price).toLocaleString() }}</td>
-              <td>
+              <td data-label="ID">{{ apt.id }}</td>
+              <td data-label="Názov">{{ apt.name }}</td>
+              <td data-label="Dispozícia">{{ apt.layout }}</td>
+              <td data-label="Plocha (m²)">{{ apt.area }}</td>
+              <td data-label="Podlažie">{{ apt.floor }}. NP</td>
+              <td data-label="Cena (€)">{{ Number(apt.price).toLocaleString() }}</td>
+              <td data-label="Stav">
                 <span class="status-badge" :class="apt.status">
                   {{ statusLabels[apt.status] }}
                 </span>

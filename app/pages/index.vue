@@ -5,154 +5,238 @@
       <div class="hero-bg placeholder-image"></div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
-        <h1 class="hero-title">Privítajte novú kapitolu života</h1>
-        <p class="hero-subtitle">Moderné bývanie v projekte Rezidencia Žilina</p>
+        <span class="hero-label">› BÝVAJTE S RADOSŤOU</span>
+        <h1 class="hero-title">Bytový projekt<br>Rezidencia Žilina</h1>
+        <p class="hero-subtitle">Objavte moderné bývanie v srdci prírody. Rezidencia Žilina spája komfort mestského života s pokojom zelene.</p>
         <div class="hero-buttons">
-          <NuxtLink to="/apartment-selection" class="btn btn-primary">
-            Vybrať byt
+          <NuxtLink to="/contact" class="btn btn-primary btn-rounded">
+            Kontakt
           </NuxtLink>
-          <NuxtLink to="/about-project" class="btn btn-outline">
-            O projekte
+          <NuxtLink to="/apartment-selection" class="btn btn-outline btn-rounded">
+            Výber bytu
           </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Feature Cards Section -->
     <section class="features section">
       <div class="container">
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-image placeholder-image"></div>
-            <div class="feature-content">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <img src="~/assets/icons/features/house.svg" alt="Byty" width="40" height="40" />
+              </div>
               <h3 class="feature-title">Krásne nové byty</h3>
-              <p class="feature-text">
-                Moderné dispozície prispôsobené potrebám dnešného života. 
-                Kvalitné materiály a precízne spracovanie.
-              </p>
             </div>
+            <p class="feature-text">
+              Moderné, priestranné a svetlé byty navrhnuté s dôrazom na kvalitu...
+            </p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-image placeholder-image"></div>
-            <div class="feature-content">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <img src="~/assets/icons/features/tree-deciduous.svg" alt="Prostredie" width="40" height="40" />
+              </div>
               <h3 class="feature-title">Príjemné prostredie</h3>
-              <p class="feature-text">
-                Lokalita v blízkosti zelene a s vynikajúcou dostupnosťou 
-                do centra Žiliny aj okolitých obcí.
-              </p>
             </div>
+            <p class="feature-text">
+              Bývajte v lokalite plnej zelene, s parkom a miestami na oddych hneď pri byte.
+            </p>
           </div>
 
           <div class="feature-card">
-            <div class="feature-image placeholder-image"></div>
-            <div class="feature-content">
+            <div class="feature-header">
+              <div class="feature-icon">
+                <img src="~/assets/icons/features/chart-line.svg" alt="Investícia" width="40" height="40" />
+              </div>
               <h3 class="feature-title">Investícia ktorá sa oplatí</h3>
-              <p class="feature-text">
-                Stabilná hodnota nehnuteľnosti v rastúcej lokalite 
-                s potenciálom ďalšieho zhodnotenia.
-              </p>
             </div>
+            <p class="feature-text">
+              Hodnota vášho bývania porastie, výborná príležitosť pre budúcich majiteľov.
+            </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Services Section -->
-    <section class="services section bg-light">
+    <!-- About Project Section -->
+    <section class="about-project section">
       <div class="container">
-        <h2 class="section-title text-center">Služby v okolí</h2>
-        <p class="section-subtitle text-center">
-          Všetko, čo potrebujete, na dosah ruky
-        </p>
-
-        <div class="services-grid">
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9,22 9,12 15,12 15,22"/>
-              </svg>
+        <div class="about-grid">
+          <div class="about-content">
+            <span class="about-label">O projekte</span>
+            <h2 class="about-title">Bytový projekt<br><span class="text-gold">Rezidencia Žilina</span></h2>
+            <p class="about-text">
+              <strong>Lorem ipsum dolor</strong> sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Phasere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
+            </p>
+            <div class="about-buttons">
+              <NuxtLink to="/about-project" class="btn btn-primary btn-rounded">
+                O projekte
+              </NuxtLink>
+              <NuxtLink to="/locality" class="btn btn-outline-dark btn-rounded">
+                Lokalita
+              </NuxtLink>
             </div>
-            <span class="service-label">Školy</span>
           </div>
-
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-                <line x1="9" y1="9" x2="9.01" y2="9"/>
-                <line x1="15" y1="9" x2="15.01" y2="9"/>
-              </svg>
-            </div>
-            <span class="service-label">Škôlky</span>
-          </div>
-
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
-              </svg>
-            </div>
-            <span class="service-label">Obchody</span>
-          </div>
-
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-              </svg>
-            </div>
-            <span class="service-label">Zdravotníctvo</span>
-          </div>
-
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="3" width="15" height="13"/>
-                <polygon points="16,8 20,8 23,11 23,16 16,16 16,8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/>
-                <circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-            </div>
-            <span class="service-label">Doprava</span>
-          </div>
-
-          <div class="service-item">
-            <div class="service-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-                <path d="M16 3.13a4 4 0 010 7.75"/>
-              </svg>
-            </div>
-            <span class="service-label">Reštaurácie</span>
+          <div class="about-image">
+            <div class="about-image-wrapper placeholder-image"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta section bg-dark">
+    <!-- Amenities Section -->
+    <section class="amenities section">
       <div class="container">
-        <div class="cta-content">
-          <h2 class="cta-title text-white">Máte záujem o nový domov?</h2>
-          <p class="cta-text text-white">
-            Kontaktujte nás a dohodnite si nezáväznú prehliadku bytov
-          </p>
-          <div class="cta-buttons">
-            <NuxtLink to="/contact" class="btn btn-primary">
-              Kontaktujte nás
-            </NuxtLink>
-            <NuxtLink to="/apartment-selection" class="btn btn-outline">
-              Vybrať byt
-            </NuxtLink>
+        <div class="amenities-grid">
+          <!-- Row 1 -->
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--teal">
+              <img src="~/assets/icons/amenities/waves.svg" alt="Vodné dielo" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Vodné dielo, šport</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--green">
+              <img src="~/assets/icons/amenities/university.svg" alt="Školy" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Školy</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--orange">
+              <img src="~/assets/icons/amenities/mail.svg" alt="Pošta" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Pošta</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--brown">
+              <img src="~/assets/icons/amenities/church.svg" alt="Kostol" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Kostol</span>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--red">
+              <img src="~/assets/icons/amenities/baby.svg" alt="Jasle" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Jasle a škôlky</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--lime">
+              <img src="~/assets/icons/amenities/tree-deciduous-white.svg" alt="Parky" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Parky</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--emerald">
+              <img src="~/assets/icons/amenities/activity.svg" alt="Lekárne" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Lekárne</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--blue">
+              <img src="~/assets/icons/amenities/phone.svg" alt="Klientske centrum" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Klientske centrum</span>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--cyan">
+              <img src="~/assets/icons/amenities/coffee.svg" alt="Kaviarne" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Kaviarne</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--purple">
+              <img src="~/assets/icons/amenities/utensils.svg" alt="Reštaurácie" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Reštaurácie</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--gold">
+              <img src="~/assets/icons/amenities/shopping-bag.svg" alt="Obchody" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Obchody</span>
+          </div>
+
+          <div class="amenity-item">
+            <div class="amenity-icon amenity-icon--salmon">
+              <img src="~/assets/icons/amenities/fuel.svg" alt="Čerpacie stanice" width="20" height="20" />
+            </div>
+            <span class="amenity-label">Čerpacie stanice</span>
           </div>
         </div>
+
+        <!-- Badge at bottom -->
+        <div class="amenities-badge-wrapper">
+          <div class="amenities-badge">
+            <img src="~/assets/icons/ui/map-pin.svg" alt="Služby v okolí" width="20" height="20" />
+            <span>Služby v okolí 1,5km, 15 min pešo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA + Salesperson Section -->
+    <section class="cta-salesperson">
+      <div class="container">
+        <div class="cta-salesperson-grid">
+          <!-- Left: CTA -->
+          <div class="cta-content">
+            <h2 class="cta-title">Máte záujem o nový domov?</h2>
+            <p class="cta-text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+            </p>
+            <div class="cta-buttons">
+              <NuxtLink to="/apartment-selection" class="btn btn-outline btn-rounded btn-dark">
+                Otvoriť ponuku bytov
+              </NuxtLink>
+              <NuxtLink to="/contact" class="btn btn-text btn-dark">
+                Kontaktujte nás
+              </NuxtLink>
+            </div>
+          </div>
+
+          <!-- Right: Salesperson -->
+          <div class="salesperson-content">
+            <h3 class="salesperson-heading">Kontakt na predajcu</h3>
+            <div class="salesperson-card">
+              <div class="salesperson-photo placeholder-image"></div>
+              <div class="salesperson-info">
+                <h4 class="salesperson-name">Meno Priezvisko</h4>
+                <span class="salesperson-role">Predajca</span>
+                <div class="salesperson-contact">
+                  <a href="tel:+421900000000" class="contact-item">
+                    <img src="~/assets/icons/contact/phone-gold.svg" alt="Telefón" width="18" height="18" />
+                    +421 900 000 000
+                  </a>
+                  <a href="mailto:info@rezidenciazilina.sk" class="contact-item">
+                    <img src="~/assets/icons/contact/mail-gold.svg" alt="Email" width="18" height="18" />
+                    info@rezidenciazilina.sk
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorative Tree Image -->
+      <div class="tree-decoration">
+        <div class="tree-image placeholder-image"></div>
       </div>
     </section>
   </div>

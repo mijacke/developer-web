@@ -16,6 +16,10 @@
           </div>
         </NuxtLink>
         
+        <p class="footer-description">
+          Lorem ipsum dolor sit amet consectetur. Vitae est non nal auctor imperdiet etiam tempus facilisi. Phasere duis ut arcu ut aliquet maecenas magna quisque...
+        </p>
+        
         <div class="social-links">
           <a href="#" class="social-link" aria-label="Facebook">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -43,17 +47,26 @@
         </nav>
       </div>
 
+      <!-- Documents Links -->
+      <div class="footer-section">
+        <h4 class="footer-title">Dokumenty</h4>
+        <nav class="footer-links">
+          <NuxtLink to="/privacy" class="footer-link">Ochrana osobných údajov</NuxtLink>
+          <NuxtLink to="/terms" class="footer-link">Obchodné podmienky</NuxtLink>
+          <NuxtLink to="/cookies" class="footer-link">Spracovanie cookies</NuxtLink>
+        </nav>
+      </div>
+
       <!-- Developer Info -->
       <div class="footer-section">
         <h4 class="footer-title">Developer</h4>
         <div class="footer-contact">
-          <p class="contact-name">Mario Lassu</p>
-          <p class="contact-address">Žilina, Slovensko</p>
+          <p class="contact-name">Rezidencia Žilina</p>
           <p class="contact-info">
             <a href="tel:+421900000000">+421 900 000 000</a>
           </p>
           <p class="contact-info">
-            <a href="mailto:info@developer.sk">info@developer.sk</a>
+            <a href="mailto:info@rezidenciazilina.sk">info@rezidenciazilina.sk</a>
           </p>
         </div>
       </div>
@@ -61,9 +74,24 @@
 
     <!-- Copyright -->
     <div class="footer-bottom">
-      <div class="footer-container">
-        <p class="copyright">© {{ new Date().getFullYear() }} Rezidencia Žilina. Všetky práva vyhradené.</p>
+      <div class="footer-container footer-bottom-inner">
+        <p class="copyright">Copyright © {{ new Date().getFullYear() }} <strong>Rezidencia Žilina</strong> – Všetky práva vyhradené</p>
+        <button class="scroll-to-top" @click="scrollToTop" aria-label="Návrat hore">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+          </svg>
+          <span>FixDobre</span>
+        </button>
       </div>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
+</script>

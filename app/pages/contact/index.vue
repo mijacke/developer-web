@@ -102,7 +102,7 @@
             </div>
           </div>
 
-          <form class="contact-form" @submit.prevent="handleSubmit" novalidate>
+          <form class="contact-form" @submit.prevent="handleSubmit" novalidate> <!-- Vlastný ts logika klient validacie formulara-->
             <!-- Success/Error Messages -->
             <div v-if="formMessage" class="form-alert" :class="formMessageType">
               {{ formMessage }}
@@ -118,7 +118,7 @@
                   placeholder="Vaše meno"
                   :class="{ 'input-error': errors.firstName }"
                   @blur="validateField('firstName')"
-                >
+                > <!-- blur na validaciu pola-->
                 <span v-if="errors.firstName" class="error-text">{{ errors.firstName }}</span>
               </div>
               <div class="form-group">
@@ -198,185 +198,13 @@
 </template>
 
 <script setup lang="ts">
-const config = useRuntimeConfig()
-const API_URL = config.public.apiUrl
-
-// Form data
-const form = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  message: '',
-  gdpr: false
-})
-
-// Validation errors
-const errors = ref<Record<string, string>>({})
-
-// Form state
-const isSubmitting = ref(false)
-const formMessage = ref('')
-const formMessageType = ref<'success' | 'error'>('success')
-
-// Email regex pattern
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-// Slovak phone pattern: +421XXXXXXXXX or 09XXXXXXXX
-const phonePattern = /^(\+421|0)[0-9]{9}$/
-
-// Validate single field - CLIENT-SIDE VALIDATION
-const validateField = (field: string): boolean => {
-  let isValid = true
-  
-  switch (field) {
-    case 'firstName':
-      if (!form.value.firstName.trim()) {
-        errors.value.firstName = 'Meno je povinné'
-        isValid = false
-      } else if (form.value.firstName.length < 2) {
-        errors.value.firstName = 'Meno musí mať aspoň 2 znaky'
-        isValid = false
-      } else {
-        delete errors.value.firstName
-      }
-      break
-      
-    case 'lastName':
-      if (!form.value.lastName.trim()) {
-        errors.value.lastName = 'Priezvisko je povinné'
-        isValid = false
-      } else if (form.value.lastName.length < 2) {
-        errors.value.lastName = 'Priezvisko musí mať aspoň 2 znaky'
-        isValid = false
-      } else {
-        delete errors.value.lastName
-      }
-      break
-      
-    case 'email':
-      if (!form.value.email.trim()) {
-        errors.value.email = 'E-mail je povinný'
-        isValid = false
-      } else if (!emailPattern.test(form.value.email)) {
-        errors.value.email = 'Zadajte platný e-mail'
-        isValid = false
-      } else {
-        delete errors.value.email
-      }
-      break
-      
-    case 'phone':
-      // Phone is optional, but if provided must be valid
-      if (form.value.phone.trim() && !phonePattern.test(form.value.phone.replace(/\s/g, ''))) {
-        errors.value.phone = 'Telefón musí byť v formáte +421XXXXXXXXX'
-        isValid = false
-      } else {
-        delete errors.value.phone
-      }
-      break
-      
-    case 'message':
-      if (!form.value.message.trim()) {
-        errors.value.message = 'Správa je povinná'
-        isValid = false
-      } else if (form.value.message.length < 10) {
-        errors.value.message = 'Správa musí mať aspoň 10 znakov'
-        isValid = false
-      } else {
-        delete errors.value.message
-      }
-      break
-      
-    case 'gdpr':
-      if (!form.value.gdpr) {
-        errors.value.gdpr = 'Musíte súhlasiť so spracovaním údajov'
-        isValid = false
-      } else {
-        delete errors.value.gdpr
-      }
-      break
-  }
-  
-  return isValid
-}
-
-// Validate all fields
-const validateForm = (): boolean => {
-  const fields = ['firstName', 'lastName', 'email', 'phone', 'message', 'gdpr']
-  let isValid = true
-  
-  fields.forEach(field => {
-    if (!validateField(field)) {
-      isValid = false
-    }
-  })
-  
-  return isValid
-}
-
-// Submit form
-const handleSubmit = async () => {
-  // Clear previous messages
-  formMessage.value = ''
-  
-  // Client-side validation
-  if (!validateForm()) {
-    formMessage.value = 'Prosím opravte chyby vo formulári'
-    formMessageType.value = 'error'
-    return
-  }
-  
-  isSubmitting.value = true
-  
-  try {
-    // Send to Laravel API for server-side validation
-    const response = await fetch(`${API_URL}/contact`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        ...form.value,
-        phone: form.value.phone.replace(/\s/g, '') // Remove spaces from phone
-      })
-    })
-    
-    const data = await response.json()
-    
-    if (!response.ok) {
-      // Server validation errors
-      if (data.errors) {
-        // Map server errors to form fields
-        Object.keys(data.errors).forEach(key => {
-          errors.value[key] = data.errors[key][0]
-        })
-      }
-      formMessage.value = 'Chyba pri odosielaní formulára'
-      formMessageType.value = 'error'
-      return
-    }
-    
-    // Success
-    formMessage.value = data.message
-    formMessageType.value = 'success'
-    
-    // Reset form
-    form.value = {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      message: '',
-      gdpr: false
-    }
-    errors.value = {}
-    
-  } catch (error) {
-    formMessage.value = 'Chyba pripojenia k serveru'
-    formMessageType.value = 'error'
-  } finally {
-    isSubmitting.value = false
-  }
-}
+const {
+  form,
+  errors,
+  isSubmitting,
+  formMessage,
+  formMessageType,
+  validateField,
+  handleSubmit
+} = useContactForm()
 </script>

@@ -190,54 +190,76 @@
       </div>
     </section>
 
-    <!-- CTA + Salesperson Section -->
-    <section class="cta-salesperson">
+    <!-- Apartment Types Section -->
+    <section class="apartment-types section">
       <div class="container">
-        <div class="cta-salesperson-grid">
-          <!-- Left: CTA -->
-          <div class="cta-content">
-            <h2 class="cta-title">Máte záujem o nový domov?</h2>
-            <p class="cta-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+        <!-- 2 izbové byty - image left, content right -->
+        <div class="apartment-type-row">
+          <div class="apartment-type-image">
+            <div class="apartment-image-wrapper placeholder-image"></div>
+          </div>
+          <div class="apartment-type-content">
+            <span class="apartment-type-label">Typ bytu</span>
+            <h2 class="apartment-type-title">2 izbové byty</h2>
+            <p class="apartment-type-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
             </p>
-            <div class="cta-buttons">
-              <NuxtLink to="/apartment-selection" class="btn btn-outline btn-rounded btn-dark">
+            <div class="apartment-type-badges">
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
+                <span>od 40 m²</span>
+              </div>
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
+                <span>2 izby</span>
+              </div>
+            </div>
+            <div class="apartment-type-buttons">
+              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
                 Otvoriť ponuku bytov
               </NuxtLink>
-              <NuxtLink to="/contact" class="btn btn-text btn-dark">
-                Kontaktujte nás
+              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
+                Potrebujem poradiť
               </NuxtLink>
-            </div>
-          </div>
-
-          <!-- Right: Salesperson -->
-          <div class="salesperson-content">
-            <h3 class="salesperson-heading">Kontakt na predajcu</h3>
-            <div class="salesperson-card">
-              <div class="salesperson-photo placeholder-image"></div>
-              <div class="salesperson-info">
-                <h4 class="salesperson-name">Meno Priezvisko</h4>
-                <span class="salesperson-role">Predajca</span>
-                <div class="salesperson-contact">
-                  <a href="tel:+421900000000" class="contact-item">
-                    <img src="~/assets/icons/contact/phone-gold.svg" alt="Telefón" width="18" height="18" />
-                    +421 900 000 000
-                  </a>
-                  <a href="mailto:info@rezidenciazilina.sk" class="contact-item">
-                    <img src="~/assets/icons/contact/mail-gold.svg" alt="Email" width="18" height="18" />
-                    info@rezidenciazilina.sk
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Decorative Tree Image -->
-      <div class="tree-decoration">
-        <div class="tree-image placeholder-image"></div>
+        <!-- 3 izbové byty - content left, image right -->
+        <div class="apartment-type-row apartment-type-row--reversed">
+          <div class="apartment-type-content">
+            <span class="apartment-type-label">Typ bytu</span>
+            <h2 class="apartment-type-title">3 izbové byty</h2>
+            <p class="apartment-type-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
+            </p>
+            <div class="apartment-type-badges">
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
+                <span>od 70 m²</span>
+              </div>
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
+                <span>3 izby</span>
+              </div>
+            </div>
+            <div class="apartment-type-buttons">
+              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
+                Otvoriť ponuku bytov
+              </NuxtLink>
+              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
+                Potrebujem poradiť
+              </NuxtLink>
+            </div>
+          </div>
+          <div class="apartment-type-image">
+            <div class="apartment-image-wrapper placeholder-image"></div>
+          </div>
+        </div>
       </div>
     </section>
+
+    <!-- CTA + Salesperson Section -->
+    <HomeCtaSection />
   </div>
 </template>

@@ -142,7 +142,7 @@
 
 /* About Project Section */
 .home-page .about-project {
-    background: var(--color-bg-light);
+    background: var(--color-bg-white);
     padding: 5rem 0;
 }
 
@@ -212,7 +212,7 @@
 /* Amenities Section */
 .home-page .amenities {
     padding: 4rem 0;
-    background: var(--color-bg-light);
+    background: var(--color-bg-white);
 }
 
 .home-page .amenities-grid {
@@ -530,8 +530,9 @@
 
 /* Apartment Types Section */
 .home-page .apartment-types {
-    background: var(--color-bg-white);
-    padding: 5rem 0;
+    background: var(--color-bg-light);
+    padding: 5rem 0 8rem;
+    position: relative;
 }
 
 .home-page .apartment-type-row {
@@ -539,19 +540,24 @@
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
-    margin-bottom: 4rem;
+    margin-bottom: 2.5rem;
+    background: var(--color-bg-white);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
 }
 
 .home-page .apartment-type-row:last-child {
     margin-bottom: 0;
 }
 
-.home-page .apartment-type-row--reversed {
-    direction: rtl;
+.home-page .apartment-type-row--reversed .apartment-type-content {
+    order: 1;
 }
 
-.home-page .apartment-type-row--reversed>* {
-    direction: ltr;
+.home-page .apartment-type-row--reversed .apartment-type-image {
+    order: 2;
 }
 
 .home-page .apartment-type-image {
@@ -625,6 +631,107 @@
     flex-wrap: wrap;
 }
 
+/* Parking Section */
+.home-page .parking-section {
+    margin-top: 2.5rem;
+    padding: 3rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+    text-align: center;
+}
+
+.home-page .parking-content {
+    max-width: 700px;
+    margin: 0 auto 2.5rem;
+}
+
+.home-page .parking-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.home-page .parking-title .text-gold {
+    color: var(--color-gold);
+}
+
+.home-page .parking-text {
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.home-page .parking-link {
+    display: inline-block;
+    color: var(--color-text-dark);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: all 0.3s ease;
+}
+
+.home-page .parking-link:hover {
+    color: var(--color-gold);
+}
+
+.home-page .parking-visual {
+    position: relative;
+}
+
+.home-page .parking-image-wrapper {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    aspect-ratio: 16/9;
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.home-page .parking-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: -1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.home-page .parking-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-primary-dark);
+    color: white;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.home-page .parking-badge-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--color-gold);
+    color: var(--color-primary-dark);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.home-page .parking-badge img {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .home-page .features .features-grid {
@@ -655,8 +762,9 @@
         gap: 2rem;
     }
 
-    .home-page .apartment-type-row--reversed {
-        direction: ltr;
+    .home-page .apartment-type-row--reversed .apartment-type-content,
+    .home-page .apartment-type-row--reversed .apartment-type-image {
+        order: initial;
     }
 
     .home-page .apartment-type-image {

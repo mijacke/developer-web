@@ -1,21 +1,27 @@
 <template>
   <div class="locality-page">
-    <!-- Breadcrumbs -->
-    <div class="container">
-      <nav class="breadcrumbs">
-        <NuxtLink to="/">Domov</NuxtLink>
-        <span class="breadcrumbs-separator">/</span>
-        <span>Lokalita</span>
-      </nav>
-    </div>
+    <!-- Hero Section - New Style -->
+    <section class="locality-hero section">
+      <div class="container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumbs">
+          <NuxtLink to="/">Home</NuxtLink>
+          <span class="breadcrumbs-separator">/</span>
+          <span>Lokalita</span>
+        </nav>
 
-    <!-- Hero Section -->
-    <section class="page-hero">
-      <div class="page-hero-bg placeholder-image"></div>
-      <div class="page-hero-overlay"></div>
-      <div class="page-hero-content">
-        <h1 class="page-title">Lokalita</h1>
-        <p class="page-subtitle">Strategická poloha s výbornou dostupnosťou v Žiline</p>
+        <!-- Hero Content -->
+        <div class="locality-hero-content">
+          <h1 class="locality-title">Lokalita</h1>
+          <p class="locality-subtitle">
+            <strong>Objavte moderné bývanie v srdci prírody.</strong> Rezidencia Arborétum spája komfort mestského života s pokojom zelene.
+          </p>
+        </div>
+
+        <!-- Panoramic Image -->
+        <div class="locality-panorama">
+          <!-- Placeholder for panoramic image -->
+        </div>
       </div>
     </section>
 

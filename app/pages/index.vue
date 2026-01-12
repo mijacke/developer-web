@@ -88,6 +88,131 @@
       </div>
     </section>
 
+    <!-- Apartment Types Section -->
+    <section class="apartment-types section">
+      <div class="container">
+        <!-- 2 izbové byty - image left, content right -->
+        <div class="apartment-type-row">
+          <div class="apartment-type-image">
+            <div class="apartment-image-wrapper placeholder-image"></div>
+          </div>
+          <div class="apartment-type-content">
+            <span class="apartment-type-label">Typ bytu</span>
+            <h2 class="apartment-type-title">2 izbové byty</h2>
+            <p class="apartment-type-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
+            </p>
+            <div class="apartment-type-badges">
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
+                <span>od 40 m²</span>
+              </div>
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
+                <span>2 izby</span>
+              </div>
+            </div>
+            <div class="apartment-type-buttons">
+              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
+                Otvoriť ponuku bytov
+              </NuxtLink>
+              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
+                Potrebujem poradiť
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 izbové byty - content left, image right -->
+        <div class="apartment-type-row apartment-type-row--reversed">
+          <div class="apartment-type-content">
+            <span class="apartment-type-label">Typ bytu</span>
+            <h2 class="apartment-type-title">3 izbové byty</h2>
+            <p class="apartment-type-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
+            </p>
+            <div class="apartment-type-badges">
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
+                <span>od 70 m²</span>
+              </div>
+              <div class="apartment-badge">
+                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
+                <span>3 izby</span>
+              </div>
+            </div>
+            <div class="apartment-type-buttons">
+              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
+                Otvoriť ponuku bytov
+              </NuxtLink>
+              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
+                Potrebujem poradiť
+              </NuxtLink>
+            </div>
+          </div>
+          <div class="apartment-type-image">
+            <div class="apartment-image-wrapper placeholder-image"></div>
+          </div>
+        </div>
+
+        <!-- Parkovacie státia -->
+        <div class="parking-section">
+          <div class="parking-content">
+            <h2 class="parking-title"><span class="text-gold">Parkovacie státia</span> na predaj</h2>
+            <p class="parking-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
+            </p>
+            <NuxtLink to="/parking" class="parking-link">
+              Prečítajte si viac →
+            </NuxtLink>
+          </div>
+          <div class="parking-visual">
+            <div class="parking-image-wrapper">
+              <!-- Placeholder for parking image -->
+            </div>
+            <div class="parking-badges">
+              <div class="parking-badge">
+                <span class="parking-badge-icon">P</span>
+                <span>24 parkovacích miest</span>
+              </div>
+              <div class="parking-badge">
+                <img src="~/assets/icons/ui/shield-check.svg" alt="Bezpečnosť" width="20" height="20" />
+                <span>Bezpečnosť vozidla</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="location-section section">
+      <div class="container">
+        <div class="location-grid">
+          <div class="location-map">
+            <div class="location-map-wrapper">
+              <!-- Google Maps placeholder -->
+            </div>
+          </div>
+          <div class="location-content">
+            <span class="location-label">Služby</span>
+            <h2 class="location-title">Dostupnosť služieb v okolí bytového projektu</h2>
+            <p class="location-text">
+              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet...
+            </p>
+            <div class="location-buttons">
+              <NuxtLink to="/locality" class="btn btn-primary btn-rounded">
+                Viac o lokalite
+              </NuxtLink>
+              <NuxtLink to="/parking" class="btn btn-outline-dark btn-rounded">
+                Parkovanie
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Amenities Section -->
     <section class="amenities section">
       <div class="container">
@@ -185,75 +310,6 @@
           <div class="amenities-badge">
             <img src="~/assets/icons/ui/map-pin.svg" alt="Služby v okolí" width="20" height="20" />
             <span>Služby v okolí 1,5km, 15 min pešo</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Apartment Types Section -->
-    <section class="apartment-types section">
-      <div class="container">
-        <!-- 2 izbové byty - image left, content right -->
-        <div class="apartment-type-row">
-          <div class="apartment-type-image">
-            <div class="apartment-image-wrapper placeholder-image"></div>
-          </div>
-          <div class="apartment-type-content">
-            <span class="apartment-type-label">Typ bytu</span>
-            <h2 class="apartment-type-title">2 izbové byty</h2>
-            <p class="apartment-type-text">
-              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
-            </p>
-            <div class="apartment-type-badges">
-              <div class="apartment-badge">
-                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
-                <span>od 40 m²</span>
-              </div>
-              <div class="apartment-badge">
-                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
-                <span>2 izby</span>
-              </div>
-            </div>
-            <div class="apartment-type-buttons">
-              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
-                Otvoriť ponuku bytov
-              </NuxtLink>
-              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
-                Potrebujem poradiť
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3 izbové byty - content left, image right -->
-        <div class="apartment-type-row apartment-type-row--reversed">
-          <div class="apartment-type-content">
-            <span class="apartment-type-label">Typ bytu</span>
-            <h2 class="apartment-type-title">3 izbové byty</h2>
-            <p class="apartment-type-text">
-              Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi. Posuere duis ut arcu ut aliquet maecenas magna quisque. Lorem ipsum dolor sit amet consectetur...
-            </p>
-            <div class="apartment-type-badges">
-              <div class="apartment-badge">
-                <img src="~/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
-                <span>od 70 m²</span>
-              </div>
-              <div class="apartment-badge">
-                <img src="~/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
-                <span>3 izby</span>
-              </div>
-            </div>
-            <div class="apartment-type-buttons">
-              <NuxtLink to="/apartment-selection" class="btn btn-primary btn-rounded">
-                Otvoriť ponuku bytov
-              </NuxtLink>
-              <NuxtLink to="/contact" class="btn btn-outline-dark btn-rounded">
-                Potrebujem poradiť
-              </NuxtLink>
-            </div>
-          </div>
-          <div class="apartment-type-image">
-            <div class="apartment-image-wrapper placeholder-image"></div>
           </div>
         </div>
       </div>

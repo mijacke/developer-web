@@ -169,15 +169,15 @@
           <div class="parking-visual">
             <div class="parking-image-wrapper">
               <!-- Placeholder for parking image -->
-            </div>
-            <div class="parking-badges">
-              <div class="parking-badge">
-                <span class="parking-badge-icon">P</span>
-                <span>24 parkovacích miest</span>
-              </div>
-              <div class="parking-badge">
-                <img src="~/assets/icons/ui/shield-check.svg" alt="Bezpečnosť" width="20" height="20" />
-                <span>Bezpečnosť vozidla</span>
+              <div class="parking-badges">
+                <div class="parking-badge">
+                  <span class="parking-badge-icon">P</span>
+                  <span>24 parkovacích miest</span>
+                </div>
+                <div class="parking-badge">
+                  <img src="~/assets/icons/ui/shield-check.svg" alt="Bezpečnosť" width="20" height="20" />
+                  <span>Bezpečnosť vozidla</span>
+                </div>
               </div>
             </div>
           </div>

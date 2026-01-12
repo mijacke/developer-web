@@ -28,10 +28,11 @@
       </div>
     </div>
 
-    <!-- Decorative Animated Tree -->
+
     <div class="tree-decoration">
       <HomeLottieTree />
     </div>
+    
   </section>
 </template>
 

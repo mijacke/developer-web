@@ -12,27 +12,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // House with tree animation from LottieFiles - selected by user (local file)
 const ANIMATION_URL = '/animations/Home.json'
 
 const lottieContainer = ref<HTMLDivElement | null>(null)
-const scriptLoaded = ref(false)
 let animationInstance: any = null
 
-// Load lottie-web via useHead
-useHead({
-  script: [
-    {
-      src: 'https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js',
-      defer: true,
-      onload: () => {
-        scriptLoaded.value = true
-      }
+// Load script dynamically only on client side
+const loadLottieScript = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Check if already loaded
+    if ((window as any).lottie) {
+      resolve()
+      return
     }
-  ]
-})
+    
+    // Check if script is already in DOM
+    const existingScript = document.querySelector('script[src*="lottie"]')
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve())
+      return
+    }
+    
+    // Create and append script
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie_light.min.js'
+    script.async = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load lottie-web'))
+    document.head.appendChild(script)
+  })
+}
 
 const initAnimation = () => {
   if (!lottieContainer.value || typeof window === 'undefined') return
@@ -54,34 +66,22 @@ const initAnimation = () => {
   })
 }
 
-// Watch for script load
-watch(scriptLoaded, (loaded) => {
-  if (loaded) {
-    initAnimation()
-  }
-})
-
-onMounted(() => {
-  // Check if already loaded
-  if ((window as any).lottie) {
-    initAnimation()
-  } else {
-    // Poll for lottie library availability
-    const checkLottie = setInterval(() => {
-      if ((window as any).lottie) {
-        clearInterval(checkLottie)
-        initAnimation()
-      }
-    }, 100)
-    
-    // Clear interval after 10 seconds
-    setTimeout(() => clearInterval(checkLottie), 10000)
+onMounted(async () => {
+  try {
+    await loadLottieScript()
+    // Small delay to ensure DOM is ready
+    requestAnimationFrame(() => {
+      initAnimation()
+    })
+  } catch (error) {
+    console.warn('Lottie animation could not be loaded:', error)
   }
 })
 
 onUnmounted(() => {
   if (animationInstance) {
     animationInstance.destroy()
+    animationInstance = null
   }
 })
 </script>

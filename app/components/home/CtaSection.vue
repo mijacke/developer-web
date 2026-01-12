@@ -26,13 +26,11 @@
           email="info@rezidenciazilina.sk"
         />
       </div>
-    </div>
 
-
-    <div class="tree-decoration">
-      <HomeLottieTree />
+      <div class="tree-decoration">
+        <HomeLottieTree />
+      </div>
     </div>
-    
   </section>
 </template>
 

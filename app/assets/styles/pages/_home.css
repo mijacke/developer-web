@@ -347,13 +347,19 @@
 /* CTA + Salesperson Section */
 .home-page .cta-salesperson {
     position: relative;
+    padding: 5rem 0;
+}
+
+.home-page .cta-salesperson .container {
     background: linear-gradient(135deg, #1a2744 0%, #243656 100%);
-    padding: 4rem 0 0;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    position: relative;
     overflow: hidden;
 }
 
 /* Background pattern overlay */
-.home-page .cta-salesperson::before {
+.home-page .cta-salesperson .container::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -362,12 +368,13 @@
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none;
+    border-radius: 1.5rem;
 }
 
 .home-page .cta-salesperson-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    grid-template-columns: 1.5fr auto;
+    gap: 2rem;
     align-items: center;
     position: relative;
     z-index: 2;
@@ -433,28 +440,24 @@
     background: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Salesperson - Glassmorphism Card */
+/* Salesperson - Modern Transparent Style */
 .home-page .salesperson-content {
-    padding: 2rem;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    padding: 1.5rem;
+    background: transparent;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
     z-index: 3;
+    min-width: 450px;
 }
 
 .home-page .salesperson-heading {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-text-dark);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .home-page .salesperson-card {
@@ -487,9 +490,9 @@
 }
 
 .home-page .salesperson-name {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-text-dark);
+    color: var(--color-text-light);
     margin: 0;
 }
 
@@ -511,7 +514,7 @@
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.875rem;
     transition: all 0.2s ease;
     text-decoration: none;
@@ -526,6 +529,22 @@
     flex-shrink: 0;
     width: 18px;
     height: 18px;
+}
+
+/* Tree Decoration */
+.home-page .tree-decoration {
+    position: absolute;
+    bottom: -4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.home-page .tree-decoration :deep(svg),
+.home-page .tree-decoration :deep(canvas) {
+    max-width: 250px;
+    height: auto;
 }
 
 /* Apartment Types Section */
@@ -635,7 +654,7 @@
 .home-page .parking-section {
     margin-top: 2.5rem;
     padding: 3rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+    background: var(--color-bg-white);
     border-radius: 1.5rem;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
     text-align: center;
@@ -684,21 +703,21 @@
 
 .home-page .parking-image-wrapper {
     width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-    aspect-ratio: 16/9;
-    background: #ffffff;
+    aspect-ratio: 21/9;
+    background: #f1f3f5;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
 }
 
 .home-page .parking-badges {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
     display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: -1.5rem;
-    position: relative;
-    z-index: 2;
+    justify-content: space-between;
 }
 
 .home-page .parking-badge {
@@ -732,6 +751,67 @@
     opacity: 0.9;
 }
 
+/* Location Section */
+.home-page .location-section {
+    background: var(--color-bg-white);
+    padding: 5rem 0;
+}
+
+.home-page .location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.home-page .location-map {
+    position: relative;
+}
+
+.home-page .location-map-wrapper {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #f1f3f5;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.home-page .location-content {
+    max-width: 500px;
+}
+
+.home-page .location-label {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.home-page .location-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.home-page .location-text {
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.home-page .location-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .home-page .features .features-grid {
@@ -757,6 +837,21 @@
         gap: 2rem;
     }
 
+    .home-page .salesperson-content {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .home-page .tree-decoration {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
     .home-page .apartment-type-row {
         grid-template-columns: 1fr;
         gap: 2rem;
@@ -768,6 +863,15 @@
     }
 
     .home-page .apartment-type-image {
+        order: -1;
+    }
+
+    .home-page .location-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .home-page .location-map {
         order: -1;
     }
 }
@@ -819,6 +923,30 @@
     .home-page .apartment-type-buttons .btn {
         width: 100%;
         text-align: center;
+    }
+
+    .home-page .parking-badges {
+        flex-direction: column;
+        gap: 0.75rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .home-page .parking-badge {
+        padding: 0.625rem 1rem;
+        font-size: 0.8rem;
+        justify-content: center;
+    }
+
+    .home-page .parking-badge-icon {
+        width: 22px;
+        height: 22px;
+        font-size: 0.75rem;
+    }
+
+    .home-page .parking-image-wrapper {
+        aspect-ratio: 4/3;
     }
 }
 

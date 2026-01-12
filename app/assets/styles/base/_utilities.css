@@ -76,6 +76,7 @@
 .breadcrumbs {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--spacing-sm);
     padding: var(--spacing-md) 0;
     font-size: 0.875rem;

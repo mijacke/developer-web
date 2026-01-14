@@ -54,6 +54,11 @@
     color: var(--color-text-light);
 }
 
+.btn-rounded {
+    border-radius: 50px;
+    padding: 0.875rem 2rem;
+}
+
 /* Section */
 .section {
     padding: var(--spacing-3xl) 0;

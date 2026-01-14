@@ -13,6 +13,7 @@
 @import './components/_footer.css';
 @import './components/_page-hero.css';
 @import './components/_layout.css';
+@import './components/_amenities-grid.css';
 
 /* Page Styles */
 @import './pages/_home.css';

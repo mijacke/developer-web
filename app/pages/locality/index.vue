@@ -25,6 +25,9 @@
       </div>
     </section>
 
+    <!-- Amenities Grid Section -->
+    <SharedAmenitiesGrid />
+
     <!-- Locality Content -->
     <section class="locality-content section">
       <div class="container">

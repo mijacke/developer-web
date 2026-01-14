@@ -77,6 +77,25 @@
             <a href="#" class="attraction-link">Čítať viac</a>
           </div>
         </div>
+
+        <!-- Attraction 3: Text Left, Image Right -->
+        <div class="attraction-row">
+          <div class="attraction-content">
+            <span class="attraction-label">V okolí nájdete</span>
+            <h2 class="attraction-title">Lyžiarske stredisko Jasná</h2>
+            <p class="attraction-text">
+              Jasná – Chopok je najväčšie lyžiarske stredisko na Slovensku s výbornými 
+              podmienkami pre zimné športy a ponúka nekonečné možnosti aktivít, zábavy a 
+              aktívneho oddychu. Ponúka 50 km perfektne upravených zjazdoviek rôznych 
+              obtiažností, vhodných pre začiatočníkov, rodiny s deťmi, pokročilých lyžiarov a 
+              aj na usporiadanie pretekov svetovej úrovne.
+            </p>
+            <a href="#" class="attraction-link">Čítať viac</a>
+          </div>
+          <div class="attraction-image">
+            <div class="attraction-image-wrapper placeholder-image"></div>
+          </div>
+        </div>
       </div>
     </section>
 

@@ -14,6 +14,7 @@
 @import './components/_page-hero.css';
 @import './components/_layout.css';
 @import './components/_amenities-grid.css';
+@import './components/_cta-section.css';
 
 /* Page Styles */
 @import './pages/_home.css';

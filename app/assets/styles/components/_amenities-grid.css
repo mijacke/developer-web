@@ -1,0 +1,145 @@
+/* ================================
+   Shared Amenities Grid Component
+   ================================ */
+
+.amenities-section {
+    padding: 4rem 0;
+    background: var(--color-bg-white);
+}
+
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+}
+
+.amenity-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 1.75rem;
+    background: var(--color-bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-normal);
+}
+
+.amenity-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.amenity-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.amenity-icon img {
+    filter: brightness(0) invert(1);
+}
+
+/* Icon Color Variants */
+.amenity-icon--teal {
+    background: #2787BF;
+}
+
+.amenity-icon--green {
+    background: #3DB3AC;
+}
+
+.amenity-icon--orange {
+    background: #E1A22E;
+}
+
+.amenity-icon--brown {
+    background: #ABB16A;
+}
+
+.amenity-icon--red {
+    background: #CC629E;
+}
+
+.amenity-icon--lime {
+    background: #69BE4A;
+}
+
+.amenity-icon--emerald {
+    background: #14971A;
+}
+
+.amenity-icon--blue {
+    background: #276183;
+}
+
+.amenity-icon--cyan {
+    background: #B47E51;
+}
+
+.amenity-icon--purple {
+    background: #6C8327;
+}
+
+.amenity-icon--gold {
+    background: #7060CF;
+}
+
+.amenity-icon--salmon {
+    background: #C65944;
+}
+
+.amenity-label {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--color-text-dark);
+}
+
+/* Badge at bottom */
+.amenities-badge-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+}
+
+.amenities-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: #16a34a;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    border: 1px solid #16a34a;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.amenities-badge img {
+    flex-shrink: 0;
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(95%) contrast(85%);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .amenities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .amenities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .amenities-badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+    }
+}

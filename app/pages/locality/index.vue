@@ -56,6 +56,27 @@
             <div class="attraction-image-wrapper placeholder-image"></div>
           </div>
         </div>
+
+        <!-- Attraction 2: Image Left, Text Right -->
+        <div class="attraction-row attraction-row--reversed">
+          <div class="attraction-image">
+            <div class="attraction-image-wrapper placeholder-image"></div>
+          </div>
+          <div class="attraction-content">
+            <span class="attraction-label">V okolí nájdete</span>
+            <h2 class="attraction-title">Tatralandia</h2>
+            <p class="attraction-text">
+              Ponorte sa do termálnych aj slaných bazénov v prostredí s tropickou klímou, 
+              kde panuje príjemných 30°C, a zabudnite na chladné dni. Zažite kúpanie pod 
+              hviezdami, osviežujúce saunové rituály a špeciálne eventy plné energie. Deti 
+              sa zabavia na toboganoch a šmýkačkách, zatiaľ čo rodičia si oddýchnu v 
+              saunovom svete alebo doprajú telu relaxačné masáže a wellness procedúry. 
+              Tropická Tatralandia spája zábavu, relax a nezabudnuteľné zážitky pre 
+              všetkých
+            </p>
+            <a href="#" class="attraction-link">Čítať viac</a>
+          </div>
+        </div>
       </div>
     </section>
 

@@ -45,6 +45,116 @@
     overflow: hidden;
 }
 
+/* Google Maps Section */
+.locality-page .locality-map-section {
+    padding: 0;
+    background: var(--color-bg-white);
+}
+
+.locality-page .locality-map-placeholder {
+    width: 100%;
+    aspect-ratio: 21/6;
+    background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+    border-radius: var(--radius-lg);
+}
+
+/* Attractions Section */
+.locality-page .attractions-section {
+    background: var(--color-bg-white);
+    padding: 4rem 0;
+}
+
+.locality-page .attraction-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+
+.locality-page .attraction-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Reversed row: image first (left), content second (right) */
+.locality-page .attraction-row--reversed .attraction-content {
+    order: 2;
+}
+
+.locality-page .attraction-row--reversed .attraction-image {
+    order: 1;
+}
+
+.locality-page .attraction-content {
+    max-width: 500px;
+}
+
+.locality-page .attraction-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a7a9e;
+    margin-bottom: 0.5rem;
+}
+
+.locality-page .attraction-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin-bottom: 1.25rem;
+    line-height: 1.1;
+}
+
+.locality-page .attraction-text {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.locality-page .attraction-link {
+    display: inline-block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.2s ease;
+}
+
+.locality-page .attraction-link:hover {
+    color: var(--color-gold);
+}
+
+.locality-page .attraction-image {
+    position: relative;
+}
+
+.locality-page .attraction-image-wrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #e5e5e5 0%, #f5f5f5 100%);
+    box-shadow: var(--shadow-md);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .locality-page .attraction-row {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .locality-page .attraction-row--reversed .attraction-content,
+    .locality-page .attraction-row--reversed .attraction-image {
+        order: initial;
+    }
+
+    .locality-page .attraction-image {
+        order: -1;
+    }
+}
+
 /* Locality Intro */
 .locality-page .locality-intro {
     max-width: 700px;
@@ -62,12 +172,7 @@
     line-height: 1.7;
 }
 
-/* Amenities Grid */
-.locality-page .amenities-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
+/* Amenities Cards (old style with images) */
 
 .locality-page .amenity-card {
     background: var(--color-bg-white);

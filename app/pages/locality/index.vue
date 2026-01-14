@@ -28,6 +28,13 @@
     <!-- Amenities Grid Section -->
     <SharedAmenitiesGrid />
 
+    <!-- Google Maps Section -->
+    <section class="locality-map-section">
+      <div class="container">
+        <div class="locality-map-placeholder"></div>
+      </div>
+    </section>
+
     <!-- Locality Content -->
     <section class="locality-content section">
       <div class="container">

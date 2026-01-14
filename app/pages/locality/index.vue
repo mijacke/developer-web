@@ -35,6 +35,30 @@
       </div>
     </section>
 
+    <!-- Attractions Section -->
+    <section class="attractions-section section">
+      <div class="container">
+        <!-- Attraction 1: Text Left, Image Right -->
+        <div class="attraction-row">
+          <div class="attraction-content">
+            <span class="attraction-label">V okolí nájdete</span>
+            <h2 class="attraction-title">Liptovská mara</h2>
+            <p class="attraction-text">
+              Liptovská Mara je vodné dielo medzi Liptovským Mikulášom a Ružomberkom, 
+              ktoré sa nazýva aj „Liptovské more". Je súčasťou systému priehrad Vážskej 
+              kaskády. Celkovým objemom 360,5 mil. m3 je najväčšou vodnou nádržou na 
+              Slovensku. Hlavným účelom priehrady je protipovodňová ochrana, ale slúži aj 
+              na výrobu elektrickej energie..
+            </p>
+            <a href="#" class="attraction-link">Čítať viac</a>
+          </div>
+          <div class="attraction-image">
+            <div class="attraction-image-wrapper placeholder-image"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Locality Content -->
     <section class="locality-content section">
       <div class="container">

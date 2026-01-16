@@ -80,14 +80,20 @@
           </div>
         </div>
 
-        <!-- Surroundings Section -->
+        <!-- Construction Section -->
         <div class="gallery-section">
-          <h2 class="gallery-section-title">Okolie</h2>
+          <h2 class="gallery-section-title">Výstavba</h2>
           <p class="gallery-section-desc">
-            Okolité prostredie v Žiline a dostupné služby
+            Sledujte priebeh výstavby rezidencie
           </p>
           
           <div class="gallery-grid">
+            <div class="gallery-item">
+              <div class="gallery-image placeholder-image"></div>
+            </div>
+            <div class="gallery-item large">
+              <div class="gallery-image placeholder-image"></div>
+            </div>
             <div class="gallery-item">
               <div class="gallery-image placeholder-image"></div>
             </div>
@@ -104,5 +110,31 @@
         </div>
       </div>
     </section>
+
+    <!-- 3D Visualization Video Section -->
+    <section class="gallery-video-section section">
+      <div class="container">
+        <div class="video-header text-center">
+          <h2 class="video-title">3D Vizualizácia</h2>
+          <p class="video-description">
+            Virtuálna prehliadka rezidencie a jej okolia
+          </p>
+        </div>
+        <div class="video-wrapper">
+          <div class="video-container">
+            <div class="video-placeholder placeholder-image">
+              <div class="video-play-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <HomeCtaSection />
   </div>
 </template>

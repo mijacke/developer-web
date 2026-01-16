@@ -2,70 +2,132 @@
    About Project Page Styles
    ================================ */
 
-/* About Grid */
-.about-page .about-grid {
+/* About Intro Section */
+.about-page .about-intro {
+    padding: 5rem 0;
+}
+
+.about-page .about-intro-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+    gap: 4rem;
     align-items: center;
 }
 
-.about-page .about-text h2 {
-    margin-bottom: 1.5rem;
+.about-page .about-intro-title {
+    font-size: 2.5rem;
+    font-weight: 700;
     color: var(--color-primary-dark);
+    margin-bottom: 1.5rem;
 }
 
-.about-page .about-text p {
+.about-page .about-intro-lead {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.about-page .about-intro-text {
     color: var(--color-text-muted);
     line-height: 1.8;
+    margin-bottom: 2rem;
 }
 
-.about-page .about-image {
+.about-page .about-image-wrapper {
     aspect-ratio: 4/3;
     border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 
-/* Features List */
-.about-page .features-list {
+/* Ideal Place Section */
+.about-page .about-ideal {
+    padding: 5rem 0;
+}
+
+.about-page .about-ideal-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
 }
 
-.about-page .feature-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1.5rem;
+.about-page .about-ideal-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: 1.5rem;
+}
+
+.about-page .about-ideal-text {
+    color: var(--color-text-muted);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+/* Features Section - Card Style */
+.about-page .about-features {
+    padding: 5rem 0;
+}
+
+.about-page .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.about-page .feature-card {
     background: var(--color-bg-white);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    transition: all var(--transition-normal);
 }
 
-.about-page .feature-icon {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+.about-page .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.about-page .feature-card-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-gold);
+    background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 100%);
     border-radius: 50%;
     color: var(--color-primary-dark);
 }
 
-.about-page .feature-info h4 {
-    margin-bottom: 0.25rem;
-    font-size: 1rem;
+.about-page .feature-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-primary-dark);
+    margin-bottom: 0.75rem;
 }
 
-.about-page .feature-info p {
-    margin: 0;
-    font-size: 0.875rem;
+.about-page .feature-card-text {
     color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
 }
 
-/* Stats */
+/* Stats Section */
+.about-page .about-stats {
+    padding: 4rem 0;
+}
+
+.about-page .about-stats.bg-primary-dark {
+    background: var(--color-primary-dark);
+}
+
 .about-page .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -80,31 +142,68 @@
 }
 
 .about-page .stat-number {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 700;
     color: var(--color-gold);
 }
 
 .about-page .stat-label {
     font-size: 0.875rem;
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.8);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 /* Responsive */
+@media (max-width: 992px) {
+    .about-page .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
-    .about-page .about-grid {
+
+    .about-page .about-intro-grid,
+    .about-page .about-ideal-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
 
-    .about-page .features-list {
+    .about-page .about-ideal-grid {
+        /* Reverse order on mobile - image first */
+    }
+
+    .about-page .about-ideal-image {
+        order: -1;
+    }
+
+    .about-page .about-intro-title {
+        font-size: 2rem;
+    }
+
+    .about-page .about-ideal-title {
+        font-size: 1.75rem;
+    }
+
+    .about-page .features-grid {
         grid-template-columns: 1fr;
     }
 
     .about-page .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-page .stat-number {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .about-page .about-intro,
+    .about-page .about-ideal,
+    .about-page .about-features {
+        padding: 3rem 0;
     }
 
     .about-page .stat-number {

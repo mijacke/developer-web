@@ -13,3 +13,13 @@
     margin-top: 74px;
     /* Header height */
 }
+
+/* For pages with fullscreen hero - no margin needed */
+.main-content:has(.page-hero--fullscreen) {
+    margin-top: 0;
+}
+
+/* Fallback for browsers without :has() support */
+.main-content--no-margin {
+    margin-top: 0;
+}

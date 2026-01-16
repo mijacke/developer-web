@@ -4,21 +4,25 @@
 
 .page-hero {
     position: relative;
-    height: 300px;
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 .page-hero-bg {
     position: absolute;
     inset: 0;
+    background-size: cover;
+    background-position: center;
 }
 
 .page-hero-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(26, 39, 68, 0.7);
+    background: linear-gradient(180deg, rgba(26, 39, 68, 0.6) 0%, rgba(26, 39, 68, 0.85) 100%);
 }
 
 .page-hero-content {
@@ -27,26 +31,83 @@
     text-align: center;
     color: var(--color-text-light);
     padding: 0 var(--container-padding);
+    max-width: 800px;
 }
 
 .page-title {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
     color: var(--color-text-light);
 }
 
 .page-subtitle {
-    font-size: 1.125rem;
+    font-size: 1.375rem;
     opacity: 0.9;
     margin: 0;
+    line-height: 1.6;
+}
+
+/* Optional: CTA Button in Hero */
+.page-hero .btn-hero {
+    margin-top: 2rem;
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    color: var(--color-text-light);
+    transition: all var(--transition-normal);
+}
+
+.page-hero .btn-hero:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+}
+
+/* Breadcrumbs inside hero */
+.breadcrumbs--hero {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.breadcrumbs--hero a {
+    color: var(--color-gold);
+}
+
+.breadcrumbs--hero a:hover {
+    color: var(--color-gold-light);
+}
+
+.breadcrumbs--hero .breadcrumbs-separator {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 @media (max-width: 768px) {
     .page-hero {
-        height: 200px;
+        height: 100vh;
+        height: 100dvh;
     }
 
     .page-title {
-        font-size: 2rem;
+        font-size: 2.25rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-hero {
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
     }
 }

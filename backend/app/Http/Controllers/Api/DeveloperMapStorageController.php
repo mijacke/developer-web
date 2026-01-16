@@ -3,22 +3,66 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\DeveloperMapSetting;
+use App\Models\DmStatus;
+use App\Models\DmType;
+use App\Models\DmSetting;
+use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
  * Storage controller for Developer Map dashboard.
- * Stores all data in database (developer_map_settings table).
+ * Uses structured database tables.
  */
 class DeveloperMapStorageController extends Controller
 {
     /**
-     * List all stored keys
+     * List all stored data for dm.js
      */
     public function list(): JsonResponse
     {
-        return response()->json(DeveloperMapSetting::getAllAsArray());
+        return response()->json([
+            'dm-projects' => Project::with('localities')->get()->map(function ($p) {
+                return [
+                    'id' => 'project-' . $p->id,
+                    'name' => $p->name,
+                    'type' => $p->type,
+                    'badge' => strtoupper(substr($p->name, 0, 2)),
+                    'publicKey' => $p->public_key,
+                    'image' => $p->image_url,
+                    'imageUrl' => $p->image_url,
+                    'floors' => $p->localities->map(function ($l) {
+                        return [
+                            'id' => 'floor-' . $l->id,
+                            'name' => $l->name,
+                            'label' => $l->name,
+                            'type' => $l->type,
+                            'status' => $l->status,
+                            'statusLabel' => $l->status,
+                            'area' => $l->area,
+                            'price' => $l->price,
+                            'image' => $l->image_url,
+                            'imageUrl' => $l->image_url,
+                        ];
+                    })->toArray(),
+                ];
+            })->toArray(),
+            'dm-statuses' => DmStatus::orderBy('sort_order')->get()->map(fn($s) => [
+                'id' => 'status-' . $s->id,
+                'name' => $s->name,
+                'label' => $s->label,
+                'color' => $s->color,
+                'isDefault' => $s->is_default,
+            ])->toArray(),
+            'dm-types' => DmType::orderBy('sort_order')->get()->map(fn($t) => [
+                'id' => 'type-' . $t->id,
+                'name' => $t->name,
+                'label' => $t->label,
+                'color' => $t->color,
+            ])->toArray(),
+            'dm-frontend-accent-color' => DmSetting::getValue('accent_color', '#6366F1'),
+            'dm-selected-font' => ['id' => DmSetting::getValue('font_family', 'Inter')],
+        ]);
     }
 
     /**
@@ -32,7 +76,8 @@ class DeveloperMapStorageController extends Controller
             return response()->json(['message' => 'Key is required'], 400);
         }
 
-        $value = DeveloperMapSetting::getValue($key);
+        $data = $this->list()->getData(true);
+        $value = $data[$key] ?? null;
 
         return response()->json([
             'key' => $key,
@@ -41,7 +86,7 @@ class DeveloperMapStorageController extends Controller
     }
 
     /**
-     * Set a value
+     * Set a value - routes to appropriate model
      */
     public function set(Request $request): JsonResponse
     {
@@ -50,26 +95,22 @@ class DeveloperMapStorageController extends Controller
             'value' => 'nullable',
         ]);
 
-        DeveloperMapSetting::setValue($validated['key'], $validated['value']);
+        $key = $validated['key'];
+        $value = $validated['value'];
 
-        return response()->json([
-            'success' => true,
-            'key' => $validated['key'],
-        ]);
-    }
-
-    /**
-     * Remove a value
-     */
-    public function remove(Request $request): JsonResponse
-    {
-        $key = $request->input('key');
-        
-        if (!$key) {
-            return response()->json(['message' => 'Key is required'], 400);
+        // Route to appropriate handler based on key
+        if ($key === 'dm-frontend-accent-color') {
+            DmSetting::setValue('accent_color', $value);
+        } elseif ($key === 'dm-selected-font') {
+            $fontId = is_array($value) ? ($value['id'] ?? 'Inter') : $value;
+            DmSetting::setValue('font_family', $fontId);
+        } elseif ($key === 'dm-projects' && is_array($value)) {
+            $this->syncProjects($value);
+        } elseif ($key === 'dm-statuses' && is_array($value)) {
+            $this->syncStatuses($value);
+        } elseif ($key === 'dm-types' && is_array($value)) {
+            $this->syncTypes($value);
         }
-
-        DeveloperMapSetting::removeValue($key);
 
         return response()->json([
             'success' => true,
@@ -78,36 +119,25 @@ class DeveloperMapStorageController extends Controller
     }
 
     /**
-     * Migrate data from payload
+     * Remove a value
+     */
+    public function remove(Request $request): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Use specific delete endpoints instead',
+        ]);
+    }
+
+    /**
+     * Migrate data (not needed with structured tables)
      */
     public function migrate(Request $request): JsonResponse
     {
-        $payload = $request->input('payload', []);
-        $migrated = [];
-        $skipped = [];
-
-        if (!is_array($payload)) {
-            return response()->json([
-                'migrated' => $migrated,
-                'skipped' => $skipped,
-            ]);
-        }
-
-        foreach ($payload as $key => $value) {
-            // Skip if already exists
-            $existing = DeveloperMapSetting::where('key', $key)->first();
-            if ($existing) {
-                $skipped[$key] = 'already exists';
-                continue;
-            }
-
-            DeveloperMapSetting::setValue($key, $value);
-            $migrated[$key] = true;
-        }
-
         return response()->json([
-            'migrated' => $migrated,
-            'skipped' => $skipped,
+            'migrated' => [],
+            'skipped' => [],
+            'message' => 'Migration not needed - using structured tables',
         ]);
     }
 
@@ -122,26 +152,18 @@ class DeveloperMapStorageController extends Controller
             'attachment_id' => 'required',
         ]);
 
-        $imagesKey = 'dm-images';
-        $images = DeveloperMapSetting::getValue($imagesKey, []);
-        
-        if (!is_array($images)) {
-            $images = [];
-        }
-        
-        $images[$validated['entity_id']] = [
-            'id' => $validated['attachment_id'],
-            'url' => $validated['attachment_id'],
-            'alt' => '',
-            'entity_id' => $validated['entity_id'],
-            'key' => $validated['key'],
-        ];
+        // Parse entity ID and update appropriate model
+        $entityId = $validated['entity_id'];
+        $imageUrl = $validated['attachment_id'];
 
-        DeveloperMapSetting::setValue($imagesKey, $images);
+        if (str_starts_with($entityId, 'project-')) {
+            $id = (int) str_replace('project-', '', $entityId);
+            Project::where('id', $id)->update(['image_url' => $imageUrl]);
+        }
 
         return response()->json([
             'success' => true,
-            'image' => $images[$validated['entity_id']],
+            'entity_id' => $entityId,
         ]);
     }
 
@@ -150,16 +172,78 @@ class DeveloperMapStorageController extends Controller
      */
     public function bootstrap(): JsonResponse
     {
-        $keys = ['dm-projects', 'dm-colors', 'dm-types', 'dm-statuses', 'dm-images', 'dm-fonts', 'dm-selected-font', 'dm-frontend-accent-color'];
-        $data = [];
+        return $this->list();
+    }
 
-        foreach ($keys as $key) {
-            $value = DeveloperMapSetting::getValue($key);
-            if ($value !== null) {
-                $data[$key] = $value;
+    /**
+     * Sync projects from dm.js data
+     */
+    private function syncProjects(array $projects): void
+    {
+        foreach ($projects as $projectData) {
+            $projectId = str_replace('project-', '', $projectData['id'] ?? '');
+            
+            if (is_numeric($projectId)) {
+                Project::where('id', $projectId)->update([
+                    'name' => $projectData['name'] ?? '',
+                    'type' => $projectData['type'] ?? 'residential',
+                    'image_url' => $projectData['imageUrl'] ?? $projectData['image'] ?? null,
+                ]);
+            } else {
+                Project::create([
+                    'name' => $projectData['name'] ?? 'Nový projekt',
+                    'type' => $projectData['type'] ?? 'residential',
+                    'public_key' => $projectData['publicKey'] ?? uniqid('pk_'),
+                    'image_url' => $projectData['imageUrl'] ?? $projectData['image'] ?? null,
+                ]);
             }
         }
+    }
 
-        return response()->json($data);
+    /**
+     * Sync statuses from dm.js data
+     */
+    private function syncStatuses(array $statuses): void
+    {
+        foreach ($statuses as $index => $statusData) {
+            $statusId = str_replace('status-', '', $statusData['id'] ?? '');
+            
+            $data = [
+                'name' => $statusData['name'] ?? '',
+                'label' => $statusData['label'] ?? '',
+                'color' => $statusData['color'] ?? '#6B7280',
+                'is_default' => $statusData['isDefault'] ?? false,
+                'sort_order' => $index + 1,
+            ];
+
+            if (is_numeric($statusId)) {
+                DmStatus::where('id', $statusId)->update($data);
+            } else {
+                DmStatus::create($data);
+            }
+        }
+    }
+
+    /**
+     * Sync types from dm.js data
+     */
+    private function syncTypes(array $types): void
+    {
+        foreach ($types as $index => $typeData) {
+            $typeId = str_replace('type-', '', $typeData['id'] ?? '');
+            
+            $data = [
+                'name' => $typeData['name'] ?? '',
+                'label' => $typeData['label'] ?? '',
+                'color' => $typeData['color'] ?? '#405ECD',
+                'sort_order' => $index + 1,
+            ];
+
+            if (is_numeric($typeId)) {
+                DmType::where('id', $typeId)->update($data);
+            } else {
+                DmType::create($data);
+            }
+        }
     }
 }

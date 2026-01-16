@@ -1,253 +1,81 @@
 <template>
-  <div class="admin-page">
-    <section class="section">
-      <div class="container">
-        <!-- Header -->
-        <div class="admin-header">
-          <h1>Správa bytov</h1>
-          <button class="btn btn-primary" @click="openCreateModal">
-            + Pridať byt
-          </button>
-        </div>
-
-        <!-- Alert Messages -->
-        <div v-if="message" class="alert" :class="messageType === 'success' ? 'alert-success' : 'alert-error'">
-          {{ message }}
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="loading" class="loading">Načítavam...</div>
-
-        <!-- Apartments Table -->
-        <table v-else class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Názov</th>
-              <th>Dispozícia</th>
-              <th>Plocha (m²)</th>
-              <th>Podlažie</th>
-              <th>Cena (€)</th>
-              <th>Stav</th>
-              <th>Akcie</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="apt in apartments" :key="apt.id">
-              <td data-label="ID">{{ apt.id }}</td>
-              <td data-label="Názov">{{ apt.name }}</td>
-              <td data-label="Dispozícia">{{ apt.layout }}</td>
-              <td data-label="Plocha (m²)">{{ apt.area }}</td>
-              <td data-label="Podlažie">{{ apt.floor }}. NP</td>
-              <td data-label="Cena (€)">{{ Number(apt.price).toLocaleString() }}</td>
-              <td data-label="Stav">
-                <span class="status-badge" :class="apt.status">
-                  {{ statusLabels[apt.status] }}
-                </span>
-              </td>
-              <td class="actions">
-                <button class="btn btn-outline-dark btn-sm" @click="openEditModal(apt)">
-                  Upraviť
-                </button>
-                <button class="btn btn-danger btn-sm" @click="deleteApartment(apt.id)">
-                  Zmazať
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Create/Edit Modal -->
-        <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-          <div class="modal">
-            <h2>{{ isEditing ? 'Upraviť byt' : 'Pridať nový byt' }}</h2>
-            
-            <form @submit.prevent="saveApartment">
-              <div class="form-group">
-                <label>Názov bytu</label>
-                <input v-model="form.name" type="text" placeholder="napr. Byt A-101" required>
-              </div>
-
-              <div class="form-group">
-                <label>Dispozícia</label>
-                <select v-model="form.layout" required>
-                  <option value="">Vyberte dispozíciu</option>
-                  <option value="1-izbový">1-izbový</option>
-                  <option value="2-izbový">2-izbový</option>
-                  <option value="3-izbový">3-izbový</option>
-                  <option value="4-izbový">4-izbový</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label>Plocha (m²)</label>
-                <input v-model.number="form.area" type="number" step="0.01" min="10" max="500" required>
-              </div>
-
-              <div class="form-group">
-                <label>Podlažie</label>
-                <input v-model.number="form.floor" type="number" min="1" max="20" required>
-              </div>
-
-              <div class="form-group">
-                <label>Cena (€)</label>
-                <input v-model.number="form.price" type="number" min="1000" required>
-              </div>
-
-              <div class="form-group">
-                <label>Stav</label>
-                <select v-model="form.status" required>
-                  <option value="available">Voľný</option>
-                  <option value="reserved">Rezervovaný</option>
-                  <option value="sold">Predaný</option>
-                </select>
-              </div>
-
-              <div class="modal-actions">
-                <button type="button" class="btn btn-outline-dark" @click="closeModal">
-                  Zrušiť
-                </button>
-                <button type="submit" class="btn btn-primary">
-                  {{ isEditing ? 'Uložiť' : 'Vytvoriť' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
+  <div class="dm-admin-wrap">
+    <div id="dm-root" data-dm-app="developer-map" ref="dmRoot"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * Developer Map Admin Page
+ * Integrates original dm.js and dm.css from lib/developer-map-v2
+ */
+
 const config = useRuntimeConfig()
-const API_URL = config.public.apiUrl
+const dmRoot = ref<HTMLElement | null>(null)
 
-interface Apartment {
-  id: number
-  name: string
-  layout: string
-  area: number
-  floor: number
-  price: number
-  status: 'available' | 'reserved' | 'sold'
+// Runtime config for dm.js - compatible with original storage-client
+const dmRuntimeConfig = {
+  restBase: `${config.public.apiUrl}/developer-map/`,
+  restNonce: '', // Not needed for Laravel
+  ver: Date.now(),
 }
 
-const apartments = ref<Apartment[]>([])
-const loading = ref(true)
-const showModal = ref(false)
-const isEditing = ref(false)
-const editingId = ref<number | null>(null)
-const message = ref('')
-const messageType = ref<'success' | 'error'>('success')
+onMounted(async () => {
+  // Inject runtime config before loading dm.js
+  if (typeof window !== 'undefined') {
+    (window as any).dmRuntimeConfig = dmRuntimeConfig
+    
+    // Load bootstrap data
+    try {
+      const response = await fetch(`${config.public.apiUrl}/developer-map/bootstrap`)
+      const bootstrapData = await response.json()
+      ;(window as any).dmRegionBootstrap = bootstrapData
+    } catch (e) {
+      console.warn('[DM] Failed to load bootstrap data', e)
+      ;(window as any).dmRegionBootstrap = {}
+    }
+  }
 
-const statusLabels: Record<string, string> = {
-  available: 'Voľný',
-  reserved: 'Rezervovaný',
-  sold: 'Predaný'
-}
-
-const form = ref({
-  name: '',
-  layout: '',
-  area: 0,
-  floor: 1,
-  price: 0,
-  status: 'available'
+  // Dynamically load dm.js
+  await loadDeveloperMapScript()
 })
 
-// Fetch all apartments
-const fetchApartments = async () => {
-  loading.value = true
-  try {
-    const response = await fetch(`${API_URL}/apartments`)
-    apartments.value = await response.json()
-  } catch (error) {
-    showMessage('Chyba pri načítaní bytov', 'error')
-  } finally {
-    loading.value = false
-  }
+async function loadDeveloperMapScript() {
+  // dm.js will find #dm-root[data-dm-app="developer-map"] and initialize itself
+  const script = document.createElement('script')
+  script.type = 'module'
+  script.src = '/lib/developer-map-v2/assets/js/dm.js?ver=' + Date.now()
+  document.body.appendChild(script)
 }
 
-// Save apartment (create or update)
-const saveApartment = async () => {
-  try {
-    const url = isEditing.value 
-      ? `${API_URL}/apartments/${editingId.value}`
-      : `${API_URL}/apartments`
-    
-    const response = await fetch(url, {
-      method: isEditing.value ? 'PUT' : 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(form.value)
-    })
-
-    const data = await response.json()
-    
-    if (!response.ok) {
-      // Server validation errors
-      const errors = Object.values(data.errors || {}).flat().join(', ')
-      showMessage(errors || 'Chyba pri ukladaní', 'error')
-      return
+// Load CSS in head
+useHead({
+  link: [
+    {
+      rel: 'stylesheet',
+      href: '/lib/developer-map-v2/assets/css/dm.css'
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Playfair+Display:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap'
     }
-
-    showMessage(data.message, 'success')
-    closeModal()
-    fetchApartments()
-  } catch (error) {
-    showMessage('Chyba pri ukladaní bytu', 'error')
-  }
-}
-
-// Delete apartment
-const deleteApartment = async (id: number) => {
-  if (!confirm('Naozaj chcete zmazať tento byt?')) return
-
-  try {
-    const response = await fetch(`${API_URL}/apartments/${id}`, {
-      method: 'DELETE',
-      headers: { 'Accept': 'application/json' }
-    })
-
-    const data = await response.json()
-    showMessage(data.message, 'success')
-    fetchApartments()
-  } catch (error) {
-    showMessage('Chyba pri mazaní bytu', 'error')
-  }
-}
-
-// Modal handlers
-const openCreateModal = () => {
-  isEditing.value = false
-  editingId.value = null
-  form.value = { name: '', layout: '', area: 0, floor: 1, price: 0, status: 'available' }
-  showModal.value = true
-}
-
-const openEditModal = (apt: Apartment) => {
-  isEditing.value = true
-  editingId.value = apt.id
-  form.value = { ...apt }
-  showModal.value = true
-}
-
-const closeModal = () => {
-  showModal.value = false
-}
-
-// Message helper
-const showMessage = (msg: string, type: 'success' | 'error') => {
-  message.value = msg
-  messageType.value = type
-  setTimeout(() => { message.value = '' }, 5000)
-}
-
-// Initialize
-onMounted(() => {
-  fetchApartments()
+  ]
 })
 </script>
+
+<style>
+/* Ensure proper sizing for dm-root */
+.dm-admin-wrap {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+#dm-root {
+  min-height: 100vh;
+}
+
+/* Override any conflicting styles from main app */
+#dm-root.dm-root {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+</style>

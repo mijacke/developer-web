@@ -2,14 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ApartmentController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\LocalityController;
 use App\Http\Controllers\Api\DeveloperMapStorageController;
-
-// Apartments CRUD API
-Route::apiResource('apartments', ApartmentController::class);
 
 // Contact form API
 Route::post('/contact', [ContactController::class, 'store']);

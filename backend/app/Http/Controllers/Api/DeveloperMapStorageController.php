@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DmColor;
 use App\Models\DmStatus;
 use App\Models\DmType;
 use App\Models\DmSetting;
@@ -60,6 +61,12 @@ class DeveloperMapStorageController extends Controller
                 'label' => $t->label,
                 'color' => $t->color,
             ])->toArray(),
+            'dm-colors' => DmColor::orderBy('sort_order')->get()->map(fn($c) => [
+                'id' => 'color-' . $c->id,
+                'name' => $c->name,
+                'label' => $c->label,
+                'value' => $c->value,
+            ])->toArray(),
             'dm-frontend-accent-color' => DmSetting::getValue('accent_color', '#6366F1'),
             'dm-selected-font' => ['id' => DmSetting::getValue('font_family', 'Inter')],
         ]);
@@ -110,6 +117,8 @@ class DeveloperMapStorageController extends Controller
             $this->syncStatuses($value);
         } elseif ($key === 'dm-types' && is_array($value)) {
             $this->syncTypes($value);
+        } elseif ($key === 'dm-colors' && is_array($value)) {
+            $this->syncColors($value);
         }
 
         return response()->json([
@@ -243,6 +252,29 @@ class DeveloperMapStorageController extends Controller
                 DmType::where('id', $typeId)->update($data);
             } else {
                 DmType::create($data);
+            }
+        }
+    }
+
+    /**
+     * Sync colors from dm.js data
+     */
+    private function syncColors(array $colors): void
+    {
+        foreach ($colors as $index => $colorData) {
+            $colorId = str_replace('color-', '', $colorData['id'] ?? '');
+            
+            $data = [
+                'name' => $colorData['name'] ?? '',
+                'label' => $colorData['label'] ?? '',
+                'value' => $colorData['value'] ?? '#FFFFFF',
+                'sort_order' => $index + 1,
+            ];
+
+            if (is_numeric($colorId)) {
+                DmColor::where('id', $colorId)->update($data);
+            } else {
+                DmColor::create($data);
             }
         }
     }

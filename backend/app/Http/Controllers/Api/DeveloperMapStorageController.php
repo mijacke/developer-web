@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\DmColor;
+use App\Models\DmMapColor;
+use App\Models\DmFrontendColor;
+use App\Models\DmFont;
 use App\Models\DmStatus;
 use App\Models\DmType;
-use App\Models\DmSetting;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -61,14 +62,23 @@ class DeveloperMapStorageController extends Controller
                 'label' => $t->label,
                 'color' => $t->color,
             ])->toArray(),
-            'dm-colors' => DmColor::orderBy('sort_order')->get()->map(fn($c) => [
+            'dm-colors' => DmMapColor::orderBy('sort_order')->get()->map(fn($c) => [
                 'id' => 'color-' . $c->id,
                 'name' => $c->name,
                 'label' => $c->label,
                 'value' => $c->value,
             ])->toArray(),
-            'dm-frontend-accent-color' => DmSetting::getValue('accent_color', '#6366F1'),
-            'dm-selected-font' => ['id' => DmSetting::getValue('font_family', 'Inter')],
+            'dm-fonts' => DmFont::getAll(),
+            'dm-selected-font' => ['id' => DmFont::getSelected()],
+            'dm-frontend-colors' => DmFrontendColor::orderBy('sort_order')->get()->map(fn($c) => [
+                'id' => 'frontend-color-' . $c->id,
+                'name' => $c->name,
+                'label' => $c->label,
+                'value' => $c->value,
+                'isDefault' => $c->is_default,
+                'isCustom' => $c->is_custom,
+            ])->toArray(),
+            'dm-frontend-accent-color' => DmFrontendColor::getSelected()?->value ?? '#6366F1',
         ]);
     }
 
@@ -107,10 +117,16 @@ class DeveloperMapStorageController extends Controller
 
         // Route to appropriate handler based on key
         if ($key === 'dm-frontend-accent-color') {
-            DmSetting::setValue('accent_color', $value);
+            // Frontend sends specific color value or ID update request
+            // For now assume we just need to read it back, but if we need to set specific color
+            // Logic: reset all defaults, set specific one as default
+            // If it's a value (hex), update "Vlastná" or find matching
+             if (is_string($value)) {
+                $this->updateFrontendAccentColor($value);
+             }
         } elseif ($key === 'dm-selected-font') {
             $fontId = is_array($value) ? ($value['id'] ?? 'Inter') : $value;
-            DmSetting::setValue('font_family', $fontId);
+            DmFont::setSelected($fontId);
         } elseif ($key === 'dm-projects' && is_array($value)) {
             $this->syncProjects($value);
         } elseif ($key === 'dm-statuses' && is_array($value)) {
@@ -118,7 +134,7 @@ class DeveloperMapStorageController extends Controller
         } elseif ($key === 'dm-types' && is_array($value)) {
             $this->syncTypes($value);
         } elseif ($key === 'dm-colors' && is_array($value)) {
-            $this->syncColors($value);
+            $this->syncMapColors($value);
         }
 
         return response()->json([
@@ -257,9 +273,9 @@ class DeveloperMapStorageController extends Controller
     }
 
     /**
-     * Sync colors from dm.js data
+     * Sync map colors from dm.js data
      */
-    private function syncColors(array $colors): void
+    private function syncMapColors(array $colors): void
     {
         foreach ($colors as $index => $colorData) {
             $colorId = str_replace('color-', '', $colorData['id'] ?? '');
@@ -272,10 +288,32 @@ class DeveloperMapStorageController extends Controller
             ];
 
             if (is_numeric($colorId)) {
-                DmColor::where('id', $colorId)->update($data);
+                DmMapColor::where('id', $colorId)->update($data);
             } else {
-                DmColor::create($data);
+                DmMapColor::create($data);
             }
+        }
+    }
+
+    /**
+     * Update frontend accent color selection
+     */
+    private function updateFrontendAccentColor(string $colorValue): void
+    {
+        // First reset all defaults
+        DmFrontendColor::query()->update(['is_default' => false]);
+
+        // Try to find exact match
+        $match = DmFrontendColor::where('value', $colorValue)->where('is_custom', false)->first();
+        
+        if ($match) {
+            $match->update(['is_default' => true]);
+        } else {
+            // Must be custom
+            DmFrontendColor::where('is_custom', true)->update([
+                'value' => $colorValue,
+                'is_default' => true
+            ]);
         }
     }
 }

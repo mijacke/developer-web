@@ -19,11 +19,11 @@ return new class extends Migration
 
         // Seed default types
         \DB::table('dm_types')->insert([
-            ['name' => 'apartment', 'label' => 'Byt', 'color' => '#405ECD', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'house', 'label' => 'Dom', 'color' => '#10B981', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'garage', 'label' => 'Garáž', 'color' => '#6366F1', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'parking', 'label' => 'Parkovanie', 'color' => '#8B5CF6', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'commercial', 'label' => 'Komercia', 'color' => '#EC4899', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Bytovka', 'label' => 'Bytovka', 'color' => '#405ECD', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Dom', 'label' => 'Dom', 'color' => '#9333EA', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Pozemok', 'label' => 'Pozemok', 'color' => '#14B8A6', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Parkovanie', 'label' => 'Parkovanie', 'color' => '#8B5CF6', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Komercia', 'label' => 'Komercia', 'color' => '#EC4899', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

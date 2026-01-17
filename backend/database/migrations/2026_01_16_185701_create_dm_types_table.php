@@ -23,7 +23,6 @@ return new class extends Migration
             ['name' => 'Dom', 'label' => 'Dom', 'color' => '#9333EA', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Pozemok', 'label' => 'Pozemok', 'color' => '#14B8A6', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Parkovanie', 'label' => 'Parkovanie', 'color' => '#8B5CF6', 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Komercia', 'label' => 'Komercia', 'color' => '#EC4899', 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 

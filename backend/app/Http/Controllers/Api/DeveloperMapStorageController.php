@@ -316,4 +316,45 @@ class DeveloperMapStorageController extends Controller
             ]);
         }
     }
+
+    /**
+     * Delete a type by ID
+     */
+    public function deleteType(string $id): JsonResponse
+    {
+        // Handle both "type-5" format and plain "5"
+        $typeId = str_replace('type-', '', $id);
+        
+        if (!is_numeric($typeId)) {
+            return response()->json(['success' => false, 'message' => 'Invalid type ID'], 400);
+        }
+
+        $deleted = DmType::where('id', $typeId)->delete();
+
+        return response()->json([
+            'success' => $deleted > 0,
+            'deleted_id' => $typeId,
+        ]);
+    }
+
+    /**
+     * Delete a status by ID
+     */
+    public function deleteStatus(string $id): JsonResponse
+    {
+        // Handle both "status-5" format and plain "5"
+        $statusId = str_replace('status-', '', $id);
+        
+        if (!is_numeric($statusId)) {
+            return response()->json(['success' => false, 'message' => 'Invalid status ID'], 400);
+        }
+
+        $deleted = DmStatus::where('id', $statusId)->delete();
+
+        return response()->json([
+            'success' => $deleted > 0,
+            'deleted_id' => $statusId,
+        ]);
+    }
 }
+

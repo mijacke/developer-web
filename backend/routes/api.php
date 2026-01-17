@@ -33,6 +33,10 @@ Route::prefix('developer-map')->group(function () {
     Route::post('migrate', [DeveloperMapStorageController::class, 'migrate']);
     Route::post('image', [DeveloperMapStorageController::class, 'saveImage']);
     Route::get('bootstrap', [DeveloperMapStorageController::class, 'bootstrap']);
+    
+    // Delete endpoints for types and statuses
+    Route::delete('types/{id}', [DeveloperMapStorageController::class, 'deleteType']);
+    Route::delete('statuses/{id}', [DeveloperMapStorageController::class, 'deleteStatus']);
 });
 
 // User route (default)

@@ -740,6 +740,17 @@ export async function initDeveloperMap(options) {
         if (previousSerial === nextSerial || !persist) {
             return;
         }
+
+        // USER REQUEST: removed database sync for fonts
+        // We only save to localStorage for local persistence
+        if (hasPayload && payload.selected) {
+            try {
+                localStorage.setItem('dm-local-selected-font', JSON.stringify(payload.selected));
+            } catch (e) { console.warn('Failed to save font to localStorage', e); }
+        }
+
+        /* 
+        // Backend sync disabled
         if (hasPayload) {
             persistValue('dm-fonts', payload);
             if (payload.selected) {
@@ -751,6 +762,7 @@ export async function initDeveloperMap(options) {
             removePersistedValue('dm-fonts');
             removePersistedValue('dm-selected-font');
         }
+        */
     }
 
     function setAvailableFonts(fonts, { persist = true } = {}) {
@@ -818,7 +830,7 @@ export async function initDeveloperMap(options) {
     }
 
     // Save selected font via storage client
-    function saveSelectedFont(fontData) {
+    function saveSelectedFont(fontData, { persist = true } = {}) {
         if (!Array.isArray(data.availableFonts) || data.availableFonts.length === 0) {
             setAvailableFonts(getAvailableFonts(), { persist: false });
         }
@@ -833,7 +845,7 @@ export async function initDeveloperMap(options) {
         if (!Array.isArray(storageCache.availableFonts)) {
             storageCache.availableFonts = cloneForStorage(fonts);
         }
-        persistFontBundle();
+        persistFontBundle({ persist });
     }
 
     // Convert status label to CSS class name
@@ -954,9 +966,31 @@ export async function initDeveloperMap(options) {
 
     // Save frontend accent color via REST API
     function saveFrontendAccentColor(color) {
-        const normalizedColor = typeof color === 'string' && color.match(/^#[0-9a-fA-F]{6}$/) ? color : '#4d38ff';
+        const normalizedColor = typeof color === 'string' && color.match(/^#[0-9a-fA-F]{6}$/) ? color : '#6366F1';
         storageCache.frontendAccentColor = normalizedColor;
         data.frontendAccentColor = normalizedColor;
+
+        // Update isActive flags locally for immediate UI feedback
+        if (Array.isArray(data.frontendColors)) {
+            // Check if the color matches any preset
+            const presetMatch = data.frontendColors.find(c => c.name !== 'Vlastná' && c.value === normalizedColor);
+
+            if (presetMatch) {
+                // Preset color selected - just update isActive flags, preserve Vlastná value
+                data.frontendColors = data.frontendColors.map(c => ({
+                    ...c,
+                    isActive: c.value === normalizedColor && c.name !== 'Vlastná'
+                }));
+            } else {
+                // Custom color - update Vlastná value and set as active
+                data.frontendColors = data.frontendColors.map(c =>
+                    c.name === 'Vlastná'
+                        ? { ...c, value: normalizedColor, isActive: true }
+                        : { ...c, isActive: false }
+                );
+            }
+        }
+
         persistValue('dm-frontend-accent-color', normalizedColor);
     }
 
@@ -988,21 +1022,37 @@ export async function initDeveloperMap(options) {
                 }
 
                 let fontsHydrated = false;
-                if (dataset['dm-fonts'] && typeof dataset['dm-fonts'] === 'object') {
+                if (dataset['dm-fonts']) {
                     const fontPayload = dataset['dm-fonts'];
-                    if (Array.isArray(fontPayload.available)) {
-                        const normalised = normaliseAvailableFonts(fontPayload.available);
-                        storageCache.availableFonts = cloneForStorage(normalised);
+                    // API can return either an array directly or an object with .available
+                    const fontsArray = Array.isArray(fontPayload) ? fontPayload : fontPayload.available;
+
+                    if (Array.isArray(fontsArray) && fontsArray.length > 0) {
+                        const normalised = normaliseAvailableFonts(fontsArray);
+                        storageCache.availableFonts = cloneForStorage(fontsArray); // Keep original with isActive
+
+                        // Find and set the active font based on isActive flag
+                        const activeFont = fontsArray.find(f => f.isActive === true || f.isActive === 1);
+                        if (activeFont) {
+                            const selected = normaliseSelectedFont({ id: activeFont.id }, normalised);
+                            if (selected) {
+                                storageCache.selectedFont = cloneForStorage(selected);
+                            }
+                        }
+                        fontsHydrated = true;
                     }
-                    const fontsForSelection = Array.isArray(storageCache.availableFonts)
-                        ? cloneForStorage(storageCache.availableFonts)
-                        : normaliseAvailableFonts(getAvailableFonts());
-                    if (fontPayload.selected && typeof fontPayload.selected === 'object') {
+
+                    // Also check for explicit selected font in payload (object format)
+                    if (!Array.isArray(fontPayload) && fontPayload.selected && typeof fontPayload.selected === 'object') {
+                        const fontsForSelection = Array.isArray(storageCache.availableFonts)
+                            ? cloneForStorage(storageCache.availableFonts)
+                            : normaliseAvailableFonts(getAvailableFonts());
                         const selected = normaliseSelectedFont(fontPayload.selected, fontsForSelection);
                         if (selected) {
                             storageCache.selectedFont = cloneForStorage(selected);
                         }
                     }
+
                     const bundle = {};
                     if (Array.isArray(storageCache.availableFonts)) {
                         bundle.available = cloneForStorage(storageCache.availableFonts);
@@ -1011,7 +1061,6 @@ export async function initDeveloperMap(options) {
                         bundle.selected = cloneForStorage(storageCache.selectedFont);
                     }
                     storageCache.fontBundle = Object.keys(bundle).length ? bundle : null;
-                    fontsHydrated = true;
                 }
 
                 if (!fontsHydrated && dataset['dm-selected-font'] && typeof dataset['dm-selected-font'] === 'object') {
@@ -1028,6 +1077,11 @@ export async function initDeveloperMap(options) {
                 if (dataset['dm-frontend-accent-color'] && typeof dataset['dm-frontend-accent-color'] === 'string') {
                     storageCache.frontendAccentColor = dataset['dm-frontend-accent-color'];
                     data.frontendAccentColor = dataset['dm-frontend-accent-color'];
+                }
+
+                // Hydrate frontend colors list from API
+                if (Array.isArray(dataset['dm-frontend-colors'])) {
+                    data.frontendColors = dataset['dm-frontend-colors'];
                 }
             }
         } catch (error) {
@@ -1128,20 +1182,49 @@ export async function initDeveloperMap(options) {
 
     // Initialize fonts - always use current defaults from getAvailableFonts()
     let availableFonts = normaliseAvailableFonts(getAvailableFonts());
-    availableFonts = setAvailableFonts(availableFonts, { persist: true });
+    availableFonts = setAvailableFonts(availableFonts, { persist: false });
 
-    const savedFont = loadSelectedFont();
-    // Check if saved font is still available in the current font list
-    const savedFontStillExists = savedFont && availableFonts.some(f => f.id === savedFont.id);
-    let selectedFont = savedFontStillExists
-        ? normaliseSelectedFont(savedFont, availableFonts)
-        : normaliseSelectedFont({ id: 'aboreto' }, availableFonts);
+    // Local Storage Loading logic (since database sync is removed)
+    let selectedFont = null;
+    try {
+        const local = localStorage.getItem('dm-local-selected-font');
+        if (local) {
+            const parsed = JSON.parse(local);
+            selectedFont = normaliseSelectedFont(parsed, availableFonts);
+        }
+    } catch (e) { console.warn('Failed to load local font', e); }
 
     if (!selectedFont) {
         selectedFont = normaliseSelectedFont({ id: 'aboreto' }, availableFonts);
     }
 
-    saveSelectedFont(selectedFont);
+    /* 
+    // API logic removed
+    // Try to find the active font from the merged available fonts
+    const activeFont = availableFonts.find(f => f.isActive === true || f.isActive === 1);
+
+    if (activeFont) {
+        // Use the font marked as active from merged fonts
+        selectedFont = normaliseSelectedFont({ id: activeFont.id }, availableFonts);
+    }
+    */
+
+    if (!selectedFont) {
+        // Fall back to saved font or default
+        const savedFont = loadSelectedFont();
+        const savedFontId = savedFont?.id?.toLowerCase?.() ?? '';
+        const savedFontStillExists = savedFont && availableFonts.some(f => f.id.toLowerCase() === savedFontId);
+        selectedFont = savedFontStillExists
+            ? normaliseSelectedFont(savedFont, availableFonts)
+            : normaliseSelectedFont({ id: 'aboreto' }, availableFonts);
+    }
+
+    if (!selectedFont) {
+        selectedFont = normaliseSelectedFont({ id: 'aboreto' }, availableFonts);
+    }
+
+    // Don't persist on load - just apply the font from DB/cache
+    saveSelectedFont(selectedFont, { persist: false });
     applySelectedFont(selectedFont);
 
     // Initialize types
@@ -1720,51 +1803,40 @@ export async function initDeveloperMap(options) {
     let projectsDirty = false;
     const savedProjects = loadProjects();
     if (savedProjects && savedProjects.length) {
-        // Check if projects have images (for backward compatibility)
-        const hasImages = savedProjects.some((p) => p?.image || p?.imageUrl || p?.imageurl);
-        if (!hasImages) {
-            removePersistedValue('dm-projects');
-            if (ensureProjectRegions(data.projects)) {
-                projectsDirty = true;
-            }
-            if (ensureProjectPublicKeys(data.projects)) {
-                projectsDirty = true;
-            }
+        // Load projects from database - no image check needed
+        data.projects = savedProjects;
+        const repairedSchema = repairProjectSchema(data.projects);
+        if (repairedSchema) {
             projectsDirty = true;
-        } else {
-            data.projects = savedProjects;
-            const repairedSchema = repairProjectSchema(data.projects);
-            if (repairedSchema) {
-                projectsDirty = true;
-            }
-            if (ensureProjectRegions(data.projects)) {
-                projectsDirty = true;
-            }
-            if (ensureProjectPublicKeys(data.projects)) {
-                projectsDirty = true;
-            }
-            // Clean demo images from storage
-            if (cleanDemoImages(data.projects)) {
-                projectsDirty = true;
-            }
-            // Migrate hash IDs to sequential IDs
-            const migratedIds = migrateHashIdsToSequential();
-            if (migratedIds) {
-                projectsDirty = true;
-                // Save migrated types, statuses, and colors
-                saveTypes(data.types);
-                saveStatuses(data.statuses);
-                saveColors(data.colors);
-            }
         }
-    } else {
         if (ensureProjectRegions(data.projects)) {
             projectsDirty = true;
         }
         if (ensureProjectPublicKeys(data.projects)) {
             projectsDirty = true;
         }
-        projectsDirty = true;
+        // Clean demo images from storage
+        if (cleanDemoImages(data.projects)) {
+            projectsDirty = true;
+        }
+        // Migrate hash IDs to sequential IDs
+        const migratedIds = migrateHashIdsToSequential();
+        if (migratedIds) {
+            projectsDirty = true;
+            // Save migrated types, statuses, and colors
+            saveTypes(data.types);
+            saveStatuses(data.statuses);
+            saveColors(data.colors);
+        }
+    } else {
+        // No saved projects - don't set dirty to avoid overwriting DB with empty array
+        if (ensureProjectRegions(data.projects)) {
+            projectsDirty = true;
+        }
+        if (ensureProjectPublicKeys(data.projects)) {
+            projectsDirty = true;
+        }
+        // Don't set projectsDirty = true here - we don't want to overwrite DB with empty array
     }
 
     if (ensureProjectShortcodes(data.projects)) {
@@ -1778,7 +1850,8 @@ export async function initDeveloperMap(options) {
     if (repairedProjects) {
         projectsDirty = true;
     }
-    if (projectsDirty) {
+    // Only save if dirty AND we actually have projects to save
+    if (projectsDirty && data.projects.length > 0) {
         saveProjects(data.projects);
     }
     applyStoredImages(data.projects);
@@ -1870,12 +1943,22 @@ export async function initDeveloperMap(options) {
         // Find the highest numeric ID in the collection
         let maxNumber = 0;
         const pattern = new RegExp(`^${safePrefix}-(\\d+)$`);
+        const newPattern = new RegExp(`^new-${safePrefix}-(\\d+)$`);
 
         collection.forEach(item => {
             if (item && item.id) {
-                const match = String(item.id).match(pattern);
+                const id = String(item.id);
+                const match = id.match(pattern);
                 if (match && match[1]) {
                     const num = parseInt(match[1], 10);
+                    if (num > maxNumber) {
+                        maxNumber = num;
+                    }
+                }
+                // Also check new- prefix format
+                const newMatch = id.match(newPattern);
+                if (newMatch && newMatch[1]) {
+                    const num = parseInt(newMatch[1], 10);
                     if (num > maxNumber) {
                         maxNumber = num;
                     }
@@ -1883,8 +1966,9 @@ export async function initDeveloperMap(options) {
             }
         });
 
-        // Return next sequential ID
-        return `${safePrefix}-${maxNumber + 1}`;
+        // Return new ID with 'new-' prefix to indicate it's not yet in database
+        // Backend will create a new record for these IDs
+        return `new-${safePrefix}-${maxNumber + 1}`;
     }
 
     function ensureBadge(name, fallback = 'M') {
@@ -2749,11 +2833,16 @@ export async function initDeveloperMap(options) {
             });
         }
 
-        // Custom color button - selects black and shows preview
+        // Custom color button - selects current custom color value (preserves it)
         if (customBtn) {
             customBtn.addEventListener('click', (event) => {
                 event.preventDefault();
-                saveFrontendAccentColor('#000000');
+                // Find the current Vlastná value from data, preserve it
+                const vlastna = Array.isArray(data.frontendColors)
+                    ? data.frontendColors.find(c => c.name === 'Vlastná')
+                    : null;
+                const currentCustomValue = vlastna?.value || '#000000';
+                saveFrontendAccentColor(currentCustomValue);
                 render();
             });
         }

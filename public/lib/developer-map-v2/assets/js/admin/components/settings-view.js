@@ -282,30 +282,42 @@ function renderSettingsFonts(data) {
 }
 
 function renderSettingsFrontendStyling(data) {
-    const currentColor = data.frontendAccentColor || '#4d38ff';
+    // Get colors from API (data.frontendColors from database)
+    // Format: [{ id: 'frontend-color-1', name: 'Fialová', value: '#6366F1', isActive: true }, ...]
+    const apiColors = Array.isArray(data.frontendColors) ? data.frontendColors : [];
 
-    // Fixed preset colors (cannot be changed by user)
-    const presetColors = [
-        { value: '#4d38ff', label: 'Fialová', isDefault: true },
-        { value: '#ef4444', label: 'Červená' },
-        { value: '#10b981', label: 'Zelená' },
-        { value: '#3b82f6', label: 'Modrá' },
-    ];
+    // Build preset colors from API (first 4 are presets, last is custom)
+    const presetColors = apiColors
+        .filter(c => c.name !== 'Vlastná')
+        .map((c, idx) => ({
+            value: c.value,
+            label: c.name,
+            isDefault: idx === 0
+        }));
 
-    // Check if current color is a preset or custom
-    const isPreset = presetColors.some(p => p.value === currentColor);
-    const isCustomActive = !isPreset;
-    const customColor = isCustomActive ? currentColor : '#000000';
+    // Find custom color from API
+    const customFromApi = apiColors.find(c => c.name === 'Vlastná');
+
+    // Find active color from API (based on isActive flag)
+    const activeFromApi = apiColors.find(c => c.isActive === true);
+    const currentColor = activeFromApi?.value || data.frontendAccentColor || '#6366F1';
+
+    // Check if custom "Vlastná" is active
+    const isCustomActive = customFromApi?.isActive === true;
+    const customColor = customFromApi?.value || '#000000';
 
     // All options including Vlastná
     const allOptions = [
-        ...presetColors,
-        { value: 'custom', label: 'Vlastná', isCustom: true }
+        ...presetColors.map(p => ({
+            ...p,
+            isActiveFromApi: apiColors.find(c => c.value === p.value)?.isActive === true
+        })),
+        { value: 'custom', label: 'Vlastná', isCustom: true, isActiveFromApi: isCustomActive }
     ];
 
     const optionButtons = allOptions.map(option => {
-        const isActive = option.isCustom ? isCustomActive : currentColor === option.value;
-        const dotColor = option.isCustom ? (isCustomActive ? currentColor : '#000000') : option.value;
+        const isActive = option.isActiveFromApi;
+        const dotColor = option.isCustom ? customColor : option.value;
         return `
             <button 
                 type="button" 

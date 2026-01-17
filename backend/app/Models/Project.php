@@ -18,8 +18,6 @@ class Project extends Model
     ];
 
     protected $casts = [
-        'settings' => 'array',
-        'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
 

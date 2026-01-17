@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DmMapColor;
 use App\Models\DmFrontendColor;
-use App\Models\DmFont;
+// use App\Models\DmFont;
 use App\Models\DmStatus;
 use App\Models\DmType;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 /**
  * Storage controller for Developer Map dashboard.
@@ -24,15 +25,16 @@ class DeveloperMapStorageController extends Controller
     public function list(): JsonResponse
     {
         return response()->json([
-            'dm-projects' => Project::with('localities')->get()->map(function ($p) {
+            'dm-projects' => Project::with('localities')->orderBy('sort_order')->get()->map(function ($p) {
                 return [
                     'id' => 'project-' . $p->id,
+                    'parentId' => $p->parent_id ? 'project-' . $p->parent_id : null,
                     'name' => $p->name,
                     'type' => $p->type,
                     'badge' => strtoupper(substr($p->name, 0, 2)),
-                    'publicKey' => $p->public_key,
-                    'image' => $p->image_url,
-                    'imageUrl' => $p->image_url,
+                    'publicKey' => $p->map_key, // Frontend still expects publicKey prop
+                    'image' => $p->image,
+                    'imageUrl' => $p->image, // Frontend compatibility
                     'floors' => $p->localities->map(function ($l) {
                         return [
                             'id' => 'floor-' . $l->id,
@@ -43,8 +45,8 @@ class DeveloperMapStorageController extends Controller
                             'statusLabel' => $l->status,
                             'area' => $l->area,
                             'price' => $l->price,
-                            'image' => $l->image_url,
-                            'imageUrl' => $l->image_url,
+                            'image' => $l->image,
+                            'imageUrl' => $l->image, // Frontend compatibility
                         ];
                     })->toArray(),
                 ];
@@ -68,17 +70,14 @@ class DeveloperMapStorageController extends Controller
                 'label' => $c->label,
                 'value' => $c->value,
             ])->toArray(),
-            'dm-fonts' => DmFont::getAll(),
-            'dm-selected-font' => ['id' => DmFont::getSelected()],
-            'dm-frontend-colors' => DmFrontendColor::orderBy('sort_order')->get()->map(fn($c) => [
+            // Fonts removed from DB as per user request
+            'dm-frontend-colors' => DmFrontendColor::get()->map(fn($c) => [
                 'id' => 'frontend-color-' . $c->id,
                 'name' => $c->name,
-                'label' => $c->label,
                 'value' => $c->value,
-                'isDefault' => $c->is_default,
-                'isCustom' => $c->is_custom,
+                'isActive' => (bool) $c->is_active,
             ])->toArray(),
-            'dm-frontend-accent-color' => DmFrontendColor::getSelected()?->value ?? '#6366F1',
+            'dm-frontend-accent-color' => DmFrontendColor::where('is_active', true)->first()?->value ?? '#6366F1',
         ]);
     }
 
@@ -93,54 +92,57 @@ class DeveloperMapStorageController extends Controller
             return response()->json(['message' => 'Key is required'], 400);
         }
 
-        $data = $this->list()->getData(true);
-        $value = $data[$key] ?? null;
+        // Return empty structure for projects if empty to prevent errors
+        if ($key === 'dm-projects' && Project::count() === 0) {
+            return response()->json(['value' => []]);
+        }
 
-        return response()->json([
-            'key' => $key,
-            'value' => $value,
-        ]);
+        return $this->list();
     }
 
     /**
-     * Set a value - routes to appropriate model
+     * Set a value by key
      */
     public function set(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'key' => 'required|string',
-            'value' => 'nullable',
-        ]);
+        $key = $request->input('key');
+        $value = $request->input('value');
 
-        $key = $validated['key'];
-        $value = $validated['value'];
-
-        // Route to appropriate handler based on key
-        if ($key === 'dm-frontend-accent-color') {
-            // Frontend sends specific color value or ID update request
-            // For now assume we just need to read it back, but if we need to set specific color
-            // Logic: reset all defaults, set specific one as default
-            // If it's a value (hex), update "Vlastná" or find matching
-             if (is_string($value)) {
-                $this->updateFrontendAccentColor($value);
-             }
-        } elseif ($key === 'dm-selected-font') {
-            $fontId = is_array($value) ? ($value['id'] ?? 'Inter') : $value;
-            DmFont::setSelected($fontId);
-        } elseif ($key === 'dm-projects' && is_array($value)) {
-            $this->syncProjects($value);
-        } elseif ($key === 'dm-statuses' && is_array($value)) {
-            $this->syncStatuses($value);
-        } elseif ($key === 'dm-types' && is_array($value)) {
-            $this->syncTypes($value);
-        } elseif ($key === 'dm-colors' && is_array($value)) {
-            $this->syncMapColors($value);
+        if (!$key) {
+            return response()->json(['message' => 'Key is required'], 400);
         }
 
-        return response()->json([
-            'success' => true,
-            'key' => $key,
-        ]);
+        switch ($key) {
+            case 'dm-projects':
+                $this->syncProjects($value ?? []);
+                break;
+            case 'dm-statuses':
+                $this->syncStatuses($value ?? []);
+                break;
+            case 'dm-types':
+                $this->syncTypes($value ?? []);
+                break;
+            case 'dm-colors':
+                $this->syncMapColors($value ?? []);
+                break;
+            case 'dm-frontend-colors':
+                $this->syncFrontendColors($value ?? []);
+                break;
+            case 'dm-frontend-accent-color':
+                // Update active state based on the value
+                if (is_string($value)) {
+                    DmFrontendColor::query()->update(['is_active' => false]);
+                    // Try to find matching color and activate it, or just use it as custom
+                    $color = DmFrontendColor::where('value', $value)->first();
+                    if ($color) {
+                        $color->update(['is_active' => true]);
+                    } 
+                    // Note: If no matching preset, we just rely on frontend sending the custom color value next time
+                }
+                break;
+        }
+
+        return response()->json(['success' => true, 'key' => $key]);
     }
 
     /**
@@ -183,7 +185,7 @@ class DeveloperMapStorageController extends Controller
 
         if (str_starts_with($entityId, 'project-')) {
             $id = (int) str_replace('project-', '', $entityId);
-            Project::where('id', $id)->update(['image_url' => $imageUrl]);
+            Project::where('id', $id)->update(['image' => $imageUrl]);
         }
 
         return response()->json([
@@ -202,50 +204,135 @@ class DeveloperMapStorageController extends Controller
 
     /**
      * Sync projects from dm.js data
+     * Supports hierarchical structure with parent_id
      */
     private function syncProjects(array $projects): void
     {
-        foreach ($projects as $projectData) {
-            $projectId = str_replace('project-', '', $projectData['id'] ?? '');
+        $incomingIds = [];
+        
+        // First pass: create/update all projects and collect ID mapping
+        $idMapping = []; // Maps frontend temp IDs to database IDs
+        
+        foreach ($projects as $index => $projectData) {
+            $rawId = $projectData['id'] ?? '';
             
-            if (is_numeric($projectId)) {
-                Project::where('id', $projectId)->update([
-                    'name' => $projectData['name'] ?? '',
-                    'type' => $projectData['type'] ?? 'residential',
-                    'image_url' => $projectData['imageUrl'] ?? $projectData['image'] ?? null,
-                ]);
+            // Check if it's a new project (starts with 'new-')
+            $isNew = str_starts_with($rawId, 'new-');
+            
+            // Extract numeric ID for existing projects (format: project-N)
+            $projectId = str_replace(['new-project-', 'project-', 'new-'], '', $rawId);
+            
+            // Generate slug from project name for map_key
+            $mapKey = $projectData['publicKey'] ?? $projectData['map_key'] ?? null;
+            if (!$mapKey || str_starts_with($mapKey, 'pk_')) {
+                // Generate a proper slug from the project name
+                $mapKey = $this->slugify($projectData['name'] ?? 'mapa');
+                // Ensure uniqueness
+                $mapKey = $this->ensureUniqueMapKey($mapKey, $isNew ? null : (int)$projectId);
+            }
+            
+            $data = [
+                'name' => $projectData['name'] ?? 'Nový projekt',
+                'type' => $projectData['type'] ?? null,
+                'image' => $projectData['imageUrl'] ?? $projectData['image'] ?? null, // Map correctly to DB column 'image'
+                'map_key' => $mapKey,
+                'sort_order' => $index + 1,
+            ];
+            
+            if (!$isNew && is_numeric($projectId)) {
+                // Existing project - update
+                $project = Project::find((int) $projectId);
+                if ($project) {
+                    $project->update($data);
+                    $incomingIds[] = $project->id;
+                    $idMapping[$rawId] = $project->id;
+                }
             } else {
-                Project::create([
-                    'name' => $projectData['name'] ?? 'Nový projekt',
-                    'type' => $projectData['type'] ?? 'residential',
-                    'public_key' => $projectData['publicKey'] ?? uniqid('pk_'),
-                    'image_url' => $projectData['imageUrl'] ?? $projectData['image'] ?? null,
-                ]);
+                // New project - create
+                $newProject = Project::create($data);
+                $incomingIds[] = $newProject->id;
+                $idMapping[$rawId] = $newProject->id;
             }
         }
+        
+        // Second pass: update parent_id relationships
+        foreach ($projects as $projectData) {
+            $projectId = str_replace(['new-project-', 'project-', 'new-'], '', $projectData['id'] ?? '');
+            // Also handle new-project IDs in second pass correctly
+            $rawId = $projectData['id'] ?? '';
+            
+            $parentValue = $projectData['parentId'] ?? $projectData['parent_id'] ?? null;
+            
+            // Determine the database ID of this project
+            $dbId = null;
+            if (isset($idMapping[$rawId])) {
+                $dbId = $idMapping[$rawId];
+            } elseif (is_numeric($projectId)) {
+                $dbId = (int) $projectId;
+            }
+            
+            if (!$dbId) {
+                continue;
+            }
+            
+            // Resolve parent_id
+            $parentId = null;
+            if ($parentValue !== null && $parentValue !== '' && $parentValue !== 'none') {
+                $parentIdRaw = str_replace(['new-project-', 'project-', 'new-'], '', (string) $parentValue);
+                
+                // Check if we have a mapping for this parent ID (it might be a new project too)
+                if (isset($idMapping[$parentValue])) {
+                    $parentId = $idMapping[$parentValue];
+                } elseif (is_numeric($parentIdRaw)) {
+                    $parentId = (int) $parentIdRaw;
+                }
+            }
+            
+            // Update parent_id
+            Project::where('id', $dbId)->update(['parent_id' => $parentId]);
+        }
+
+        // Delete projects that are not in the incoming list
+        if (!empty($incomingIds)) {
+            Project::whereNotIn('id', $incomingIds)->delete();
+        }
     }
+
 
     /**
      * Sync statuses from dm.js data
      */
     private function syncStatuses(array $statuses): void
     {
+        $incomingIds = [];
+
         foreach ($statuses as $index => $statusData) {
             $statusId = str_replace('status-', '', $statusData['id'] ?? '');
             
             $data = [
-                'name' => $statusData['name'] ?? '',
-                'label' => $statusData['label'] ?? '',
+                'name' => $statusData['name'] ?? $statusData['label'] ?? '',
+                'label' => $statusData['label'] ?? $statusData['name'] ?? '',
                 'color' => $statusData['color'] ?? '#6B7280',
                 'is_default' => $statusData['isDefault'] ?? false,
                 'sort_order' => $index + 1,
             ];
 
             if (is_numeric($statusId)) {
-                DmStatus::where('id', $statusId)->update($data);
+                // Use updateOrCreate to handle both existing and new records
+                $status = DmStatus::updateOrCreate(
+                    ['id' => (int) $statusId],
+                    $data
+                );
+                $incomingIds[] = $status->id;
             } else {
-                DmStatus::create($data);
+                $newStatus = DmStatus::create($data);
+                $incomingIds[] = $newStatus->id;
             }
+        }
+
+        // Delete statuses that are not in the incoming list
+        if (!empty($incomingIds)) {
+            DmStatus::whereNotIn('id', $incomingIds)->delete();
         }
     }
 
@@ -254,21 +341,34 @@ class DeveloperMapStorageController extends Controller
      */
     private function syncTypes(array $types): void
     {
+        $incomingIds = [];
+
         foreach ($types as $index => $typeData) {
             $typeId = str_replace('type-', '', $typeData['id'] ?? '');
             
             $data = [
-                'name' => $typeData['name'] ?? '',
-                'label' => $typeData['label'] ?? '',
+                'name' => $typeData['name'] ?? $typeData['label'] ?? '',
+                'label' => $typeData['label'] ?? $typeData['name'] ?? '',
                 'color' => $typeData['color'] ?? '#405ECD',
                 'sort_order' => $index + 1,
             ];
 
             if (is_numeric($typeId)) {
-                DmType::where('id', $typeId)->update($data);
+                // Use updateOrCreate to handle both existing and new records
+                $type = DmType::updateOrCreate(
+                    ['id' => (int) $typeId],
+                    $data
+                );
+                $incomingIds[] = $type->id;
             } else {
-                DmType::create($data);
+                $newType = DmType::create($data);
+                $incomingIds[] = $newType->id;
             }
+        }
+
+        // Delete types that are not in the incoming list
+        if (!empty($incomingIds)) {
+            DmType::whereNotIn('id', $incomingIds)->delete();
         }
     }
 
@@ -277,6 +377,8 @@ class DeveloperMapStorageController extends Controller
      */
     private function syncMapColors(array $colors): void
     {
+        $incomingIds = [];
+
         foreach ($colors as $index => $colorData) {
             $colorId = str_replace('color-', '', $colorData['id'] ?? '');
             
@@ -288,10 +390,55 @@ class DeveloperMapStorageController extends Controller
             ];
 
             if (is_numeric($colorId)) {
-                DmMapColor::where('id', $colorId)->update($data);
+                $color = DmMapColor::updateOrCreate(
+                    ['id' => (int) $colorId],
+                    $data
+                );
+                $incomingIds[] = $color->id;
             } else {
-                DmMapColor::create($data);
+                $newColor = DmMapColor::create($data);
+                $incomingIds[] = $newColor->id;
             }
+        }
+
+        // Delete colors that are not in the incoming list
+        if (!empty($incomingIds)) {
+            DmMapColor::whereNotIn('id', $incomingIds)->delete();
+        }
+    }
+
+    /**
+     * Sync frontend colors from dm.js data
+     */
+    private function syncFrontendColors(array $colors): void
+    {
+        $incomingIds = [];
+
+        foreach ($colors as $index => $colorData) {
+            $colorId = str_replace('frontend-color-', '', $colorData['id'] ?? '');
+            
+            $data = [
+                'name' => $colorData['name'] ?? '',
+                'value' => $colorData['value'] ?? '#FFFFFF',
+                'is_active' => $colorData['isActive'] ?? false,
+                'sort_order' => $index + 1, // Assuming sort_order might be needed here too
+            ];
+
+            if (is_numeric($colorId)) {
+                $color = DmFrontendColor::updateOrCreate(
+                    ['id' => (int) $colorId],
+                    $data
+                );
+                $incomingIds[] = $color->id;
+            } else {
+                $newColor = DmFrontendColor::create($data);
+                $incomingIds[] = $newColor->id;
+            }
+        }
+
+        // Delete colors that are not in the incoming list
+        if (!empty($incomingIds)) {
+            DmFrontendColor::whereNotIn('id', $incomingIds)->delete();
         }
     }
 
@@ -300,19 +447,22 @@ class DeveloperMapStorageController extends Controller
      */
     private function updateFrontendAccentColor(string $colorValue): void
     {
-        // First reset all defaults
-        DmFrontendColor::query()->update(['is_default' => false]);
+        // Reset all to inactive
+        DmFrontendColor::query()->update(['is_active' => false]);
 
-        // Try to find exact match
-        $match = DmFrontendColor::where('value', $colorValue)->where('is_custom', false)->first();
+        // Try to find exact match in preset colors
+        $match = DmFrontendColor::where('value', $colorValue)
+            ->where('name', '!=', 'Vlastná')
+            ->first();
         
         if ($match) {
-            $match->update(['is_default' => true]);
+            // Found matching preset color
+            $match->update(['is_active' => true]);
         } else {
-            // Must be custom
-            DmFrontendColor::where('is_custom', true)->update([
+            // Custom color - update "Vlastná" with the new value and set as active
+            DmFrontendColor::where('name', 'Vlastná')->update([
                 'value' => $colorValue,
-                'is_default' => true
+                'is_active' => true
             ]);
         }
     }
@@ -356,5 +506,55 @@ class DeveloperMapStorageController extends Controller
             'deleted_id' => $statusId,
         ]);
     }
-}
 
+    /**
+     * Generate a URL-friendly slug from a string
+     */
+    private function slugify(string $input): string
+    {
+        // Transliterate Slovak/Czech characters
+        $transliteration = [
+            'á' => 'a', 'ä' => 'a', 'č' => 'c', 'ď' => 'd', 'é' => 'e', 'ě' => 'e',
+            'í' => 'i', 'ľ' => 'l', 'ĺ' => 'l', 'ň' => 'n', 'ó' => 'o', 'ô' => 'o',
+            'ö' => 'o', 'ŕ' => 'r', 'ř' => 'r', 'š' => 's', 'ť' => 't', 'ú' => 'u',
+            'ů' => 'u', 'ü' => 'u', 'ý' => 'y', 'ž' => 'z',
+            'Á' => 'a', 'Ä' => 'a', 'Č' => 'c', 'Ď' => 'd', 'É' => 'e', 'Ě' => 'e',
+            'Í' => 'i', 'Ľ' => 'l', 'Ĺ' => 'l', 'Ň' => 'n', 'Ó' => 'o', 'Ô' => 'o',
+            'Ö' => 'o', 'Ŕ' => 'r', 'Ř' => 'r', 'Š' => 's', 'Ť' => 't', 'Ú' => 'u',
+            'Ů' => 'u', 'Ü' => 'u', 'Ý' => 'y', 'Ž' => 'z',
+        ];
+        
+        $slug = strtr($input, $transliteration);
+        $slug = strtolower($slug);
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+        $slug = preg_replace('/-+/', '-', $slug);
+        
+        return $slug ?: 'mapa';
+    }
+
+    /**
+     * Ensure map_key is unique in the database
+     */
+    private function ensureUniqueMapKey(string $base, ?int $excludeId = null): string
+    {
+        $candidate = $base;
+        $suffix = 1;
+        
+        while (true) {
+            $query = Project::where('map_key', $candidate);
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+            
+            if (!$query->exists()) {
+                break;
+            }
+            
+            $candidate = $base . '-' . $suffix;
+            $suffix++;
+        }
+        
+        return $candidate;
+    }
+}

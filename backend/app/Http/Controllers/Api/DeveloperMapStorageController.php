@@ -20,6 +20,22 @@ use Illuminate\Support\Str;
 class DeveloperMapStorageController extends Controller
 {
     /**
+     * Convert a relative image path to a full URL
+     */
+    private function getImageUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+        // If already an absolute URL, return as-is
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        // Return full URL using app URL
+        return url($path);
+    }
+
+    /**
      * List all stored data for dm.js
      */
     public function list(): JsonResponse
@@ -33,8 +49,8 @@ class DeveloperMapStorageController extends Controller
                     'type' => $p->type,
                     'badge' => strtoupper(substr($p->name, 0, 2)),
                     'publicKey' => $p->map_key, // Frontend still expects publicKey prop
-                    'image' => $p->image,
-                    'imageUrl' => $p->image, // Frontend compatibility
+                    'image' => $this->getImageUrl($p->image),
+                    'imageUrl' => $this->getImageUrl($p->image), // Frontend compatibility
                     'floors' => $p->localities->map(function ($l) {
                         return [
                             'id' => 'floor-' . $l->id,
@@ -45,8 +61,8 @@ class DeveloperMapStorageController extends Controller
                             'statusLabel' => $l->status,
                             'area' => $l->area,
                             'price' => $l->price,
-                            'image' => $l->image,
-                            'imageUrl' => $l->image, // Frontend compatibility
+                            'image' => $this->getImageUrl($l->image),
+                            'imageUrl' => $this->getImageUrl($l->image), // Frontend compatibility
                         ];
                     })->toArray(),
                 ];
@@ -191,6 +207,72 @@ class DeveloperMapStorageController extends Controller
         return response()->json([
             'success' => true,
             'entity_id' => $entityId,
+        ]);
+    }
+
+    /**
+     * Upload an image file from the frontend
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        // Check if file was uploaded
+        if (!$request->hasFile('image')) {
+            return response()->json([
+                'success' => false,
+                'error' => 'no_file',
+                'message' => 'Nebol nahratý žiadny súbor.',
+            ], 400);
+        }
+
+        $file = $request->file('image');
+
+        // Check file size (10MB max = 10 * 1024 * 1024 = 10485760 bytes)
+        $maxSize = 10 * 1024 * 1024; // 10MB
+        if ($file->getSize() > $maxSize) {
+            $sizeMB = round($file->getSize() / 1024 / 1024, 1);
+            return response()->json([
+                'success' => false,
+                'error' => 'file_too_large',
+                'message' => "Súbor je príliš veľký ({$sizeMB} MB). Maximálna veľkosť je 10 MB.",
+            ], 400);
+        }
+
+        // Check file type
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        $mimeType = $file->getMimeType();
+        $extension = strtolower($file->getClientOriginalExtension());
+        
+        if (!in_array($mimeType, $allowedMimes) || !in_array($extension, $allowedExtensions)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'invalid_type',
+                'message' => 'Neplatný formát súboru. Povolené formáty: JPG, PNG, GIF, WebP.',
+            ], 400);
+        }
+
+        // Generate unique filename
+        $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
+        
+        try {
+            // Store in public/uploads/maps directory
+            $file->move(public_path('uploads/maps'), $filename);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'upload_failed',
+                'message' => 'Nepodarilo sa uložiť súbor. Skúste to znova.',
+            ], 500);
+        }
+        
+        // Return the full public URL
+        $url = url('/uploads/maps/' . $filename);
+
+        return response()->json([
+            'success' => true,
+            'url' => $url,
+            'filename' => $filename,
         ]);
     }
 

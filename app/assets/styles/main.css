@@ -25,3 +25,6 @@
 @import './pages/_contact.css';
 @import './pages/_apartment.css';
 @import './pages/_admin.css';
+@import './pages/_admin-dashboard.css';
+@import './pages/_admin-messages.css';
+@import './pages/_auth.css';

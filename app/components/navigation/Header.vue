@@ -36,6 +36,9 @@
 
       <!-- Action Buttons -->
       <div class="header-actions">
+        <NuxtLink to="/login" class="btn btn-text">
+          Prihlásenie
+        </NuxtLink>
         <NuxtLink to="/contact" class="btn btn-outline">
           Kontakt
         </NuxtLink>
@@ -60,9 +63,14 @@
         <NuxtLink to="/locality" class="mobile-nav-link" @click="closeMenu">Lokalita</NuxtLink>
         <NuxtLink to="/gallery" class="mobile-nav-link" @click="closeMenu">Galéria</NuxtLink>
         <NuxtLink to="/parking" class="mobile-nav-link" @click="closeMenu">Parkovanie</NuxtLink>
-        <NuxtLink to="/contact" class="mobile-nav-link" @click="closeMenu">Kontakt</NuxtLink>
-        <NuxtLink to="/apartment-selection" class="mobile-nav-link btn-gold" @click="closeMenu">Výber bytu</NuxtLink>
       </nav>
+      
+      <!-- Action Buttons Section -->
+      <div class="mobile-nav-actions">
+        <NuxtLink to="/contact" class="mobile-btn outline" @click="closeMenu">Kontakt</NuxtLink>
+        <NuxtLink to="/login" class="mobile-btn outline" @click="closeMenu">Prihlásenie</NuxtLink>
+        <NuxtLink to="/apartment-selection" class="mobile-btn primary" @click="closeMenu">Výber bytu</NuxtLink>
+      </div>
     </div>
   </header>
 </template>

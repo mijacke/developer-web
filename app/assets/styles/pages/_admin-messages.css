@@ -1,0 +1,343 @@
+/* ================================
+   Admin Messages Page Styles
+   ================================ */
+
+.admin-messages {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-messages h1 {
+    margin-bottom: 2rem;
+    color: #1e293b;
+}
+
+.admin-messages h2 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+    color: #1e293b;
+}
+
+/* Stats Grid */
+.admin-messages .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-messages .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.admin-messages .stat-card.highlight {
+    background: #cb9b51;
+    color: white;
+}
+
+.admin-messages .stat-card.warning {
+    background: #ef4444;
+    color: white;
+}
+
+.admin-messages .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.admin-messages .stat-label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+/* Chart Section */
+.admin-messages .chart-section,
+.admin-messages .spam-section,
+.admin-messages .messages-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.admin-messages .chart-container {
+    height: 250px;
+}
+
+/* Spam Section */
+.admin-messages .spam-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.admin-messages .spam-item {
+    background: #fef2f2;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    border: 1px solid #fecaca;
+}
+
+.admin-messages .spam-item .ip {
+    font-family: monospace;
+    font-weight: 600;
+    color: #dc2626;
+}
+
+.admin-messages .spam-item .count {
+    color: #7f1d1d;
+    font-size: 0.875rem;
+}
+
+/* Section Header with Filters */
+.admin-messages .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-messages .filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-messages .filters button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-messages .filters button.active {
+    background: #cb9b51;
+    color: white;
+    border-color: #cb9b51;
+}
+
+/* Messages Table */
+.admin-messages .message-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 140px 80px;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-messages .message-row:hover {
+    background: #f8fafc;
+}
+
+.admin-messages .message-row.unread {
+    background: #fefce8;
+    font-weight: 500;
+}
+
+.admin-messages .message-sender {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-messages .message-sender span {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: normal;
+}
+
+.admin-messages .message-preview {
+    color: #64748b;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-messages .message-date {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.admin-messages .message-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.admin-messages .message-actions button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.admin-messages .btn-read {
+    background: #22c55e;
+    color: white;
+}
+
+.admin-messages .btn-delete {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.admin-messages .btn-delete:hover {
+    background: #fee2e2;
+}
+
+.admin-messages .btn-delete img {
+    width: 16px;
+    height: 16px;
+    filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}
+
+.admin-messages .no-messages {
+    text-align: center;
+    padding: 3rem;
+    color: #94a3b8;
+}
+
+/* Modal */
+.admin-messages .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.admin-messages .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.admin-messages .delete-modal {
+    max-width: 400px;
+}
+
+.admin-messages .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.admin-messages .modal-header h3 {
+    margin: 0 0 0.5rem;
+    color: #1e293b;
+}
+
+.admin-messages .modal-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.admin-messages .modal-date {
+    margin-top: 0.5rem !important;
+    font-size: 0.75rem !important;
+}
+
+.admin-messages .modal-body {
+    margin: 1.5rem 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.admin-messages .modal-body .warning-text {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.admin-messages .modal-footer {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1rem;
+}
+
+.admin-messages .modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.admin-messages .btn-cancel {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.admin-messages .btn-cancel:hover {
+    background: #f8fafc;
+}
+
+.admin-messages .btn-confirm-delete {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.admin-messages .btn-confirm-delete:hover {
+    background: #b91c1c;
+}
+
+.admin-messages .ip-info {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+    .admin-messages .message-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .admin-messages .message-actions {
+        justify-content: flex-end;
+    }
+}

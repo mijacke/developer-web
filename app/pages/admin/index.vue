@@ -7,41 +7,105 @@
 <script setup lang="ts">
 /**
  * Developer Map Admin Page
- * Integrates original dm.js and dm.css from lib/developer-map-v2
+ * Integrates original dm.js with authentication
  */
 
+definePageMeta({
+  layout: 'admin',
+  middleware: 'auth'
+})
+
 const config = useRuntimeConfig()
+const { token } = useAuth()
 const dmRoot = ref<HTMLElement | null>(null)
 
-// Runtime config for dm.js - compatible with original storage-client
-const dmRuntimeConfig = {
-  restBase: `${config.public.apiUrl}/developer-map/`,
-  restNonce: '', // Not needed for Laravel
-  ver: Date.now(),
-}
+// Intercept window.fetch to forcefully inject Authorization token for all requests to developer-map API
+// This ensures dm.js requests are authenticated without needing to modify dm.js source code
+let originalFetch: any = null
 
 onMounted(async () => {
-  // Inject runtime config before loading dm.js
   if (typeof window !== 'undefined') {
-    (window as any).dmRuntimeConfig = dmRuntimeConfig
+    // 1. Setup fetch interceptor
+    originalFetch = window.fetch
+    window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      let url = ''
+      if (typeof input === 'string') {
+        url = input
+      } else if (input instanceof URL) {
+        url = input.toString()
+      } else if (input instanceof Request) {
+        url = input.url
+      }
+
+      // Only intercept requests to our API
+      if (url.includes('/developer-map') || url.includes('/api/developer-map')) {
+        init = init || {}
+        init.headers = init.headers || {}
+        
+        if (token.value) {
+          // Handle both Headers object and plain object
+          if (init.headers instanceof Headers) {
+            init.headers.set('Authorization', `Bearer ${token.value}`)
+            init.headers.set('Accept', 'application/json')
+          } else {
+            // @ts-ignore
+            init.headers['Authorization'] = `Bearer ${token.value}`
+            // @ts-ignore
+            init.headers['Accept'] = 'application/json'
+          }
+        }
+      }
+      
+      return originalFetch(input, init)
+    }
+
+    // 2. Setup runtime config for dm.js
+    const dmRuntimeConfig = {
+      restBase: `${config.public.apiUrl}/developer-map/`,
+      restNonce: '',
+      ver: Date.now(),
+      // Also provide headers here in case dm.js supports it (future proofing)
+      headers: {
+        'Authorization': `Bearer ${token.value}`,
+        'Accept': 'application/json'
+      }
+    }
     
-    // Load bootstrap data
+    ;(window as any).dmRuntimeConfig = dmRuntimeConfig
+    
+    // 3. Load bootstrap data securely
     try {
-      const response = await fetch(`${config.public.apiUrl}/developer-map/bootstrap`)
-      const bootstrapData = await response.json()
-      ;(window as any).dmRegionBootstrap = bootstrapData
+      const response = await fetch(`${config.public.apiUrl}/developer-map/bootstrap`, {
+        headers: {
+          'Authorization': `Bearer ${token.value}`,
+          'Accept': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const bootstrapData = await response.json()
+        ;(window as any).dmRegionBootstrap = bootstrapData
+      } else {
+        console.error('[DM] Bootstrap failed', response.status)
+        ;(window as any).dmRegionBootstrap = {}
+      }
     } catch (e) {
       console.warn('[DM] Failed to load bootstrap data', e)
       ;(window as any).dmRegionBootstrap = {}
     }
-  }
 
-  // Dynamically load dm.js
-  await loadDeveloperMapScript()
+    // 4. Load dm.js
+    await loadDeveloperMapScript()
+  }
+})
+
+onUnmounted(() => {
+  // Restore original fetch when leaving the page
+  if (originalFetch && typeof window !== 'undefined') {
+    window.fetch = originalFetch
+  }
 })
 
 async function loadDeveloperMapScript() {
-  // dm.js will find #dm-root[data-dm-app="developer-map"] and initialize itself
   const script = document.createElement('script')
   script.type = 'module'
   script.src = '/lib/developer-map-v2/assets/js/dm.js?ver=' + Date.now()
@@ -64,17 +128,17 @@ useHead({
 </script>
 
 <style>
-/* Ensure proper sizing for dm-root */
+/* Adjust dm-root to fit within admin layout */
 .dm-admin-wrap {
-  min-height: 100vh;
-  background: #f8fafc;
+  height: 100%;
+  width: 100%;
 }
 
 #dm-root {
-  min-height: 100vh;
+  min-height: 100%;
 }
 
-/* Override any conflicting styles from main app */
+/* Force override DM font families if needed */
 #dm-root.dm-root {
   font-family: 'Inter', 'Segoe UI', sans-serif;
 }

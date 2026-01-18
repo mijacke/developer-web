@@ -12,8 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'not_blocked' => \App\Http\Middleware\EnsureUserIsNotBlocked::class,
+            'is_admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'throttle_log' => \App\Http\Middleware\ThrottleRequestsWithLogging::class,
+        ]);
+
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+

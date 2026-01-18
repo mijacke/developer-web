@@ -3048,63 +3048,102 @@ export async function initDeveloperMap(options) {
             return;
         }
 
-        // TODO: Implementácia pre vlastný web (nie WordPress)
-        // Môžete sem pridať vlastný file upload alebo URL input
+        // Create hidden file input for image upload
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/jpeg,image/png,image/jpg,image/gif,image/webp';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
 
-        // Vytvoríme popup pre zadanie URL obrázka
-        const imageUrl = prompt('Zadajte URL obrázka:', state.modal.imagePreview || '');
-
-        if (imageUrl && imageUrl.trim()) {
-            const nextSelection = {
-                id: Date.now(), // Generujeme unikátne ID
-                url: imageUrl.trim(),
-                alt: '',
-            };
-
-            // Capture current form values before re-rendering
-            const currentFormData = {};
-            if (state.modal) {
-                if (state.modal.type === 'add-location' || state.modal.type === 'edit-location') {
-                    const locationFields = collectLocationFields();
-                    if (locationFields) {
-                        currentFormData.name = locationFields.name;
-                        currentFormData.type = locationFields.type;
-                        currentFormData.status = locationFields.status;
-                        currentFormData.statusId = locationFields.statusId;
-                        currentFormData.parentId = locationFields.parentId;
-                        currentFormData.url = locationFields.url;
-                        currentFormData.detailUrl = locationFields.detailUrl;
-                        currentFormData.area = locationFields.area;
-                        currentFormData.suffix = locationFields.suffix;
-                        currentFormData.prefix = locationFields.prefix;
-                        currentFormData.designation = locationFields.designation;
-                        currentFormData.price = locationFields.price;
-                        currentFormData.rent = locationFields.rent;
-                    }
-                } else {
-                    const mapFields = collectModalFields();
-                    if (mapFields) {
-                        currentFormData.name = mapFields.name;
-                        currentFormData.type = mapFields.type;
-                        currentFormData.parentId = mapFields.parentId;
-                    }
-                }
+        fileInput.addEventListener('change', async () => {
+            const file = fileInput.files?.[0];
+            if (!file) {
+                document.body.removeChild(fileInput);
+                return;
             }
 
-            setState((prev) => {
-                if (!prev.modal) {
-                    return {};
+            // Show loading state (optional: could add visual feedback)
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // Upload to backend - use runtimeConfig.restBase or fallback to localhost:8000
+                const uploadUrl = (runtimeConfig?.restBase || 'http://localhost:8000/api/developer-map/') + 'upload';
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Upload failed');
                 }
-                return {
-                    modal: {
-                        ...prev.modal,
-                        imageSelection: nextSelection,
-                        imagePreview: nextSelection.url,
-                        formData: currentFormData,
-                    },
-                };
-            });
-        }
+
+                const result = await response.json();
+
+                if (result.success && result.url) {
+                    const nextSelection = {
+                        id: Date.now(),
+                        url: result.url,
+                        alt: file.name,
+                    };
+
+                    // Capture current form values before re-rendering
+                    const currentFormData = {};
+                    if (state.modal) {
+                        if (state.modal.type === 'add-location' || state.modal.type === 'edit-location') {
+                            const locationFields = collectLocationFields();
+                            if (locationFields) {
+                                currentFormData.name = locationFields.name;
+                                currentFormData.type = locationFields.type;
+                                currentFormData.status = locationFields.status;
+                                currentFormData.statusId = locationFields.statusId;
+                                currentFormData.parentId = locationFields.parentId;
+                                currentFormData.url = locationFields.url;
+                                currentFormData.detailUrl = locationFields.detailUrl;
+                                currentFormData.area = locationFields.area;
+                                currentFormData.suffix = locationFields.suffix;
+                                currentFormData.prefix = locationFields.prefix;
+                                currentFormData.designation = locationFields.designation;
+                                currentFormData.price = locationFields.price;
+                                currentFormData.rent = locationFields.rent;
+                            }
+                        } else {
+                            const mapFields = collectModalFields();
+                            if (mapFields) {
+                                currentFormData.name = mapFields.name;
+                                currentFormData.type = mapFields.type;
+                                currentFormData.parentId = mapFields.parentId;
+                            }
+                        }
+                    }
+
+                    setState((prev) => {
+                        if (!prev.modal) {
+                            return {};
+                        }
+                        return {
+                            modal: {
+                                ...prev.modal,
+                                imageSelection: nextSelection,
+                                imagePreview: nextSelection.url,
+                                formData: currentFormData,
+                            },
+                        };
+                    });
+                } else {
+                    alert(result.message || 'Chyba pri nahrávaní obrázka. Skúste to znova.');
+                }
+            } catch (error) {
+                console.error('Image upload error:', error);
+                alert(error.message || 'Chyba pri nahrávaní obrázka. Skúste to znova.');
+            } finally {
+                document.body.removeChild(fileInput);
+            }
+        });
+
+        // Trigger file selection dialog
+        fileInput.click();
     }
 
     function bindTypeModalEvents() {

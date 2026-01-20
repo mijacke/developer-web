@@ -9,16 +9,6 @@
       </nav>
     </div>
 
-    <!-- Hero Section -->
-    <section class="page-hero">
-      <div class="page-hero-bg placeholder-image"></div>
-      <div class="page-hero-overlay"></div>
-      <div class="page-hero-content">
-        <h1 class="page-title">Galéria</h1>
-        <p class="page-subtitle">Pozrite si Rezidenciu Žilina v obrazoch</p>
-      </div>
-    </section>
-
     <!-- Gallery Content -->
     <section class="gallery-content section">
       <div class="container">
@@ -31,22 +21,64 @@
           
           <div class="gallery-grid">
             <div class="gallery-item large">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-1.png"
+                alt="Moderný exteriér Rezidencia Žilina"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-2.png"
+                alt="Parková úprava a vnútroblok"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item tall">
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-3.png"
+                alt="Detské ihrisko v areáli"
+                width="400"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-4.png"
+                alt="Detail fasády a architektúry"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-5.png"
+                alt="Večerná atmosféra rezidencie"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+            <div class="gallery-item large">
+              <NuxtImg
+                src="/images/gallery/exterior/gallery-exterior-6.png"
+                alt="Vstup do rezidencie a lobby"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
           </div>
         </div>
@@ -59,23 +91,65 @@
           </p>
           
           <div class="gallery-grid">
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+            <div class="gallery-item large">
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-1.png"
+                alt="Moderná obývačka s výhľadom"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-2.png"
+                alt="Dizajnová kuchyňa"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item tall">
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-3.png"
+                alt="Hlavná spálňa"
+                width="400"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item">
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-4.png"
+                alt="Luxusná kúpeľňa"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item">
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-5.png"
+                alt="Vstupná chodba"
+                width="400"
+                height="300"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item large">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/interior/gallery-interior-6.png"
+                alt="Pracovňa (home office)"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
           </div>
         </div>
@@ -87,47 +161,66 @@
             Sledujte priebeh výstavby rezidencie
           </p>
           
-          <div class="gallery-grid">
+          <div class="gallery-grid gallery-grid--construction">
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item large">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
-            </div>
-            <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-1.png"
+                alt="Príprava staveniska a výkopové práce"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-2.png"
+                alt="Realizácia základov"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
             <div class="gallery-item">
-              <div class="gallery-image placeholder-image"></div>
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-3.png"
+                alt="Hrubá stavba a betonáž"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3D Visualization Video Section -->
-    <section class="gallery-video-section section">
-      <div class="container">
-        <div class="video-header text-center">
-          <h2 class="video-title">3D Vizualizácia</h2>
-          <p class="video-description">
-            Virtuálna prehliadka rezidencie a jej okolia
-          </p>
-        </div>
-        <div class="video-wrapper">
-          <div class="video-container">
-            <div class="video-placeholder placeholder-image">
-              <div class="video-play-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
-              </div>
+            <div class="gallery-item">
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-4.png"
+                alt="Murovanie obvodových stien"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item">
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-5.png"
+                alt="Realizácia fasády a okien"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
+            </div>
+            <div class="gallery-item">
+              <NuxtImg
+                src="/images/gallery/construction/gallery-construction-6.png"
+                alt="Dokončená moderná rezidencia"
+                width="800"
+                height="600"
+                loading="lazy"
+                class="gallery-image"
+              />
             </div>
           </div>
         </div>

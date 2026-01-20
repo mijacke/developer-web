@@ -9,27 +9,17 @@
       </nav>
     </div>
 
-    <!-- Hero Section -->
-    <section class="page-hero">
-      <div class="page-hero-bg placeholder-image"></div>
-      <div class="page-hero-overlay"></div>
-      <div class="page-hero-content">
-        <h1 class="page-title">Parkovanie</h1>
-        <p class="page-subtitle">Komfortné parkovacie riešenia pre našich rezidentov</p>
-      </div>
-    </section>
-
     <!-- Parking Content -->
     <section class="parking-content section">
       <div class="container">
         <div class="parking-grid">
           <div class="parking-text">
-            <h2>Podzemné parkovanie</h2>
+            <h2>Vonkajšie parkovanie</h2>
             <p>
-              Rezidencia Žilina ponúka zabezpečené podzemné parkovanie 
+              Rezidencia Žilina ponúka zabezpečené vonkajšie parkovanie 
               s dostatočnou kapacitou pre všetkých rezidentov. Každý byt má 
-              možnosť zakúpiť si vlastné parkovacie miesto v suterénnych 
-              priestoroch budovy.
+              možnosť zakúpiť si vlastné parkovacie miesto priamo v areáli 
+              projektu.
             </p>
             <p>
               Parkovisko je vybavené moderným vstupným systémom s diaľkovým 
@@ -37,7 +27,13 @@
               bezpečnosť vášho vozidla.
             </p>
           </div>
-          <div class="parking-image placeholder-image"></div>
+          <NuxtImg src="/images/parking/parking.png" 
+          alt="Vonkajšie parkovanie" 
+          class="parking-image" 
+          width="1200"
+          height="800"
+          />
+        
         </div>
       </div>
     </section>
@@ -50,9 +46,7 @@
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
+              <img src="/assets/icons/what-we-offer/materials.svg" alt="Material" width="32" height="32">
             </div>
             <h4>Zabezpečené</h4>
             <p>24/7 kamerový systém a kontrolovaný prístup</p>
@@ -60,33 +54,28 @@
 
           <div class="feature-card">
             <div class="feature-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12,6 12,12 16,14"/>
-              </svg>
+              <img src="/assets/icons/what-we-offer/clock.svg" alt="Hodiny" width="32" height="32">
             </div>
             <h4>Dostupné 24/7</h4>
             <p>Nepretržitý prístup k vášmu vozidlu</p>
           </div>
 
+
+
           <div class="feature-card">
             <div class="feature-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-              </svg>
+              <img src="/assets/icons/what-we-offer/energy.svg" alt="Elektrické nabíjanie" width="32" height="32">
             </div>
-            <h4>Kryté</h4>
-            <p>Ochrana pred poveternostnými vplyvmi</p>
+            <h4>E-nabíjanie</h4>
+            <p>Príprava na nabíjanie elektromobilov</p>
           </div>
 
           <div class="feature-card">
             <div class="feature-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/>
-              </svg>
+              <img src="/assets/icons/what-we-offer/lightbulb.svg" alt="Osvetlenie" width="32" height="32">
             </div>
-            <h4>E-nabíjanie</h4>
-            <p>Príprava na nabíjanie elektromobilov</p>
+            <h4>Osvetlenie</h4>
+            <p>Kvalitné nočné osvetlenie celého areálu</p>
           </div>
         </div>
       </div>

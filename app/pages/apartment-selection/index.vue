@@ -9,48 +9,39 @@
       </nav>
     </div>
 
-    <!-- Hero Section -->
-    <section class="page-hero">
-      <div class="page-hero-bg placeholder-image"></div>
-      <div class="page-hero-overlay"></div>
-      <div class="page-hero-content">
-        <h1 class="page-title">Výber bytu</h1>
-        <p class="page-subtitle">Nájdite si svoj vysnívaný domov v Rezidencii Žilina</p>
+    <!-- Rezidencia Žilina Info Section -->
+    <section class="info-section section">
+      <div class="container">
+        <div class="text-center mb-lg">
+          <h1 class="section-title">Rezidencia Žilina</h1>
+          <p class="section-subtitle">
+            Objavte moderné bývanie v srdci prírody. Rezidencia Žilina spája komfort mestského života s pokojom zelene.
+          </p>
+        </div>
+        <NuxtImg 
+          src="/images/apartments/cad-building.png" 
+          alt="Rezidencia Žilina vizualizácia" 
+          class="info-image" 
+          style="width: 100%; height: 400px; object-fit: cover; border-radius: 1rem;" 
+        />
       </div>
     </section>
 
-    <!-- Floor Selection -->
-    <section class="floor-selection section">
+    <!-- Pricing Section -->
+    <section class="pricing-section section">
       <div class="container">
-        <div class="selection-intro text-center">
-          <h2>Vyberte si podlažie</h2>
-          <p class="intro-text">
-            Kliknite na podlažie pre zobrazenie dostupných bytov
+        <div class="text-center mb-lg">
+          <h2 class="section-title">Cenník</h2>
+          <p class="section-subtitle">
+            Pozrite si aktuálny cenník našich bytov a parkovacích miest.
           </p>
         </div>
-
-        <div class="building-view">
-          <div class="floor-item" v-for="floor in floors" :key="floor.id">
-            <button 
-              class="floor-btn" 
-              :class="{ active: selectedFloor === floor.id }"
-              @click="selectedFloor = floor.id"
-            >
-              <span class="floor-number">{{ floor.name }}</span>
-              <span class="floor-info">{{ getFloorApartmentCount(floor.id) }} bytov</span>
-              <span class="floor-status" :class="getFloorStatusClass(floor.id)">
-                {{ getFloorAvailableCount(floor.id) }} voľných
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Building Image -->
-        <div class="building-image-container">
-          <div class="building-image placeholder-image">
-            <span class="building-text">Vizualizácia Rezidencia Žilina</span>
-          </div>
-        </div>
+        <NuxtImg 
+          src="/images/apartments/cad-building.png" 
+          alt="Cenník vizualizácia" 
+          class="pricing-image" 
+          style="width: 100%; height: 300px; object-fit: cover; border-radius: 1rem;" 
+        />
       </div>
     </section>
 
@@ -148,7 +139,7 @@ interface Apartment {
 const apartments = ref<Apartment[]>([])
 const loading = ref(true)
 const error = ref('')
-const selectedFloor = ref(1)
+
 const activeFilter = ref('all')
 
 const statusLabels: Record<string, string> = {
@@ -157,12 +148,7 @@ const statusLabels: Record<string, string> = {
   sold: 'Predaný'
 }
 
-const floors = [
-  { id: 4, name: '4. NP' },
-  { id: 3, name: '3. NP' },
-  { id: 2, name: '2. NP' },
-  { id: 1, name: '1. NP' },
-]
+
 
 const filters = [
   { label: 'Všetky', value: 'all' },
@@ -199,20 +185,7 @@ const displayedApartments = computed(() => {
 })
 
 // Floor helpers
-const getFloorApartmentCount = (floorId: number) => {
-  return apartments.value.filter(a => a.floor === floorId).length
-}
 
-const getFloorAvailableCount = (floorId: number) => {
-  return apartments.value.filter(a => a.floor === floorId && a.status === 'available').length
-}
-
-const getFloorStatusClass = (floorId: number) => {
-  const available = getFloorAvailableCount(floorId)
-  if (available > 3) return 'available'
-  if (available > 0) return 'limited'
-  return 'sold'
-}
 
 // Initialize
 onMounted(() => {

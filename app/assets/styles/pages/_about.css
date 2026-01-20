@@ -42,6 +42,12 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 
+.about-page .about-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* Ideal Place Section */
 .about-page .about-ideal {
     padding: 5rem 0;
@@ -167,10 +173,6 @@
     .about-page .about-ideal-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
-    }
-
-    .about-page .about-ideal-grid {
-        /* Reverse order on mobile - image first */
     }
 
     .about-page .about-ideal-image {

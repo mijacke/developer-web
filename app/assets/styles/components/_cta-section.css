@@ -188,13 +188,20 @@
 /* Tree Decoration */
 .tree-decoration {
     position: absolute;
-    bottom: -2rem;
+    bottom: -5rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
     pointer-events: none;
     width: 300px;
     height: auto;
+}
+
+/* Hide tree in specific range */
+@media (min-width: 1074px) and (max-width: 1270px) {
+    .tree-decoration {
+        display: none;
+    }
 }
 
 .tree-decoration svg,
@@ -205,31 +212,107 @@
 }
 
 /* CTA Responsive */
-@media (max-width: 1024px) {
+/* CTA Responsive */
+/* CTA Responsive */
+@media (max-width: 1073px) {
     .cta-salesperson-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+        grid-template-columns: 1.4fr 0.6fr;
+        grid-template-areas:
+            "content content"
+            "card tree";
+        gap: 3rem;
+        text-align: center;
     }
 
-    .salesperson-content {
+    .cta-content {
+        grid-area: content;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .cta-buttons {
+        justify-content: center;
+    }
+
+    .cta-salesperson-grid> :nth-child(2) {
+        grid-area: card;
         min-width: auto;
-        max-width: 400px;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        justify-content: flex-end;
+        /* Align card to right of its cell to meet tree */
     }
 
     .tree-decoration {
+        grid-area: tree;
         position: relative;
         bottom: auto;
         left: auto;
         transform: none;
         display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        /* Align tree to left of its cell */
+        margin-top: 0;
+        width: 100%;
+    }
+
+    /* Center the row of card+tree */
+    .cta-salesperson-grid> :nth-child(2),
+    .tree-decoration {
         justify-content: center;
-        margin-top: 2rem;
+        /* Actually, let's just center them in their cells */
+    }
+}
+
+@media (max-width: 850px) {
+    .cta-salesperson-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "content"
+            "card"
+            "tree";
+        gap: 2rem;
+    }
+
+    .cta-salesperson-grid> :nth-child(2) {
+        justify-content: center;
+    }
+
+    .salesperson-card {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .salesperson-content {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .tree-decoration {
+        /* Force reset of all positioning */
+        position: relative;
+        inset: auto;
+        left: 0;
+        right: 0;
+        transform: none;
+
+        /* Layout */
+        width: 100%;
+        max-width: 300px;
+        display: flex;
+        justify-content: center;
+        margin: 1rem auto 0 auto;
+        /* Center the container itself */
     }
 }
 
 @media (max-width: 640px) {
     .cta-salesperson .container {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
     .cta-title {
@@ -239,13 +322,24 @@
     .cta-buttons {
         flex-direction: column;
     }
+}
 
-    .salesperson-card {
-        flex-direction: column;
-        text-align: center;
+@media (max-width: 444px) {
+    .cta-salesperson .container {
+        padding: 1rem;
     }
 
-    .salesperson-contact {
-        align-items: center;
+    .cta-title {
+        font-size: 1.5rem;
+    }
+
+    /* Tighter spacing for very small screens */
+    .salesperson-card {
+        gap: 0.75rem;
+    }
+
+    .salesperson-photo {
+        width: 56px;
+        height: 56px;
     }
 }

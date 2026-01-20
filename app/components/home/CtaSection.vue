@@ -6,7 +6,7 @@
         <div class="cta-content">
           <h2 class="cta-title">Máte záujem o nový domov?</h2>
           <p class="cta-text">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
+            Objavte svoj vysnívaný domov v Rezidencii Žilina. Moderná architektúra, prémiové materiály a jedinečná lokalita v objatí prírody čakajú práve na vás.
           </p>
           <div class="cta-buttons">
             <NuxtLink to="/apartment-selection" class="btn btn-cta-primary btn-rounded">
@@ -20,15 +20,16 @@
 
         <!-- Right: Salesperson Card -->
         <HomeSalespersonCard
-          name="Meno Priezvisko"
+          name="Mário Laššú"
           role="Predajca"
           phone="+421 900 000 000"
           email="info@rezidenciazilina.sk"
+          photo="/images/mario-lassu.png"
         />
-      </div>
 
-      <div class="tree-decoration">
-        <HomeLottieTree />
+        <div class="tree-decoration">
+          <HomeLottieTree />
+        </div>
       </div>
     </div>
   </section>

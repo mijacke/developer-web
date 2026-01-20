@@ -131,9 +131,29 @@
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+    .amenities-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .amenity-item {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        padding: 1.25rem 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .amenity-label {
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+
     .amenities-badge {
         font-size: 0.8rem;
         padding: 0.5rem 1rem;
+        width: 100%;
+        justify-content: center;
     }
 }

@@ -20,7 +20,12 @@
 
         <!-- Panoramic Image -->
         <div class="locality-panorama">
-          <!-- Placeholder for panoramic image -->
+          <NuxtImg
+            src="/images/panoramatic.png"
+            alt="Panoráma okolia Rezidencia Žilina"
+            loading="eager"
+            class="panorama-image"
+          />
         </div>
       </div>
     </section>
@@ -31,7 +36,17 @@
     <!-- Google Maps Section -->
     <section class="locality-map-section">
       <div class="container">
-        <div class="locality-map-placeholder"></div>
+        <div class="locality-map-wrapper">
+          <iframe
+            src="https://maps.google.com/maps?q=Lesopark+Chras%C5%A5,+%C5%BDilina&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
       </div>
     </section>
 
@@ -42,37 +57,45 @@
         <div class="attraction-row">
           <div class="attraction-content">
             <span class="attraction-label">V okolí nájdete</span>
-            <h2 class="attraction-title">Liptovská mara</h2>
+            <h2 class="attraction-title">Budatínsky hrad</h2>
             <p class="attraction-text">
-              Liptovská Mara je vodné dielo medzi Liptovským Mikulášom a Ružomberkom, 
-              ktoré sa nazýva aj „Liptovské more". Je súčasťou systému priehrad Vážskej 
-              kaskády. Celkovým objemom 360,5 mil. m3 je najväčšou vodnou nádržou na 
-              Slovensku. Hlavným účelom priehrady je protipovodňová ochrana, ale slúži aj 
-              na výrobu elektrickej energie..
+              Historická dominanta Žiliny, ktorá sa nachádza na sútoku riek Váh a Kysuca. Hrad je obklopený rozsiahlym anglickým parkom, ktorý je ideálny na prechádzky a pikniky. V interiéri hradu nájdete Považské múzeum s unikátnou expozíciou drotárstva.
             </p>
             <a href="#" class="attraction-link">Čítať viac</a>
           </div>
           <div class="attraction-image">
-            <div class="attraction-image-wrapper placeholder-image"></div>
+            <div class="attraction-image-wrapper">
+              <NuxtImg
+                src="/images/budatinsky-hrad.png"
+                alt="Budatínsky hrad"
+                width="600"
+                height="340"
+                loading="lazy"
+                class="full-image"
+              />
+            </div>
           </div>
         </div>
 
         <!-- Attraction 2: Image Left, Text Right -->
         <div class="attraction-row attraction-row--reversed">
           <div class="attraction-image">
-            <div class="attraction-image-wrapper placeholder-image"></div>
+            <div class="attraction-image-wrapper">
+              <NuxtImg
+                src="/images/vodne-dielo-zilina.png"
+                alt="Vodné dielo Žilina"
+                width="600"
+                height="340"
+                loading="lazy"
+                class="full-image"
+              />
+            </div>
           </div>
           <div class="attraction-content">
             <span class="attraction-label">V okolí nájdete</span>
-            <h2 class="attraction-title">Tatralandia</h2>
+            <h2 class="attraction-title">Vodné dielo Žilina</h2>
             <p class="attraction-text">
-              Ponorte sa do termálnych aj slaných bazénov v prostredí s tropickou klímou, 
-              kde panuje príjemných 30°C, a zabudnite na chladné dni. Zažite kúpanie pod 
-              hviezdami, osviežujúce saunové rituály a špeciálne eventy plné energie. Deti 
-              sa zabavia na toboganoch a šmýkačkách, zatiaľ čo rodičia si oddýchnu v 
-              saunovom svete alebo doprajú telu relaxačné masáže a wellness procedúry. 
-              Tropická Tatralandia spája zábavu, relax a nezabudnuteľné zážitky pre 
-              všetkých
+              Obľúbené miesto pre šport a rekreáciu. Okolie vodného diela ponúka perfektné podmienky pre cyklistov, korčuliarov aj bežcov s krásnymi výhľadmi na okolitú prírodu a Malú Fatru. V letných mesiacoch tu nájdete aj možnosti na vodné športy.
             </p>
             <a href="#" class="attraction-link">Čítať viac</a>
           </div>
@@ -82,18 +105,23 @@
         <div class="attraction-row">
           <div class="attraction-content">
             <span class="attraction-label">V okolí nájdete</span>
-            <h2 class="attraction-title">Lyžiarske stredisko Jasná</h2>
+            <h2 class="attraction-title">Hrad Strečno</h2>
             <p class="attraction-text">
-              Jasná – Chopok je najväčšie lyžiarske stredisko na Slovensku s výbornými 
-              podmienkami pre zimné športy a ponúka nekonečné možnosti aktivít, zábavy a 
-              aktívneho oddychu. Ponúka 50 km perfektne upravených zjazdoviek rôznych 
-              obtiažností, vhodných pre začiatočníkov, rodiny s deťmi, pokročilých lyžiarov a 
-              aj na usporiadanie pretekov svetovej úrovne.
+              Majestátna zrúcanina stredovekého hradu týčiaca sa na vápencovom brale nad riekou Váh. Hrad ponúka nielen fascinujúci pohľad do histórie, ale aj nádherné panoramatické výhľady na Domašínsky meander a okolitú krajinu.
             </p>
             <a href="#" class="attraction-link">Čítať viac</a>
           </div>
           <div class="attraction-image">
-            <div class="attraction-image-wrapper placeholder-image"></div>
+            <div class="attraction-image-wrapper">
+              <NuxtImg
+                src="/images/hrad-strecno.png"
+                alt="Hrad Strečno"
+                width="600"
+                height="340"
+                loading="lazy"
+                class="full-image"
+              />
+            </div>
           </div>
         </div>
       </div>

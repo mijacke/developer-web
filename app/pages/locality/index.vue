@@ -1,27 +1,33 @@
+
+
 <template>
   <div class="locality-page">
+    <!-- Breadcrumbs -->
+    <div class="container">
+      <nav class="breadcrumbs">
+        <NuxtLink to="/">Domov</NuxtLink>
+        <span class="breadcrumbs-separator">/</span>
+        <span>Lokalita</span>
+      </nav>
+    </div>
+
     <!-- Hero Section - New Style -->
     <section class="locality-hero section">
       <div class="container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumbs">
-          <NuxtLink to="/">Home</NuxtLink>
-          <span class="breadcrumbs-separator">/</span>
-          <span>Lokalita</span>
-        </nav>
+
 
         <!-- Hero Content -->
         <div class="locality-hero-content">
           <h1 class="locality-title">Lokalita</h1>
           <p class="locality-subtitle">
-            <strong>Objavte moderné bývanie v srdci prírody.</strong> Rezidencia Arborétum spája komfort mestského života s pokojom zelene.
+            <strong>Objavte moderné bývanie v srdci prírody.</strong> Rezidencia Žilina spája komfort mestského života s pokojom zelene.
           </p>
         </div>
 
         <!-- Panoramic Image -->
         <div class="locality-panorama">
           <NuxtImg
-            src="/images/panoramatic.png"
+            src="/images/locality/panoramatic.png"
             alt="Panoráma okolia Rezidencia Žilina"
             loading="eager"
             class="panorama-image"
@@ -38,13 +44,12 @@
       <div class="container">
         <div class="locality-map-wrapper">
           <iframe
-            src="https://maps.google.com/maps?q=Lesopark+Chras%C5%A5,+%C5%BDilina&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            title="Rezidencia Žilina – mapa"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=18.7378%2C49.1889%2C18.7778%2C49.2089&layer=mapnik&marker=49.1989%2C18.7578"
             width="100%"
             height="100%"
             style="border:0;"
-            allowfullscreen
             loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
           ></iframe>
         </div>
       </div>
@@ -61,12 +66,12 @@
             <p class="attraction-text">
               Historická dominanta Žiliny, ktorá sa nachádza na sútoku riek Váh a Kysuca. Hrad je obklopený rozsiahlym anglickým parkom, ktorý je ideálny na prechádzky a pikniky. V interiéri hradu nájdete Považské múzeum s unikátnou expozíciou drotárstva.
             </p>
-            <a href="#" class="attraction-link">Čítať viac</a>
+
           </div>
           <div class="attraction-image">
             <div class="attraction-image-wrapper">
               <NuxtImg
-                src="/images/budatinsky-hrad.png"
+                src="/images/locality/budatinsky-hrad.png"
                 alt="Budatínsky hrad"
                 width="600"
                 height="340"
@@ -82,7 +87,7 @@
           <div class="attraction-image">
             <div class="attraction-image-wrapper">
               <NuxtImg
-                src="/images/vodne-dielo-zilina.png"
+                src="/images/locality/vodne-dielo-zilina.png"
                 alt="Vodné dielo Žilina"
                 width="600"
                 height="340"
@@ -97,7 +102,7 @@
             <p class="attraction-text">
               Obľúbené miesto pre šport a rekreáciu. Okolie vodného diela ponúka perfektné podmienky pre cyklistov, korčuliarov aj bežcov s krásnymi výhľadmi na okolitú prírodu a Malú Fatru. V letných mesiacoch tu nájdete aj možnosti na vodné športy.
             </p>
-            <a href="#" class="attraction-link">Čítať viac</a>
+
           </div>
         </div>
 
@@ -109,12 +114,12 @@
             <p class="attraction-text">
               Majestátna zrúcanina stredovekého hradu týčiaca sa na vápencovom brale nad riekou Váh. Hrad ponúka nielen fascinujúci pohľad do histórie, ale aj nádherné panoramatické výhľady na Domašínsky meander a okolitú krajinu.
             </p>
-            <a href="#" class="attraction-link">Čítať viac</a>
+
           </div>
           <div class="attraction-image">
             <div class="attraction-image-wrapper">
               <NuxtImg
-                src="/images/hrad-strecno.png"
+                src="/images/locality/hrad-strecno.png"
                 alt="Hrad Strečno"
                 width="600"
                 height="340"
@@ -131,23 +136,51 @@
     <section class="locality-gallery-section section">
       <div class="container">
         <div class="gallery-header text-center">
-          <h2 class="gallery-title">Liptov, ako to vyzerá v okolí</h2>
+          <h2 class="gallery-title">Žilina a okolie objektívom</h2>
           <p class="gallery-description">
-            Lorem ipsum dolor sit amet consectetur. Vitae est non nisl auctor imperdiet etiam tempus facilisi.
+            Spoznajte jedinečnú atmosféru mesta a jeho prírodného bohatstva. Od historického centra s neopakovateľným čarom až po zelené oázy pokoja a majestátne hory na dosah ruky.
           </p>
         </div>
         <div class="gallery-grid">
           <div class="gallery-item">
-            <div class="gallery-image placeholder-image"></div>
+            <NuxtImg
+              src="/images/locality/marianske-namestie.png"
+              alt="Mariánske námestie"
+              width="400"
+              height="300"
+              loading="lazy"
+              class="gallery-image"
+            />
           </div>
           <div class="gallery-item">
-            <div class="gallery-image placeholder-image"></div>
+            <NuxtImg
+              src="/images/locality/mala-fatra.png"
+              alt="Výhľad na Malú Fatru"
+              width="400"
+              height="300"
+              loading="lazy"
+              class="gallery-image"
+            />
           </div>
           <div class="gallery-item">
-            <div class="gallery-image placeholder-image"></div>
+            <NuxtImg
+              src="/images/locality/lesopark-chrast.png"
+              alt="Lesopark Chrasť"
+              width="400"
+              height="300"
+              loading="lazy"
+              class="gallery-image"
+            />
           </div>
           <div class="gallery-item">
-            <div class="gallery-image placeholder-image"></div>
+            <NuxtImg
+              src="/images/locality/zilina-panorama.png"
+              alt="Nočná panoráma Žiliny"
+              width="400"
+              height="300"
+              loading="lazy"
+              class="gallery-image"
+            />
           </div>
         </div>
       </div>

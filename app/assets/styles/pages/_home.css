@@ -514,10 +514,12 @@
 .home-page .location-map-wrapper {
     width: 100%;
     aspect-ratio: 16/9;
+    min-height: 280px;
     background: #f1f3f5;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    position: relative;
 }
 
 .home-page .location-map-wrapper iframe {

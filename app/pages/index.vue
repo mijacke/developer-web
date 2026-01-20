@@ -2,7 +2,6 @@
 definePageMeta({
   layout: 'default'
 })
-const config = useRuntimeConfig()
 </script>
 
 <template>
@@ -10,7 +9,7 @@ const config = useRuntimeConfig()
     <!-- Hero Section -->
     <section class="hero">
       <NuxtImg
-        src="/images/hero.png"
+        src="/images/home/hero.png"
         alt="Rezidencia Žilina"
         class="hero-bg"
         loading="eager"
@@ -95,7 +94,7 @@ const config = useRuntimeConfig()
           </div>
           <div class="about-image">
             <NuxtImg
-              src="/images/about-project.jpg"
+              src="/images/home/about-project.jpg"
               alt="Rezidencia Žilina - architektonický návrh"
               class="about-image-wrapper"
               loading="lazy"
@@ -132,7 +131,7 @@ const config = useRuntimeConfig()
         <div class="apartment-type-row">
           <div class="apartment-type-image">
             <NuxtImg
-              src="/images/apartment-2room.png"
+              src="/images/home/apartment-2room.png"
               alt="2-izbový byt Rezidencia Žilina"
               class="apartment-image-wrapper"
               loading="lazy"
@@ -196,7 +195,7 @@ const config = useRuntimeConfig()
           </div>
           <div class="apartment-type-image">
             <NuxtImg
-              src="/images/apartment-3room.png"
+              src="/images/home/apartment-3room.png"
               alt="3-izbový byt Rezidencia Žilina"
               class="apartment-image-wrapper"
               loading="lazy"
@@ -220,7 +219,7 @@ const config = useRuntimeConfig()
           <div class="parking-visual">
             <div class="parking-image-wrapper">
               <img
-                src="/images/parking-top-view.png"
+                src="/images/home/parking-top-view.png"
                 alt="Parkovacie státia Rezidencia Žilina"
                 class="parking-image"
                 loading="lazy"
@@ -251,13 +250,12 @@ const config = useRuntimeConfig()
           <div class="location-map">
             <div class="location-map-wrapper">
               <iframe
-                src="https://maps.google.com/maps?q=Lesopark+Chras%C5%A5,+%C5%BDilina&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                title="Rezidencia Žilina – mapa"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=18.7378%2C49.1889%2C18.7778%2C49.2089&layer=mapnik&marker=49.1989%2C18.7578"
                 width="100%"
                 height="100%"
                 style="border:0;"
-                allowfullscreen
                 loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
               ></iframe>
             </div>
           </div>

@@ -24,7 +24,7 @@
           role="Predajca"
           phone="+421 900 000 000"
           email="info@rezidenciazilina.sk"
-          photo="/images/mario-lassu.png"
+          photo="/images/home/mario-lassu.png"
         />
 
         <div class="tree-decoration">

@@ -9,24 +9,14 @@
       </nav>
     </div>
 
-    <!-- Hero Section -->
-    <section class="page-hero">
-      <div class="page-hero-bg placeholder-image"></div>
-      <div class="page-hero-overlay"></div>
-      <div class="page-hero-content">
-        <h1 class="page-title">Kontaktujte nás</h1>
-        <p class="page-subtitle">Radi odpovieme na vaše otázky</p>
-      </div>
-    </section>
-
     <!-- Contact Cards -->
     <section class="contact-cards section">
       <div class="container">
         <div class="cards-grid">
           <div class="contact-card">
-            <div class="card-avatar placeholder-image"></div>
+            <NuxtImg src="/images/home/mario-lassu.png" alt="Mário Laššú" class="card-avatar" />
             <div class="card-info">
-              <h4>Mario Lassu</h4>
+              <h4>Mário Laššú</h4>
               <p class="card-role">Obchodný manažér</p>
               <div class="card-contact">
                 <a href="tel:+421900111222">+421 900 111 222</a>
@@ -36,13 +26,13 @@
           </div>
 
           <div class="contact-card">
-            <div class="card-avatar placeholder-image"></div>
+            <NuxtImg src="/images/home/mario-lassu.png" alt="Mário Laššú" class="card-avatar" />
             <div class="card-info">
-              <h4>Mario Lassu</h4>
+              <h4>Mário Laššú</h4>
               <p class="card-role">Projektový manažér</p>
               <div class="card-contact">
                 <a href="tel:+421900333444">+421 900 333 444</a>
-                <a href="mailto:mario.lassu@developer.sk">mario.lassu@developer.sk</a>
+                <a href="mailto:lassu.mario@developer.sk">lassu.mario@developer.sk</a>
               </div>
             </div>
           </div>

@@ -4,11 +4,14 @@
       <!-- Logo & Social -->
       <div class="footer-brand">
         <NuxtLink to="/" class="footer-logo">
-          <div class="logo-placeholder">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" fill="#d4a84b"/>
-              <path d="M10 30V15L20 8L30 15V30H22V22H18V30H10Z" fill="#1a2744"/>
-            </svg>
+          <div class="logo-wrapper">
+            <NuxtImg
+              src="/images/favicon.png"
+              alt="Rezidencia Žilina"
+              width="40"
+              height="40"
+              class="logo-image"
+            />
           </div>
           <div class="logo-text">
             <span class="logo-title">REZIDENCIA</span>
@@ -17,7 +20,7 @@
         </NuxtLink>
         
         <p class="footer-description">
-          Lorem ipsum dolor sit amet consectetur. Vitae est non nal auctor imperdiet etiam tempus facilisi. Phasere duis ut arcu ut aliquet maecenas magna quisque...
+          Rezidencia Žilina ponúka moderné bývanie v atraktívnej lokalite s výbornou dostupnosťou. Kvalitné byty, parkovanie a kompletná občianska vybavenosť na dosah ruky.
         </p>
         
         <div class="social-links">
@@ -51,9 +54,9 @@
       <div class="footer-section">
         <h4 class="footer-title">Dokumenty</h4>
         <nav class="footer-links">
-          <NuxtLink to="/privacy" class="footer-link">Ochrana osobných údajov</NuxtLink>
+          <NuxtLink to="/privacy" class="footer-link">Ochrana súkromia</NuxtLink>
           <NuxtLink to="/terms" class="footer-link">Obchodné podmienky</NuxtLink>
-          <NuxtLink to="/cookies" class="footer-link">Spracovanie cookies</NuxtLink>
+          <NuxtLink to="/cookies" class="footer-link">Spracovanie Cookies</NuxtLink>
         </nav>
       </div>
 
@@ -80,7 +83,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 15l-6-6-6 6"/>
           </svg>
-          <span>FixDobre</span>
+
         </button>
       </div>
     </div>

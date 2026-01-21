@@ -1,73 +1,80 @@
 <template>
   <div class="admin-layout" :class="{ 'layout-right': sidebarPos === 'right', 'is-dragging': isDragging, 'sidebar-open': isSidebarOpen }">
-    <!-- Mobile Toggle Button -->
-    <button class="mobile-toggle" @click="toggleSidebar" aria-label="Toggle Menu">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-    </button>
+    
+    <!-- Teleport mobile elements to body to escape stacking contexts -->
+    <Teleport to="body" :disabled="!isMobile">
+      <div v-if="isMobile">
+          <!-- Mobile Toggle Button -->
+          <button class="mobile-toggle" @click="toggleSidebar" aria-label="Toggle Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
 
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" @click="closeSidebar"></div>
-
-    <!-- Drop Zones -->
-    <div v-if="isDragging" class="drop-zones">
-      <div 
-        class="drop-zone left" 
-        :class="{ active: hoverSide === 'left', current: sidebarPos === 'left' }"
-        data-side="left"
-      >
-        <span>Vľavo</span>
+          <!-- Mobile Overlay -->
+          <div class="mobile-overlay" :class="{ open: isSidebarOpen }" @click="closeSidebar"></div>
       </div>
-      <div 
-        class="drop-zone right" 
-        :class="{ active: hoverSide === 'right', current: sidebarPos === 'right' }"
-        data-side="right"
-      >
-        <span>Vpravo</span>
+      
+      <!-- Drop Zones -->
+      <div v-if="isDragging && !isMobile" class="drop-zones">
+        <div 
+          class="drop-zone left" 
+          :class="{ active: hoverSide === 'left', current: sidebarPos === 'left' }"
+          data-side="left"
+        >
+          <span>Vľavo</span>
+        </div>
+        <div 
+          class="drop-zone right" 
+          :class="{ active: hoverSide === 'right', current: sidebarPos === 'right' }"
+          data-side="right"
+        >
+          <span>Vpravo</span>
+        </div>
       </div>
-    </div>
 
-    <nav 
-      class="admin-sidebar"
-      @mousedown="startDrag" 
-      @touchstart="startDrag"
-    >
-      <div class="sidebar-header">
-        <div class="header-top">
-          <h2>Admin</h2>
-          <button class="close-sidebar-btn" @click="closeSidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      <nav 
+        class="admin-sidebar"
+        :class="{ 'sidebar-open-mobile': isMobile && isSidebarOpen, 'is-mobile': isMobile }"
+        @mousedown="startDrag" 
+        @touchstart="startDrag"
+      >
+        <div class="sidebar-header">
+          <div class="header-top">
+            <h2>Admin</h2>
+            <button class="close-sidebar-btn" @click="closeSidebar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <p class="user-email">{{ user?.email }}</p>
+        </div>
+        
+        <ul class="nav-links">
+          <li>
+            <NuxtLink to="/admin" exact-active-class="active" @click="closeSidebar">
+              <span class="icon">🗺️</span>
+              Map Editor
+            </NuxtLink>
+          </li>
+          <li v-if="isAdmin">
+            <NuxtLink to="/admin/dashboard" active-class="active" @click="closeSidebar">
+              <span class="icon">📊</span>
+              Dashboard
+            </NuxtLink>
+          </li>
+          <li v-if="isAdmin">
+            <NuxtLink to="/admin/messages" active-class="active" @click="closeSidebar">
+              <span class="icon">✉️</span>
+              Správy
+            </NuxtLink>
+          </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+          <button @click="handleLogout" class="logout-btn">
+            Odhlásiť sa
           </button>
         </div>
-        <p class="user-email">{{ user?.email }}</p>
-      </div>
-      
-      <ul class="nav-links">
-        <li>
-          <NuxtLink to="/admin" exact-active-class="active" @click="closeSidebar">
-            <span class="icon">🗺️</span>
-            Map Editor
-          </NuxtLink>
-        </li>
-        <li v-if="isAdmin">
-          <NuxtLink to="/admin/dashboard" active-class="active" @click="closeSidebar">
-            <span class="icon">📊</span>
-            Dashboard
-          </NuxtLink>
-        </li>
-        <li v-if="isAdmin">
-          <NuxtLink to="/admin/messages" active-class="active" @click="closeSidebar">
-            <span class="icon">✉️</span>
-            Správy
-          </NuxtLink>
-        </li>
-      </ul>
-      
-      <div class="sidebar-footer">
-        <button @click="handleLogout" class="logout-btn">
-          Odhlásiť sa
-        </button>
-      </div>
-    </nav>
+      </nav>
+    </Teleport>
     
     <main class="admin-content">
       <slot />
@@ -83,13 +90,30 @@ const sidebarPos = useCookie('sidebar-pos', { default: () => 'left' })
 
 // Responsive Sidebar Logic
 const isSidebarOpen = ref(false)
+const isMobile = ref(false)
+
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 750
+  if (!isMobile.value) {
+    isSidebarOpen.value = false
+  }
+}
+
+onMounted(() => {
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize)
+})
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
 
 const closeSidebar = () => {
-  if (window.innerWidth <= 750) {
+  if (isMobile.value) {
     isSidebarOpen.value = false
   }
 }
@@ -106,7 +130,7 @@ const startDrag = (e: MouseEvent | TouchEvent) => {
   }
 
   // Disable dragging on mobile (small screens)
-  if (window.innerWidth <= 750) {
+  if (isMobile.value) {
     return
   }
 
@@ -168,6 +192,11 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
+/* NOTE: Some styles (like .admin-sidebar when teleported) might need to be global or ::v-deep if scoped styles typically don't apply to teleported elements correctly in some setups.
+   However, Vue's Teleport keeps the component instance's context, so scoped styles usually still work IF the data attributes are preserved.
+   But we'll verify. To be safe, we might drop 'scoped' for specific classes or ensure they work.
+*/
+
 .admin-layout {
   display: flex;
   min-height: 100vh;
@@ -181,11 +210,11 @@ const handleLogout = async () => {
 
 /* Mobile Toggle */
 .mobile-toggle {
-  display: none;
+  display: flex; /* Visible when rendered via v-if isMobile */
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 2147483640; /* High but below sidebar */
+  z-index: 2147483640;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
@@ -203,13 +232,14 @@ const handleLogout = async () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 2147483645; /* Below sidebar, above everything else */
+  z-index: 2147483645;
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
 }
 
-.sidebar-open .mobile-overlay {
+.mobile-overlay.open {
+  display: block; /* Ensure it's block when open */
   opacity: 1;
   pointer-events: auto;
 }
@@ -287,10 +317,29 @@ const handleLogout = async () => {
   flex-direction: column;
   flex-shrink: 0;
   transition: transform 0.3s ease, width 0.3s ease;
-  z-index: 2147483647; /* Max 32-bit signed integer - MUST be on top */
-  cursor: grab; /* Indicate draggable */
+  z-index: 100; /* Desktop z-index */
+  cursor: grab;
   user-select: none;
+  height: 100vh; /* Ensure full height */
 }
+
+/* When teleported to body (Mobile) */
+.admin-sidebar.is-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2147483647; /* Max Z-Index for mobile */
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+    cursor: default;
+}
+
+.admin-sidebar.sidebar-open-mobile {
+    transform: translateX(0);
+}
+
+/* If layout-right is active but we are on mobile, we still want standard left drawer behavior */
+/* Since it's teleported, it ignores parent layout flex-direction */
 
 .admin-sidebar:active {
   cursor: grabbing;
@@ -396,52 +445,16 @@ const handleLogout = async () => {
   position: relative;
 }
 
-/* RESPONSIVE STYLES */
+/* RESPONSIVE STYLES (Adjustments for layout when sidebar is removed flow) */
 @media (max-width: 750px) {
-  .mobile-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .mobile-overlay {
-    display: block;
-  }
-  
   .close-sidebar-btn {
     display: block;
   }
   
-  .admin-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
-    z-index: 100;
-    /* Disable drag on mobile for simplicity */
-    width: 280px; 
-    cursor: default;
-  }
+  /* Sidebar is teleported so .admin-sidebar selector here implies global context if not careful, 
+     but scoped works assuming data-v attributes are on teleported elements. 
+     We handle most styling with .is-mobile class now. */
 
-  .admin-layout.layout-right .admin-sidebar {
-      /* Reset layout-right behavior on mobile to standard left drawer */
-      /* Or we could respect it, but typically mobile drawers are left-sided or strictly defined */
-      /* Let's force left side for consistency on mobile unless specifically requested otherwise */
-      left: 0;
-      right: auto;
-  }
-
-  .sidebar-open .admin-sidebar {
-    transform: translateX(0);
-  }
-  
-  .admin-layout {
-    /* If layout was reversed, mobile drawer should probably just be an overlay */
-  }
-  
-  /* Ensure content doesn't break */
   .admin-content {
     width: 100%;
     padding-top: 3.5rem; /* Space for toggle button */

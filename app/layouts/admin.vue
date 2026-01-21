@@ -1,5 +1,13 @@
 <template>
-  <div class="admin-layout" :class="{ 'layout-right': sidebarPos === 'right', 'is-dragging': isDragging }">
+  <div class="admin-layout" :class="{ 'layout-right': sidebarPos === 'right', 'is-dragging': isDragging, 'sidebar-open': isSidebarOpen }">
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" @click="toggleSidebar" aria-label="Toggle Menu">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" @click="closeSidebar"></div>
+
     <!-- Drop Zones -->
     <div v-if="isDragging" class="drop-zones">
       <div 
@@ -24,25 +32,30 @@
       @touchstart="startDrag"
     >
       <div class="sidebar-header">
-        <h2>Admin</h2>
+        <div class="header-top">
+          <h2>Admin</h2>
+          <button class="close-sidebar-btn" @click="closeSidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
         <p class="user-email">{{ user?.email }}</p>
       </div>
       
       <ul class="nav-links">
         <li>
-          <NuxtLink to="/admin" exact-active-class="active">
+          <NuxtLink to="/admin" exact-active-class="active" @click="closeSidebar">
             <span class="icon">🗺️</span>
             Map Editor
           </NuxtLink>
         </li>
         <li v-if="isAdmin">
-          <NuxtLink to="/admin/dashboard" active-class="active">
+          <NuxtLink to="/admin/dashboard" active-class="active" @click="closeSidebar">
             <span class="icon">📊</span>
             Dashboard
           </NuxtLink>
         </li>
         <li v-if="isAdmin">
-          <NuxtLink to="/admin/messages" active-class="active">
+          <NuxtLink to="/admin/messages" active-class="active" @click="closeSidebar">
             <span class="icon">✉️</span>
             Správy
           </NuxtLink>
@@ -68,6 +81,19 @@ const { user, logout, isAdmin } = useAuth()
 // Persist sidebar position preference
 const sidebarPos = useCookie('sidebar-pos', { default: () => 'left' })
 
+// Responsive Sidebar Logic
+const isSidebarOpen = ref(false)
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeSidebar = () => {
+  if (window.innerWidth <= 750) {
+    isSidebarOpen.value = false
+  }
+}
+
 // Dragging Logic
 const isDragging = ref(false)
 const hoverSide = ref<string | null>(null)
@@ -77,6 +103,11 @@ const startDrag = (e: MouseEvent | TouchEvent) => {
   const target = e.target as HTMLElement
   if (target.closest('a') || target.closest('button')) {
     return // Allow normal interaction
+  }
+
+  // Disable dragging on mobile (small screens)
+  if (window.innerWidth <= 750) {
+    return
   }
 
   // If touch event, ensure we don't block scrolling unless it's a drag intention? 
@@ -148,6 +179,57 @@ const handleLogout = async () => {
   flex-direction: row-reverse;
 }
 
+/* Mobile Toggle */
+.mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 90;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  color: #1e293b;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.sidebar-open .mobile-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Header Close Button (Mobile Only) */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-sidebar-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
 /* Drop Zones Overlay */
 .drop-zones {
   position: fixed;
@@ -204,7 +286,7 @@ const handleLogout = async () => {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, width 0.3s ease;
   z-index: 100;
   cursor: grab; /* Indicate draggable */
   user-select: none;
@@ -235,18 +317,21 @@ const handleLogout = async () => {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
   color: #fff;
+  margin-top: 0;
 }
 
 .user-email {
   font-size: 0.85rem;
   color: #94a3b8;
   word-break: break-all;
+  margin: 0;
 }
 
 .nav-links {
   list-style: none;
   padding: 1.5rem 1rem;
   flex: 1;
+  margin: 0;
 }
 
 .nav-links li {
@@ -286,36 +371,6 @@ const handleLogout = async () => {
   gap: 0.5rem;
 }
 
-.utility-btn {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #334155;
-  border: none;
-  color: #cbd5e1;
-  border-radius: 0.5rem;
-  cursor: grab;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.utility-btn:active {
-  cursor: grabbing;
-}
-
-.utility-btn:hover {
-  background-color: #475569;
-  color: white;
-}
-
-.move-btn .icon {
-  font-size: 1.1rem;
-}
-
 .logout-btn {
   width: 100%;
   padding: 0.75rem;
@@ -338,5 +393,58 @@ const handleLogout = async () => {
   overflow-x: hidden;
   height: 100vh;
   overflow-y: auto;
+  position: relative;
+}
+
+/* RESPONSIVE STYLES */
+@media (max-width: 750px) {
+  .mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .mobile-overlay {
+    display: block;
+  }
+  
+  .close-sidebar-btn {
+    display: block;
+  }
+  
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+    z-index: 100;
+    /* Disable drag on mobile for simplicity */
+    width: 280px; 
+    cursor: default;
+  }
+
+  .admin-layout.layout-right .admin-sidebar {
+      /* Reset layout-right behavior on mobile to standard left drawer */
+      /* Or we could respect it, but typically mobile drawers are left-sided or strictly defined */
+      /* Let's force left side for consistency on mobile unless specifically requested otherwise */
+      left: 0;
+      right: auto;
+  }
+
+  .sidebar-open .admin-sidebar {
+    transform: translateX(0);
+  }
+  
+  .admin-layout {
+    /* If layout was reversed, mobile drawer should probably just be an overlay */
+  }
+  
+  /* Ensure content doesn't break */
+  .admin-content {
+    width: 100%;
+    padding-top: 3.5rem; /* Space for toggle button */
+  }
 }
 </style>

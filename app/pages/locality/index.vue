@@ -191,3 +191,15 @@
   </div>
 
 </template>
+
+<script setup lang="ts">
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Lokalita | Rezidencia Žilina',
+  description: 'Objavte lokalitu Rezidencia Žilina - blízkosť Budatínskeho hradu, Vodného diela Žilina a Hradu Strečno. Perfektná kombinácia prírody a mestského života.',
+  ogTitle: 'Lokalita | Rezidencia Žilina',
+  ogDescription: 'Atraktívna lokalita s výbornou dostupnosťou centra mesta a prírodných krás Žiliny.',
+  ogImage: '/images/locality/panoramatic.png',
+  ogType: 'website'
+})
+</script>

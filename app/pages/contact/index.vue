@@ -197,4 +197,14 @@ const {
   validateField,
   handleSubmit
 } = useContactForm()
+
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Kontakt | Rezidencia Žilina',
+  description: 'Kontaktujte nás ohľadom bytov v Rezidencii Žilina. Náš tím vám rád poradí s výberom bytu a zodpovie všetky vaše otázky.',
+  ogTitle: 'Kontakt | Rezidencia Žilina',
+  ogDescription: 'Kontaktujte náš tím a dozveďte sa viac o bytoch v Rezidencii Žilina.',
+  ogImage: '/images/home/hero.png',
+  ogType: 'website'
+})
 </script>

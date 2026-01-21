@@ -175,3 +175,15 @@
     <HomeCtaSection />
   </div>
 </template>
+
+<script setup lang="ts">
+// SEO Meta Tags
+useSeoMeta({
+  title: 'O projekte | Rezidencia Žilina',
+  description: 'Rezidencia Žilina - nová dominanta bývania spájajúca mestský životný štýl s výhľadmi na Malú Fatru. 2 a 3-izbové apartmány s prémiovým vybavením.',
+  ogTitle: 'O projekte | Rezidencia Žilina',
+  ogDescription: 'Prémiové 2 a 3-izbové apartmány s kvalitným vybavením a výhľadmi na Malú Fatru.',
+  ogImage: '/images/about-project/o-lokalite.png',
+  ogType: 'website'
+})
+</script>

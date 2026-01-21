@@ -231,3 +231,15 @@
     <HomeCtaSection />
   </div>
 </template>
+
+<script setup lang="ts">
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Galéria | Rezidencia Žilina',
+  description: 'Prezrite si fotogalériu Rezidencia Žilina - exteriér, interiéry vzorových bytov a priebeh výstavby moderného bytového projektu v Žiline.',
+  ogTitle: 'Galéria | Rezidencia Žilina',
+  ogDescription: 'Fotogaléria exteriéru, interiérov a výstavby Rezidencia Žilina.',
+  ogImage: '/images/gallery/exterior/gallery-exterior-1.png',
+  ogType: 'website'
+})
+</script>

@@ -112,4 +112,7 @@ const {
   breakdownRows,
   standardsSlides,
 } = useApartmentDetail()
+// SEO meta tags are defined in useApartmentDetail composable
 </script>
+
+

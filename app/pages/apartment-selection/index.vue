@@ -44,6 +44,16 @@
 <script setup lang="ts">
 const mapEmbed = '[dm_map map_key="bytovy-dom-a"]'
 const pricingEmbed = '[dm_map map_key="cennik-bytovy-dom"]'
+
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Výber bytu | Rezidencia Žilina',
+  description: 'Vyberte si svoj nový byt v Rezidencii Žilina - interaktívna mapa dostupných 2 a 3-izbových bytov s cenníkom a podrobnými informáciami.',
+  ogTitle: 'Výber bytu | Rezidencia Žilina',
+  ogDescription: 'Interaktívna mapa dostupných bytov s cenníkom a podrobnými informáciami.',
+  ogImage: '/images/home/hero.png',
+  ogType: 'website'
+})
 </script>
 
 <style scoped>

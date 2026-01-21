@@ -2,6 +2,17 @@
 definePageMeta({
   layout: 'default'
 })
+
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Rezidencia Žilina | Moderné byty v srdci prírody',
+  description: 'Bytový projekt Rezidencia Žilina - moderné 2 a 3-izbové byty s balkónmi a parkovaním. Objavte kvalitné bývanie v atraktívnej lokalite Žiliny.',
+  ogTitle: 'Rezidencia Žilina | Moderné byty v srdci prírody',
+  ogDescription: 'Moderné 2 a 3-izbové byty s balkónmi a parkovaním v atraktívnej lokalite Žiliny.',
+  ogImage: '/images/home/hero.png',
+  ogType: 'website',
+  twitterCard: 'summary_large_image'
+})
 </script>
 
 <template>

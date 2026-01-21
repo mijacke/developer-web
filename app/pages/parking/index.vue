@@ -113,8 +113,18 @@
 </template>
 
 <script setup lang="ts">
-  const mapEmbed = '[dm_map map_key="parkovanie"]'
+const mapEmbed = '[dm_map map_key="parkovanie"]'
 const parkingEmbed = '[dm_map map_key="cennik-parkovanie"]'
+
+// SEO Meta Tags
+useSeoMeta({
+  title: 'Parkovanie | Rezidencia Žilina',
+  description: 'Bezpečné a pohodlné parkovanie v Rezidencii Žilina - zabezpečené parkovacie miesta s 24/7 kamerovým systémom a prípravou na e-nabíjanie.',
+  ogTitle: 'Parkovanie | Rezidencia Žilina',
+  ogDescription: 'Zabezpečené parkovacie miesta s 24/7 prístupom a kamerovým systémom.',
+  ogImage: '/images/parking/parking.png',
+  ogType: 'website'
+})
 </script>
 
 <style scoped>

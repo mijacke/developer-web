@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Locality\BulkUpdateLocalitiesRequest;
+use App\Http\Requests\Locality\StoreLocalityRequest;
+use App\Http\Requests\Locality\UpdateLocalityRequest;
 use App\Models\Locality;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class LocalityController extends Controller
 {
@@ -25,23 +27,9 @@ class LocalityController extends Controller
     /**
      * Store a newly created locality
      */
-    public function store(Request $request, Project $project): JsonResponse
+    public function store(StoreLocalityRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'nullable|string|max:100',
-            'status' => 'required|string|max:50',
-            'status_label' => 'nullable|string|max:100',
-            'status_color' => 'nullable|string|max:20',
-            'area' => 'nullable|numeric|min:0',
-            'price' => 'nullable|numeric|min:0',
-            'rent' => 'nullable|numeric|min:0',
-            'floor' => 'nullable|string|max:50',
-            'image' => 'nullable|string',
-            'svg_path' => 'nullable|string',
-            'metadata' => 'nullable|array',
-            'sort_order' => 'nullable|integer',
-        ]);
+        $validated = $request->validated();
 
         $validated['project_id'] = $project->id;
         $validated['sort_order'] = $validated['sort_order'] ?? $project->localities()->count();
@@ -69,27 +57,13 @@ class LocalityController extends Controller
     /**
      * Update the specified locality
      */
-    public function update(Request $request, Project $project, Locality $locality): JsonResponse
+    public function update(UpdateLocalityRequest $request, Project $project, Locality $locality): JsonResponse
     {
         if ($locality->project_id !== $project->id) {
             return response()->json(['message' => 'Lokalita nepatrí k tomuto projektu'], 404);
         }
 
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'type' => 'nullable|string|max:100',
-            'status' => 'sometimes|required|string|max:50',
-            'status_label' => 'nullable|string|max:100',
-            'status_color' => 'nullable|string|max:20',
-            'area' => 'nullable|numeric|min:0',
-            'price' => 'nullable|numeric|min:0',
-            'rent' => 'nullable|numeric|min:0',
-            'floor' => 'nullable|string|max:50',
-            'image' => 'nullable|string',
-            'svg_path' => 'nullable|string',
-            'metadata' => 'nullable|array',
-            'sort_order' => 'nullable|integer',
-        ]);
+        $validated = $request->validated();
 
         $locality->update($validated);
 
@@ -118,14 +92,9 @@ class LocalityController extends Controller
     /**
      * Bulk update localities (for sorting, status changes, etc.)
      */
-    public function bulkUpdate(Request $request, Project $project): JsonResponse
+    public function bulkUpdate(BulkUpdateLocalitiesRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validate([
-            'localities' => 'required|array',
-            'localities.*.id' => 'required|exists:localities,id',
-            'localities.*.sort_order' => 'nullable|integer',
-            'localities.*.status' => 'nullable|string|max:50',
-        ]);
+        $validated = $request->validated();
 
         foreach ($validated['localities'] as $localityData) {
             $locality = Locality::find($localityData['id']);

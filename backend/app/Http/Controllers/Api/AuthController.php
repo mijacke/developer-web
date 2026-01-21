@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -47,9 +48,9 @@ class AuthController extends Controller
         // Update last login
         $user->update(['last_login_at' => now()]);
 
-        // Revoke previous tokens and create new one
-        $user->tokens()->delete();
-        $token = $user->createToken('auth-token')->plainTextToken;
+        // Sanctum SPA login (session-based)
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate();
 
         // Log the login
         AuditLog::log('login', $user);
@@ -61,7 +62,6 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ],
-            'token' => $token,
         ]);
     }
 
@@ -96,11 +96,26 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // Log the logout
-        AuditLog::log('logout', $request->user());
+        $user = $request->user();
+        
+        // Log the logout only if user is authenticated
+        if ($user) {
+            AuditLog::log('logout', $user);
+            
+            // Revoke token only if it's a PersonalAccessToken (not TransientToken for SPA)
+            $token = $user->currentAccessToken();
+            if ($token && method_exists($token, 'delete')) {
+                $token->delete();
+            }
+        }
 
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
+        // Sanctum SPA logout (session-based)
+        Auth::guard('web')->logout();
+        
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json([
             'message' => 'Úspešne odhlásený.',

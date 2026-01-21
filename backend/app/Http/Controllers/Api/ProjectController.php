@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -22,10 +23,8 @@ class ProjectController extends Controller
                 return [
                     'id' => $project->id,
                     'name' => $project->name,
-                    'description' => $project->description,
                     'image' => $project->image,
                     'map_key' => $project->map_key,
-                    'settings' => $project->settings,
                     'localities_count' => $project->localities->count(),
                     'available_count' => $project->localities->where('status', 'available')->count(),
                     'floors' => $project->localities->map(fn($l) => [
@@ -51,14 +50,9 @@ class ProjectController extends Controller
     /**
      * Store a newly created project
      */
-    public function store(Request $request): JsonResponse
+    public function store(StoreProjectRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|string',
-            'settings' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $validated['map_key'] = Str::slug($validated['name']) . '-' . Str::random(6);
 
@@ -80,10 +74,8 @@ class ProjectController extends Controller
         return response()->json([
             'id' => $project->id,
             'name' => $project->name,
-            'description' => $project->description,
             'image' => $project->image,
             'map_key' => $project->map_key,
-            'settings' => $project->settings,
             'floors' => $project->localities->map(fn($l) => [
                 'id' => $l->id,
                 'name' => $l->name,
@@ -117,14 +109,9 @@ class ProjectController extends Controller
     /**
      * Update the specified project
      */
-    public function update(Request $request, Project $project): JsonResponse
+    public function update(UpdateProjectRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|string',
-            'settings' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $project->update($validated);
 

@@ -1,0 +1,197 @@
+/* ================================
+   Cookie Consent Demo
+   ================================ */
+
+.cookie-demo__floating {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(212, 168, 75, 0.35);
+    background: rgba(15, 24, 41, 0.9);
+    color: var(--color-gold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    z-index: 1100;
+    backdrop-filter: blur(6px);
+}
+
+.cookie-demo__floating:hover {
+    background: rgba(15, 24, 41, 0.98);
+    border-color: rgba(212, 168, 75, 0.6);
+}
+
+.cookie-demo__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 24, 41, 0.35);
+    z-index: 1080;
+}
+
+.cookie-demo__panel {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 1rem;
+    width: calc(100% - 2rem);
+    max-width: 980px;
+    background: var(--color-bg-white);
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 1.25rem 1.5rem;
+    z-index: 1090;
+    cursor: pointer;
+}
+
+.cookie-demo__panel {
+    max-height: calc(100vh - 6rem);
+    overflow: auto;
+}
+
+.cookie-demo__panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.cookie-demo__panel::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+}
+
+.cookie-demo__panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cookie-demo__panel {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 23, 42, 0.22) transparent;
+}
+
+.cookie-demo__panel:focus {
+    outline: none;
+}
+
+.cookie-demo__content {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.cookie-demo__title {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--color-primary-dark);
+}
+
+.cookie-demo__description {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.85);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 52rem;
+}
+
+.cookie-demo__links {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: rgba(15, 23, 42, 0.78);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.cookie-demo__link {
+    color: var(--color-gold);
+    transition: color var(--transition-fast);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.cookie-demo__link:hover {
+    color: var(--color-gold-hover);
+}
+
+.cookie-demo__separator {
+    opacity: 0.65;
+}
+
+.cookie-demo__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.cookie-demo__actions .cookie-demo__action {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.cookie-demo__actions .btn.btn-primary.cookie-demo__action {
+    border: 1px solid transparent;
+}
+
+.cookie-demo__note {
+    margin: 0.75rem 0 0 0;
+    font-size: 0.78rem;
+    color: rgba(15, 23, 42, 0.72);
+}
+
+@media (max-width: 820px) {
+    .cookie-demo__panel {
+        padding: 1rem 1.125rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .cookie-demo__panel {
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-width: 720px) {
+    .cookie-demo__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cookie-demo__actions .cookie-demo__action {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+}
+
+@media (max-width: 520px) {
+    .cookie-demo__actions {
+        gap: 0.5rem;
+    }
+
+    .cookie-demo__actions .cookie-demo__action {
+        padding: 0.7rem 0.75rem;
+        font-size: 0.78rem;
+    }
+}

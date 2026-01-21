@@ -118,11 +118,11 @@ definePageMeta({
           <div class="apartment-stats">
             <div class="stat-box">
               <span class="stat-label">Parkovacie miesta</span>
-              <span class="stat-value">5/32</span>
+              <span class="stat-value">5/24</span>
             </div>
             <div class="stat-box">
               <span class="stat-label">Obsadenosť bytov</span>
-              <span class="stat-value">2/32</span>
+              <span class="stat-value">8/17</span>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@ definePageMeta({
             <div class="apartment-type-badges">
               <div class="apartment-badge">
                 <img src="/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
-                <span>od 40 m²</span>
+                <span>od 70 m²</span>
               </div>
               <div class="apartment-badge">
                 <img src="/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
@@ -177,7 +177,7 @@ definePageMeta({
             <div class="apartment-type-badges">
               <div class="apartment-badge">
                 <img src="/assets/icons/ui/expand.svg" alt="Rozloha" width="16" height="16" />
-                <span>od 70 m²</span>
+                <span>od 75 m²</span>
               </div>
               <div class="apartment-badge">
                 <img src="/assets/icons/ui/layout.svg" alt="Izby" width="16" height="16" />
@@ -230,7 +230,7 @@ definePageMeta({
               <div class="parking-badges">
                 <div class="parking-badge">
                   <span class="parking-badge-icon">P</span>
-                  <span>24 parkovacích miest</span>
+                  <span>Parkovacie miesta</span>
                 </div>
                 <div class="parking-badge">
                   <img src="~/assets/icons/ui/shield-check.svg" alt="Bezpečnosť" width="20" height="20" />

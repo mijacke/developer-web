@@ -152,15 +152,15 @@
       <div class="container">
         <div class="stats-grid">
           <div class="stat-item">
-            <span class="stat-number">48</span>
+            <span class="stat-number">17</span>
             <span class="stat-label">Bytov celkom</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">4</span>
-            <span class="stat-label">Podlaží</span>
+            <span class="stat-number">2</span>
+            <span class="stat-label">Poschodia</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">56</span>
+            <span class="stat-number">24</span>
             <span class="stat-label">Parkovacích miest</span>
           </div>
           <div class="stat-item">

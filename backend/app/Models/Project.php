@@ -13,16 +13,21 @@ class Project extends Model
 {
     use Auditable;
     protected $fillable = [
+        'dm_id',
         'parent_id',
         'name',
         'type',
         'image',
         'map_key',
         'sort_order',
+        'regions',
+        'frontend',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'regions' => 'array',
+        'frontend' => 'array',
     ];
 
     /**

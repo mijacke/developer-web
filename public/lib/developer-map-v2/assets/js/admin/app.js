@@ -929,6 +929,7 @@ export async function initDeveloperMap(options) {
     // Save projects (maps) via storage
     function saveProjects(projects) {
         if (Array.isArray(projects)) {
+            sortProjectsAndFloors(projects);
             ensureProjectShortcodes(projects);
         }
         storageCache.projects = cloneForStorage(projects);
@@ -1594,6 +1595,8 @@ export async function initDeveloperMap(options) {
 
         let mutated = false;
 
+        const escapeRegExp = (value) => String(value ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
         projects.forEach((project) => {
             if (!project || typeof project !== 'object') {
                 return;
@@ -1612,21 +1615,170 @@ export async function initDeveloperMap(options) {
                 return;
             }
 
-            let ordinal = 1;
+            const usedOrdinals = new Set();
+            let maxOrdinal = 0;
+            const shortcodePattern = new RegExp(`^${escapeRegExp(parentKey)}-([0-9]+)$`);
+            project.floors.forEach((floor) => {
+                if (!floor || typeof floor !== 'object') {
+                    return;
+                }
+                const shortcode = typeof floor.shortcode === 'string' ? floor.shortcode.trim() : '';
+                const match = shortcode.match(shortcodePattern);
+                if (match && match[1]) {
+                    const parsed = Number.parseInt(match[1], 10);
+                    if (Number.isFinite(parsed) && parsed > 0) {
+                        usedOrdinals.add(parsed);
+                        if (parsed > maxOrdinal) {
+                            maxOrdinal = parsed;
+                        }
+                    }
+                }
+            });
+
+            let ordinal = Math.max(1, maxOrdinal + 1);
             project.floors.forEach((floor) => {
                 if (!floor || typeof floor !== 'object') {
                     return;
                 }
 
-                const expected = `${parentKey}-${ordinal}`;
-                if (floor.shortcode !== expected) {
-                    floor.shortcode = expected;
+                const current = typeof floor.shortcode === 'string' ? floor.shortcode.trim() : '';
+                if (!current) {
+                    while (usedOrdinals.has(ordinal)) {
+                        ordinal += 1;
+                    }
+                    floor.shortcode = `${parentKey}-${ordinal}`;
+                    usedOrdinals.add(ordinal);
+                    ordinal += 1;
                     mutated = true;
                 }
-                ordinal += 1;
             });
         });
 
+        return mutated;
+    }
+
+    function getEntityName(entity) {
+        return String(entity?.name ?? entity?.label ?? entity?.designation ?? '').trim();
+    }
+
+    const nameCollator = typeof Intl !== 'undefined' && typeof Intl.Collator === 'function'
+        ? new Intl.Collator('sk', { numeric: true, sensitivity: 'base' })
+        : null;
+
+    function compareByName(a, b) {
+        const aName = getEntityName(a);
+        const bName = getEntityName(b);
+        const primary = nameCollator
+            ? nameCollator.compare(aName, bName)
+            : aName.localeCompare(bName, 'sk', { numeric: true, sensitivity: 'base' });
+        if (primary !== 0) {
+            return primary;
+        }
+        const aId = String(a?.id ?? '').trim();
+        const bId = String(b?.id ?? '').trim();
+        return aId.localeCompare(bId, 'sk', { numeric: true, sensitivity: 'base' });
+    }
+
+    function getProjectParentId(project, projectById) {
+        const raw = project?.parentId;
+        if (raw === null || typeof raw === 'undefined') {
+            return '';
+        }
+        const candidate = typeof raw === 'string' ? raw.trim() : String(raw ?? '').trim();
+        if (!candidate || candidate === 'none' || candidate === 'null') {
+            return '';
+        }
+        const selfId = String(project?.id ?? '').trim();
+        if (selfId && candidate === selfId) {
+            return '';
+        }
+        if (projectById && typeof projectById.has === 'function' && !projectById.has(candidate)) {
+            return '';
+        }
+        return candidate;
+    }
+
+    function sortProjectsAndFloors(projects) {
+        if (!Array.isArray(projects) || projects.length === 0) {
+            return false;
+        }
+
+        let mutated = false;
+
+        projects.forEach((project) => {
+            if (!project || typeof project !== 'object') {
+                return;
+            }
+            if (!Array.isArray(project.floors) || project.floors.length === 0) {
+                return;
+            }
+            const beforeIds = project.floors.map((floor) => String(floor?.id ?? ''));
+            project.floors.sort(compareByName);
+            const afterIds = project.floors.map((floor) => String(floor?.id ?? ''));
+            if (beforeIds.join('|') !== afterIds.join('|')) {
+                mutated = true;
+            }
+        });
+
+        const projectById = new Map();
+        projects.forEach((project) => {
+            const key = String(project?.id ?? '').trim();
+            if (key) {
+                projectById.set(key, project);
+            }
+        });
+
+        const childrenByParentId = new Map();
+        const roots = [];
+        projects.forEach((project) => {
+            const projectId = String(project?.id ?? '').trim();
+            if (!projectId) {
+                return;
+            }
+            const parentId = getProjectParentId(project, projectById);
+            if (!parentId) {
+                roots.push(project);
+                return;
+            }
+            if (!childrenByParentId.has(parentId)) {
+                childrenByParentId.set(parentId, []);
+            }
+            childrenByParentId.get(parentId).push(project);
+        });
+
+        roots.sort(compareByName);
+        childrenByParentId.forEach((children) => children.sort(compareByName));
+
+        const visited = new Set();
+        const sorted = [];
+        const walk = (project) => {
+            const projectId = String(project?.id ?? '').trim();
+            if (!projectId || visited.has(projectId)) {
+                return;
+            }
+            visited.add(projectId);
+            sorted.push(project);
+            const children = childrenByParentId.get(projectId) ?? [];
+            children.forEach(walk);
+        };
+
+        roots.forEach(walk);
+
+        const leftovers = projects
+            .filter((project) => {
+                const projectId = String(project?.id ?? '').trim();
+                return projectId && !visited.has(projectId);
+            })
+            .sort(compareByName);
+        leftovers.forEach(walk);
+
+        const beforeProjectIds = projects.map((project) => String(project?.id ?? ''));
+        const afterProjectIds = sorted.map((project) => String(project?.id ?? ''));
+        if (beforeProjectIds.join('|') !== afterProjectIds.join('|')) {
+            mutated = true;
+        }
+
+        projects.splice(0, projects.length, ...sorted);
         return mutated;
     }
 
@@ -1843,6 +1995,9 @@ export async function initDeveloperMap(options) {
         projectsDirty = true;
     }
     if (ensureProjectFrontendSettings(data.projects)) {
+        projectsDirty = true;
+    }
+    if (sortProjectsAndFloors(data.projects)) {
         projectsDirty = true;
     }
 

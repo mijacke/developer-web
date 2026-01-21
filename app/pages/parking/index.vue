@@ -60,8 +60,6 @@
             <p>Nepretržitý prístup k vášmu vozidlu</p>
           </div>
 
-
-
           <div class="feature-card">
             <div class="feature-icon">
               <img src="/assets/icons/what-we-offer/energy.svg" alt="Elektrické nabíjanie" width="32" height="32">
@@ -81,57 +79,48 @@
       </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section class="parking-pricing section">
+
+    <!-- Rezidencia Žilina Info Section -->
+    <section class="info-section section">
       <div class="container">
-        <h2 class="section-title text-center">Cenník parkovacích miest</h2>
-        <p class="section-subtitle text-center">
-          Parkovacie miesto je možné zakúpiť spolu s bytom
-        </p>
-        
-        <div class="pricing-grid">
-          <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>Štandardné miesto</h3>
-              <div class="price">od 12 000 €</div>
-            </div>
-            <ul class="pricing-features">
-              <li>Rozmer 2,5 x 5 m</li>
-              <li>Zabezpečený prístup</li>
-              <li>Kamerový dohľad</li>
-              <li>Vlastníctvo miesta</li>
-            </ul>
-          </div>
-
-          <div class="pricing-card featured">
-            <div class="pricing-badge">Odporúčané</div>
-            <div class="pricing-header">
-              <h3>Dvojmiesto</h3>
-              <div class="price">od 22 000 €</div>
-            </div>
-            <ul class="pricing-features">
-              <li>Rozmer 5 x 5 m</li>
-              <li>Pre 2 vozidlá</li>
-              <li>Zabezpečený prístup</li>
-              <li>Kamerový dohľad</li>
-              <li>Vlastníctvo miesta</li>
-            </ul>
-          </div>
-
-          <div class="pricing-card">
-            <div class="pricing-header">
-              <h3>E-miesto</h3>
-              <div class="price">od 15 000 €</div>
-            </div>
-            <ul class="pricing-features">
-              <li>Rozmer 2,5 x 5 m</li>
-              <li>Príprava pre nabíjačku</li>
-              <li>Zabezpečený prístup</li>
-              <li>Kamerový dohľad</li>
-            </ul>
-          </div>
+        <div class="text-center mb-lg">
+          <h1 class="section-title">Rezidencia Žilina</h1>
+          <p class="section-subtitle">
+            Objavte bezpečné a pohodlné parkovanie. Rezidencia Žilina ponúka komfortné parkovacie miesta priamo v areáli.
+          </p>
+        </div>
+        <div class="info-map-embed">
+          <DeveloperMapDmMapShortcode :content="mapEmbed" />
         </div>
       </div>
     </section>
+
+    <!-- Pricing Section -->
+    <section class="parking-pricing section">
+      <div class="container">
+        <div class="text-center mb-lg">
+          <h2 class="section-title">Cenník</h2>
+          <p class="section-subtitle">
+            Pozrite si aktuálny cenník našich bytov a parkovacích miest.
+          </p>
+        </div>
+        <DeveloperMapDmMapShortcode :content="parkingEmbed" />
+      </div>
+    </section>
+
+    <HomeCtaSection />
   </div>
 </template>
+
+<script setup lang="ts">
+  const mapEmbed = '[dm_map map_key="parkovanie"]'
+const parkingEmbed = '[dm_map map_key="cennik-parkovanie"]'
+</script>
+
+<style scoped>
+.info-map-embed {
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+</style>

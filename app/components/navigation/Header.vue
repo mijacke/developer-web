@@ -3,11 +3,14 @@
     <div class="header-container">
       <!-- Logo -->
       <NuxtLink to="/" class="header-logo">
-        <div class="logo-placeholder">
-          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="40" fill="#d4a84b"/>
-            <path d="M10 30V15L20 8L30 15V30H22V22H18V30H10Z" fill="#1a2744"/>
-          </svg>
+        <div class="logo-wrapper">
+          <NuxtImg
+            src="/images/favicon.png"
+            alt="Rezidencia Žilina"
+            width="40"
+            height="40"
+            class="logo-image"
+          />
         </div>
         <div class="logo-text">
           <span class="logo-title">REZIDENCIA</span>

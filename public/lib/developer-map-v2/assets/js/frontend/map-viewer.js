@@ -1012,7 +1012,7 @@
                 return '';
             }
 
-            return `https://vyhladyzubrohlava.sk/${urlPrefix}-${code}/`;
+            return `${window.location.origin}/${urlPrefix}-${code}/`;
         };
 
         const markup = dataset
@@ -1295,7 +1295,7 @@
                     <svg class="dm-dashboard__info-notice-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/>
                     </svg>
-                    <span>Ku každému bytu je nutné zakúpiť garážové státie.</span>
+                    <span>Ku každému bytu je nutné zakúpiť parkovacie miesto priamo v areáli projektu.</span>
                 </div>`
             : '';
 
@@ -2722,6 +2722,11 @@
 
             void renderMap(container);
         });
+    }
+
+    if (typeof window !== 'undefined') {
+        window.dmMapViewerHydrate = hydrate;
+        window.addEventListener('dm-map-viewer:hydrate', hydrate);
     }
 
     if (document.readyState === 'loading') {

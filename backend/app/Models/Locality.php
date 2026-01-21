@@ -10,6 +10,7 @@ class Locality extends Model
 {
     use Auditable;
     protected $fillable = [
+        'dm_id',
         'project_id',
         'name',
         'type',
@@ -22,6 +23,7 @@ class Locality extends Model
         'floor',
         'image',
         'svg_path',
+        'regions',
         'metadata',
         'sort_order',
     ];
@@ -30,6 +32,7 @@ class Locality extends Model
         'area' => 'decimal:2',
         'price' => 'decimal:2',
         'rent' => 'decimal:2',
+        'regions' => 'array',
         'metadata' => 'array',
         'sort_order' => 'integer',
     ];

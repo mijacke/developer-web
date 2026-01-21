@@ -19,6 +19,91 @@ use Illuminate\Support\Str;
  */
 class DeveloperMapStorageController extends Controller
 {
+    private function normaliseProjectFrontend(mixed $frontend, mixed $fallback = null): ?array
+    {
+        $candidate = is_array($frontend) ? $frontend : (is_array($fallback) ? $fallback : null);
+        if (!$candidate) {
+            return null;
+        }
+
+        $table = $candidate['locationTable'] ?? $candidate['location_table'] ?? null;
+        if (!is_array($table)) {
+            return null;
+        }
+
+        $scopeRaw = strtolower(trim((string) ($table['scope'] ?? 'current')));
+        $scope = $scopeRaw === 'hierarchy' ? 'hierarchy' : 'current';
+
+        $tableOnly = $table['tableonly'] ?? $table['tableOnly'] ?? $table['table_only'] ?? false;
+
+        return [
+            'locationTable' => [
+                'enabled' => (bool) ($table['enabled'] ?? false),
+                'scope' => $scope,
+                'tableonly' => (bool) $tableOnly,
+            ],
+        ];
+    }
+
+    /**
+     * Normalise a potentially-localised numeric input (e.g. "1 234,50") into a DB-safe decimal string.
+     */
+    private function normaliseNullableDecimal(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $raw = trim($value);
+        if ($raw === '') {
+            return null;
+        }
+
+        // Keep only digits and common separators/signs; strip currency/unit symbols.
+        $clean = preg_replace('/[^0-9,\\.\\-]/', '', $raw) ?? '';
+        $clean = trim($clean);
+        if ($clean === '' || $clean === '-' || $clean === '.' || $clean === ',') {
+            return null;
+        }
+
+        $lastComma = strrpos($clean, ',');
+        $lastDot = strrpos($clean, '.');
+
+        // If both separators exist, treat the last one as decimal separator and drop the other as thousands separator.
+        if ($lastComma !== false && $lastDot !== false) {
+            if ($lastComma > $lastDot) {
+                $clean = str_replace('.', '', $clean);
+                $clean = str_replace(',', '.', $clean);
+            } else {
+                $clean = str_replace(',', '', $clean);
+            }
+        } elseif ($lastComma !== false) {
+            $clean = str_replace(',', '.', $clean);
+        }
+
+        // Remove any remaining thousands separators (e.g. "1.234.567").
+        if (substr_count($clean, '.') > 1) {
+            $parts = explode('.', $clean);
+            $last = array_pop($parts);
+            $clean = implode('', $parts) . '.' . $last;
+        }
+
+        $clean = trim($clean);
+        if (!preg_match('/^-?\\d+(?:\\.\\d+)?$/', $clean)) {
+            return null;
+        }
+
+        return $clean;
+    }
+
     /**
      * Convert a relative image path to a full URL
      */
@@ -43,26 +128,39 @@ class DeveloperMapStorageController extends Controller
         return response()->json([
             'dm-projects' => Project::with('localities')->orderBy('sort_order')->get()->map(function ($p) {
                 return [
-                    'id' => 'project-' . $p->id,
-                    'parentId' => $p->parent_id ? 'project-' . $p->parent_id : null,
+                    'id' => $p->dm_id ?: ('project-' . $p->id),
+                    'parentId' => $p->parent?->dm_id ?: ($p->parent_id ? 'project-' . $p->parent_id : null),
                     'name' => $p->name,
                     'type' => $p->type,
                     'badge' => strtoupper(substr($p->name, 0, 2)),
                     'publicKey' => $p->map_key, // Frontend still expects publicKey prop
                     'image' => $this->getImageUrl($p->image),
                     'imageUrl' => $this->getImageUrl($p->image), // Frontend compatibility
+                    'regions' => is_array($p->regions) ? $p->regions : [],
+                    'frontend' => is_array($p->frontend) ? $p->frontend : null,
                     'floors' => $p->localities->map(function ($l) {
+                        $meta = is_array($l->metadata) ? $l->metadata : [];
                         return [
-                            'id' => 'floor-' . $l->id,
+                            'id' => $l->dm_id ?: ('floor-' . $l->id),
                             'name' => $l->name,
                             'label' => $l->name,
+                            'designation' => $meta['designation'] ?? null,
+                            'prefix' => $meta['prefix'] ?? null,
+                            'suffix' => $meta['suffix'] ?? null,
+                            'url' => $meta['url'] ?? null,
+                            'detailUrl' => $meta['detailUrl'] ?? null,
+                            'statusId' => $meta['statusId'] ?? null,
                             'type' => $l->type,
                             'status' => $l->status,
                             'statusLabel' => $l->status,
                             'area' => $l->area,
                             'price' => $l->price,
+                            'rent' => $l->rent,
+                            'floor' => $l->floor,
                             'image' => $this->getImageUrl($l->image),
                             'imageUrl' => $this->getImageUrl($l->image), // Frontend compatibility
+                            'svgPath' => $l->svg_path,
+                            'regions' => is_array($l->regions) ? $l->regions : [],
                         ];
                     })->toArray(),
                 ];
@@ -145,15 +243,13 @@ class DeveloperMapStorageController extends Controller
                 $this->syncFrontendColors($value ?? []);
                 break;
             case 'dm-frontend-accent-color':
-                // Update active state based on the value
                 if (is_string($value)) {
-                    DmFrontendColor::query()->update(['is_active' => false]);
-                    // Try to find matching color and activate it, or just use it as custom
-                    $color = DmFrontendColor::where('value', $value)->first();
-                    if ($color) {
-                        $color->update(['is_active' => true]);
-                    } 
-                    // Note: If no matching preset, we just rely on frontend sending the custom color value next time
+                    $raw = trim($value);
+                    $prefixed = str_starts_with($raw, '#') ? $raw : ('#' . $raw);
+                    $normalised = strtoupper($prefixed);
+                    if (preg_match('/^#[0-9A-F]{6}$/', $normalised)) {
+                        $this->updateFrontendAccentColor($normalised);
+                    }
                 }
                 break;
         }
@@ -290,93 +386,252 @@ class DeveloperMapStorageController extends Controller
      */
     private function syncProjects(array $projects): void
     {
-        $incomingIds = [];
-        
-        // First pass: create/update all projects and collect ID mapping
-        $idMapping = []; // Maps frontend temp IDs to database IDs
-        
+        $incomingProjectIds = [];
+
+        $normaliseId = static function (?string $raw, string $prefix): ?string {
+            $raw = is_string($raw) ? trim($raw) : '';
+            if ($raw === '') {
+                return null;
+            }
+            if (str_starts_with($raw, "new-{$prefix}-")) {
+                return $prefix . '-' . substr($raw, strlen("new-{$prefix}-"));
+            }
+            if (str_starts_with($raw, "{$prefix}-")) {
+                return $raw;
+            }
+            return $raw;
+        };
+
+        $findProjectForDmId = static function (string $dmId, ?string $mapKey): ?Project {
+            $project = Project::where('dm_id', $dmId)->first();
+            if ($project) {
+                return $project;
+            }
+
+            if (preg_match('/^project-(\\d+)$/', $dmId, $m)) {
+                $byId = Project::find((int) $m[1]);
+                if ($byId) {
+                    return $byId;
+                }
+            }
+
+            $mapKey = is_string($mapKey) ? trim($mapKey) : '';
+            if ($mapKey !== '') {
+                return Project::where('map_key', $mapKey)->first();
+            }
+
+            return null;
+        };
+
+        $normaliseSortLabel = static function (mixed $value): string {
+            $label = is_string($value) ? trim($value) : '';
+            if ($label === '') {
+                return '';
+            }
+            $label = Str::ascii($label);
+            $label = mb_strtolower($label, 'UTF-8');
+            $label = preg_replace('/\\s+/', ' ', $label) ?? $label;
+            return trim($label);
+        };
+
+        $compareProjectRows = static function (mixed $a, mixed $b) use ($normaliseSortLabel): int {
+            $aLabel = $normaliseSortLabel(is_array($a) ? ($a['name'] ?? $a['label'] ?? '') : ($a?->name ?? ''));
+            $bLabel = $normaliseSortLabel(is_array($b) ? ($b['name'] ?? $b['label'] ?? '') : ($b?->name ?? ''));
+            $cmp = strnatcmp($aLabel, $bLabel);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+            $aId = is_array($a) ? (string) ($a['id'] ?? '') : (string) ($a?->id ?? '');
+            $bId = is_array($b) ? (string) ($b['id'] ?? '') : (string) ($b?->id ?? '');
+            return strnatcmp($aId, $bId);
+        };
+
+        // 1) Create/update projects
         foreach ($projects as $index => $projectData) {
-            $rawId = $projectData['id'] ?? '';
-            
-            // Check if it's a new project (starts with 'new-')
-            $isNew = str_starts_with($rawId, 'new-');
-            
-            // Extract numeric ID for existing projects (format: project-N)
-            $projectId = str_replace(['new-project-', 'project-', 'new-'], '', $rawId);
-            
+            $rawId = $projectData['id'] ?? null;
+            $dmId = $normaliseId(is_string($rawId) ? $rawId : (string) $rawId, 'project');
+            if (!$dmId) {
+                continue;
+            }
+
             // Generate slug from project name for map_key
             $mapKey = $projectData['publicKey'] ?? $projectData['map_key'] ?? null;
-            if (!$mapKey || str_starts_with($mapKey, 'pk_')) {
+            $existing = $findProjectForDmId($dmId, is_string($mapKey) ? $mapKey : null);
+            $project = $existing;
+            if (!$mapKey || (is_string($mapKey) && str_starts_with($mapKey, 'pk_'))) {
                 // Generate a proper slug from the project name
                 $mapKey = $this->slugify($projectData['name'] ?? 'mapa');
                 // Ensure uniqueness
-                $mapKey = $this->ensureUniqueMapKey($mapKey, $isNew ? null : (int)$projectId);
+                $mapKey = $this->ensureUniqueMapKey($mapKey, $existing?->id);
             }
             
             $data = [
+                'dm_id' => $dmId,
                 'name' => $projectData['name'] ?? 'Nový projekt',
                 'type' => $projectData['type'] ?? null,
                 'image' => $projectData['imageUrl'] ?? $projectData['image'] ?? null, // Map correctly to DB column 'image'
                 'map_key' => $mapKey,
                 'sort_order' => $index + 1,
+                'regions' => is_array($projectData['regions'] ?? null) ? $projectData['regions'] : [],
+                'frontend' => $this->normaliseProjectFrontend($projectData['frontend'] ?? null, $project?->frontend),
             ];
-            
-            if (!$isNew && is_numeric($projectId)) {
-                // Existing project - update
-                $project = Project::find((int) $projectId);
-                if ($project) {
-                    $project->update($data);
-                    $incomingIds[] = $project->id;
-                    $idMapping[$rawId] = $project->id;
+
+            if ($project) {
+                $project->update($data);
+                if (!$project->dm_id) {
+                    $project->update(['dm_id' => $dmId]);
                 }
             } else {
-                // New project - create
-                $newProject = Project::create($data);
-                $incomingIds[] = $newProject->id;
-                $idMapping[$rawId] = $newProject->id;
+                $project = Project::create($data);
             }
-        }
-        
-        // Second pass: update parent_id relationships
-        foreach ($projects as $projectData) {
-            $projectId = str_replace(['new-project-', 'project-', 'new-'], '', $projectData['id'] ?? '');
-            // Also handle new-project IDs in second pass correctly
-            $rawId = $projectData['id'] ?? '';
-            
-            $parentValue = $projectData['parentId'] ?? $projectData['parent_id'] ?? null;
-            
-            // Determine the database ID of this project
-            $dbId = null;
-            if (isset($idMapping[$rawId])) {
-                $dbId = $idMapping[$rawId];
-            } elseif (is_numeric($projectId)) {
-                $dbId = (int) $projectId;
-            }
-            
-            if (!$dbId) {
-                continue;
-            }
-            
-            // Resolve parent_id
-            $parentId = null;
-            if ($parentValue !== null && $parentValue !== '' && $parentValue !== 'none') {
-                $parentIdRaw = str_replace(['new-project-', 'project-', 'new-'], '', (string) $parentValue);
-                
-                // Check if we have a mapping for this parent ID (it might be a new project too)
-                if (isset($idMapping[$parentValue])) {
-                    $parentId = $idMapping[$parentValue];
-                } elseif (is_numeric($parentIdRaw)) {
-                    $parentId = (int) $parentIdRaw;
+
+            $incomingProjectIds[] = $project->id;
+
+            // 2) Sync floors (localities) for this project
+            $incomingFloorDmIds = [];
+            $floors = is_array($projectData['floors'] ?? null) ? $projectData['floors'] : [];
+            $floors = array_values(array_filter($floors, fn ($floor) => is_array($floor)));
+            usort($floors, $compareProjectRows);
+            foreach ($floors as $floorIndex => $floorData) {
+                if (!is_array($floorData)) {
+                    continue;
+                }
+                $floorRawId = $floorData['id'] ?? null;
+                $floorDmId = $normaliseId(is_string($floorRawId) ? $floorRawId : (string) $floorRawId, 'floor');
+                if (!$floorDmId) {
+                    continue;
+                }
+                $incomingFloorDmIds[] = $floorDmId;
+
+                $metadata = [
+                    'designation' => $floorData['designation'] ?? null,
+                    'prefix' => $floorData['prefix'] ?? null,
+                    'suffix' => $floorData['suffix'] ?? null,
+                    'url' => $floorData['url'] ?? null,
+                    'detailUrl' => $floorData['detailUrl'] ?? null,
+                    'statusId' => $floorData['statusId'] ?? null,
+                ];
+
+                $localityData = [
+                    'dm_id' => $floorDmId,
+                    'project_id' => $project->id,
+                    'name' => $floorData['name'] ?? ($floorData['label'] ?? 'Lokalita'),
+                    'type' => $floorData['type'] ?? null,
+                    'status' => $floorData['status'] ?? 'available',
+                    'status_label' => $floorData['statusLabel'] ?? null,
+                    'status_color' => $floorData['statusColor'] ?? null,
+                    'area' => $this->normaliseNullableDecimal($floorData['area'] ?? null),
+                    'price' => $this->normaliseNullableDecimal($floorData['price'] ?? null),
+                    'rent' => $this->normaliseNullableDecimal($floorData['rent'] ?? null),
+                    'floor' => $floorData['floor'] ?? null,
+                    'image' => $floorData['imageUrl'] ?? ($floorData['image'] ?? null),
+                    'svg_path' => $floorData['svgPath'] ?? null,
+                    'regions' => is_array($floorData['regions'] ?? null) ? $floorData['regions'] : [],
+                    'metadata' => array_filter($metadata, fn ($v) => $v !== null && $v !== ''),
+                    'sort_order' => $floorIndex + 1,
+                ];
+
+                $locality = \App\Models\Locality::where('dm_id', $floorDmId)->first();
+                if (!$locality && preg_match('/^floor-(\\d+)$/', $floorDmId, $m)) {
+                    $locality = \App\Models\Locality::find((int) $m[1]);
+                }
+                if ($locality) {
+                    $locality->update($localityData);
+                    if (!$locality->dm_id) {
+                        $locality->update(['dm_id' => $floorDmId]);
+                    }
+                } else {
+                    \App\Models\Locality::create($localityData);
                 }
             }
-            
-            // Update parent_id
-            Project::where('id', $dbId)->update(['parent_id' => $parentId]);
+
+            if (!empty($incomingFloorDmIds)) {
+                \App\Models\Locality::where('project_id', $project->id)
+                    ->whereNotIn('dm_id', $incomingFloorDmIds)
+                    ->delete();
+            } else {
+                \App\Models\Locality::where('project_id', $project->id)->delete();
+            }
         }
 
-        // Delete projects that are not in the incoming list
-        if (!empty($incomingIds)) {
-            Project::whereNotIn('id', $incomingIds)->delete();
+        // 3) Update parent_id relationships
+        foreach ($projects as $projectData) {
+            $rawId = $projectData['id'] ?? null;
+            $dmId = $normaliseId(is_string($rawId) ? $rawId : (string) $rawId, 'project');
+            if (!$dmId) {
+                continue;
+            }
+
+            $project = Project::where('dm_id', $dmId)->first();
+            if (!$project) {
+                continue;
+            }
+
+            $parentValue = $projectData['parentId'] ?? $projectData['parent_id'] ?? null;
+            $parentDmId = $normaliseId(is_string($parentValue) ? $parentValue : (string) $parentValue, 'project');
+            $parent = $parentDmId ? Project::where('dm_id', $parentDmId)->first() : null;
+
+            $project->update(['parent_id' => $parent?->id]);
+        }
+
+        // 3b) Recalculate project sort_order (alphabetical, respecting hierarchy)
+        if (!empty($incomingProjectIds)) {
+            $projectsForOrdering = Project::whereIn('id', $incomingProjectIds)->get(['id', 'parent_id', 'name']);
+            $projectById = $projectsForOrdering->keyBy('id');
+            $childrenByParentId = [];
+            $roots = [];
+
+            foreach ($projectsForOrdering as $project) {
+                $parentId = $project->parent_id;
+                if ($parentId && $projectById->has($parentId)) {
+                    $childrenByParentId[$parentId] ??= [];
+                    $childrenByParentId[$parentId][] = $project;
+                } else {
+                    $roots[] = $project;
+                }
+            }
+
+            usort($roots, $compareProjectRows);
+            foreach ($childrenByParentId as $parentId => $children) {
+                usort($children, $compareProjectRows);
+                $childrenByParentId[$parentId] = $children;
+            }
+
+            $visited = [];
+            $sorted = [];
+            $walk = function (Project $project) use (&$walk, &$visited, &$sorted, $childrenByParentId): void {
+                if (isset($visited[$project->id])) {
+                    return;
+                }
+                $visited[$project->id] = true;
+                $sorted[] = $project;
+                foreach (($childrenByParentId[$project->id] ?? []) as $child) {
+                    $walk($child);
+                }
+            };
+
+            foreach ($roots as $root) {
+                $walk($root);
+            }
+
+            // Add any leftover projects (cycle/orphan safety) in stable alphabetical order.
+            $leftovers = $projectsForOrdering
+                ->filter(fn (Project $project) => !isset($visited[$project->id]))
+                ->values()
+                ->all();
+            usort($leftovers, $compareProjectRows);
+            foreach ($leftovers as $project) {
+                $walk($project);
+            }
+
+            foreach ($sorted as $order => $project) {
+                $project->update(['sort_order' => $order + 1]);
+            }
+        }
+
+        // 4) Delete projects not in incoming list
+        if (!empty($incomingProjectIds)) {
+            Project::whereNotIn('id', $incomingProjectIds)->delete();
         }
     }
 
@@ -529,6 +784,11 @@ class DeveloperMapStorageController extends Controller
      */
     private function updateFrontendAccentColor(string $colorValue): void
     {
+        $colorValue = strtoupper(trim($colorValue));
+        if (!preg_match('/^#[0-9A-F]{6}$/', $colorValue)) {
+            return;
+        }
+
         // Reset all to inactive
         DmFrontendColor::query()->update(['is_active' => false]);
 
@@ -540,13 +800,24 @@ class DeveloperMapStorageController extends Controller
         if ($match) {
             // Found matching preset color
             $match->update(['is_active' => true]);
-        } else {
-            // Custom color - update "Vlastná" with the new value and set as active
-            DmFrontendColor::where('name', 'Vlastná')->update([
-                'value' => $colorValue,
-                'is_active' => true
-            ]);
+            return;
         }
+
+        // Custom color - update (or create) "Vlastná" with the new value and set as active
+        $custom = DmFrontendColor::where('name', 'Vlastná')->first();
+        if (!$custom) {
+            $custom = DmFrontendColor::create([
+                'name' => 'Vlastná',
+                'value' => $colorValue,
+                'is_active' => true,
+            ]);
+            return;
+        }
+
+        $custom->update([
+            'value' => $colorValue,
+            'is_active' => true,
+        ]);
     }
 
     /**

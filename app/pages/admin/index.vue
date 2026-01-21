@@ -16,7 +16,7 @@ definePageMeta({
 })
 
 const config = useRuntimeConfig()
-const { token } = useAuth()
+const { ensureCsrfCookie, csrfHeaders } = useAuth()
 const dmRoot = ref<HTMLElement | null>(null)
 
 // Intercept window.fetch to forcefully inject credentials for all requests to developer-map API
@@ -25,10 +25,16 @@ let originalFetch: any = null
 
 onMounted(async () => {
   if (typeof window !== 'undefined') {
+    await ensureCsrfCookie()
+
     // 1. Setup fetch interceptor
     originalFetch = window.fetch
     window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       let url = ''
+      const requestMethod =
+        (init?.method ||
+          (input instanceof Request ? input.method : 'GET') ||
+          'GET').toString().toUpperCase()
       if (typeof input === 'string') {
         url = input
       } else if (input instanceof URL) {
@@ -47,12 +53,17 @@ onMounted(async () => {
         // Handle both Headers object and plain object
         if (init.headers instanceof Headers) {
           init.headers.set('Accept', 'application/json')
-          if (token.value) init.headers.set('Authorization', `Bearer ${token.value}`)
+          if (requestMethod !== 'GET') {
+            const csrf = csrfHeaders()
+            for (const [k, v] of Object.entries(csrf)) init.headers.set(k, v as string)
+          }
         } else {
           // @ts-ignore
           init.headers['Accept'] = 'application/json'
-          // @ts-ignore
-          if (token.value) init.headers['Authorization'] = `Bearer ${token.value}`
+          if (requestMethod !== 'GET') {
+            // @ts-ignore
+            Object.assign(init.headers, csrfHeaders())
+          }
         }
       }
       
@@ -66,8 +77,7 @@ onMounted(async () => {
       ver: Date.now(),
       // Also provide headers here in case dm.js supports it (future proofing)
       headers: {
-        'Accept': 'application/json',
-        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {})
+        'Accept': 'application/json'
       }
     }
     
@@ -78,8 +88,7 @@ onMounted(async () => {
       const response = await fetch(`${config.public.apiUrl}/developer-map/bootstrap`, {
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
-          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {})
+          'Accept': 'application/json'
         }
       })
       if (response.ok) {
@@ -142,5 +151,11 @@ useHead({
 /* Force override DM font families if needed */
 #dm-root.dm-root {
   font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Override sticky header from plugin */
+#dm-root.dm-root .dm-topbar {
+  position: relative !important;
+  top: auto !important;
 }
 </style>

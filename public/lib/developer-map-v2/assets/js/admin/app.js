@@ -4582,14 +4582,14 @@ export async function initDeveloperMap(options) {
         }
     }
 
-    function enhanceDrawModal() {
-        if (!state.modal || state.modal.type !== 'draw-coordinates') {
-            return;
-        }
-        const drawRoot = root.querySelector('[data-dm-draw-root]');
-        if (!drawRoot) {
-            return;
-        }
+	    function enhanceDrawModal() {
+	        if (!state.modal || state.modal.type !== 'draw-coordinates') {
+	            return;
+	        }
+	        const drawRoot = root.querySelector('[data-dm-draw-root]');
+	        if (!drawRoot) {
+	            return;
+	        }
 
         // Bind tab switching in inspector panel
         bindEditorTabs();
@@ -4597,19 +4597,122 @@ export async function initDeveloperMap(options) {
         // Initialize WordPress admin layout manager
         initWPAdminLayout();
 
-        // Initialize floating labels for editor fields
-        const editorContext = root.querySelector('.dm-editor');
-        if (editorContext) {
-            initFloatingFieldState(editorContext);
-        }
+	        // Initialize floating labels for editor fields
+	        const editorContext = root.querySelector('.dm-editor');
+	        if (editorContext) {
+	            initFloatingFieldState(editorContext);
+	        }
 
-        initDrawSurface(drawRoot);
-    }
+	        // Bind mobile drawer toolbar toggles (<=1024px)
+	        bindMobileToolbar();
 
-    function initWPAdminLayout() {
-        // Destroy existing manager if any
-        if (wpAdminLayoutManager) {
-            wpAdminLayoutManager.destroy();
+	        initDrawSurface(drawRoot);
+	    }
+
+	    function bindMobileToolbar() {
+	        const editor = root.querySelector('.dm-editor');
+	        if (!editor) {
+	            return;
+	        }
+
+	        // Prevent multiple bindings per draw modal mount
+	        if (editor.hasAttribute('data-dm-toolbar-bound')) {
+	            return;
+	        }
+	        editor.setAttribute('data-dm-toolbar-bound', 'true');
+
+	        const mobileQuery = window.matchMedia('(max-width: 1024px)');
+
+	        const closeMobilePanels = ({ removeBackdrop = false } = {}) => {
+	            editor.querySelectorAll('.dm-editor__panel--open').forEach((panel) => {
+	                panel.classList.remove('dm-editor__panel--open');
+	            });
+	            editor.querySelectorAll('.dm-editor__mobile-toggle.is-active').forEach((toggleEl) => {
+	                toggleEl.classList.remove('is-active');
+	            });
+
+	            const editorBody = editor.querySelector('.dm-editor__body');
+	            const backdrop = editorBody ? editorBody.querySelector('.dm-editor__backdrop') : null;
+	            if (backdrop) {
+	                backdrop.classList.remove('is-visible');
+	                if (removeBackdrop) {
+	                    backdrop.remove();
+	                }
+	            }
+	        };
+
+	        const ensureBackdrop = () => {
+	            const editorBody = editor.querySelector('.dm-editor__body');
+	            if (!editorBody) {
+	                return null;
+	            }
+	            let backdrop = editorBody.querySelector('.dm-editor__backdrop');
+	            if (!backdrop) {
+	                backdrop = document.createElement('div');
+	                backdrop.className = 'dm-editor__backdrop';
+	                editorBody.appendChild(backdrop);
+	                backdrop.addEventListener('click', (event) => {
+	                    event.stopPropagation();
+	                    closeMobilePanels();
+	                });
+	            }
+	            return backdrop;
+	        };
+
+	        const handleViewportChange = () => {
+	            if (!mobileQuery.matches) {
+	                closeMobilePanels({ removeBackdrop: true });
+	            }
+	        };
+	        if (typeof mobileQuery.addEventListener === 'function') {
+	            mobileQuery.addEventListener('change', handleViewportChange);
+	        } else if (typeof mobileQuery.addListener === 'function') {
+	            mobileQuery.addListener(handleViewportChange);
+	        }
+
+	        editor.addEventListener('click', (event) => {
+	            const toggle = event.target.closest('[data-dm-toggle-panel]');
+	            if (!toggle) {
+	                return;
+	            }
+	            if (!mobileQuery.matches) {
+	                return;
+	            }
+
+	            event.preventDefault();
+
+	            const target = toggle.getAttribute('data-dm-toggle-panel');
+	            if (target !== 'left' && target !== 'right') {
+	                return;
+	            }
+
+	            const panel = editor.querySelector(`.dm-editor__panel--${target}`);
+	            if (!panel) {
+	                return;
+	            }
+
+	            const isOpening = !panel.classList.contains('dm-editor__panel--open');
+	            closeMobilePanels();
+
+	            if (!isOpening) {
+	                return;
+	            }
+
+	            panel.classList.add('dm-editor__panel--open');
+	            toggle.classList.add('is-active');
+
+	            const backdrop = ensureBackdrop();
+	            if (backdrop) {
+	                // Delay for CSS transition
+	                setTimeout(() => backdrop.classList.add('is-visible'), 10);
+	            }
+	        });
+	    }
+
+	    function initWPAdminLayout() {
+	        // Destroy existing manager if any
+	        if (wpAdminLayoutManager) {
+	            wpAdminLayoutManager.destroy();
             wpAdminLayoutManager = null;
         }
 
@@ -4799,15 +4902,43 @@ export async function initDeveloperMap(options) {
             const checkedCount = regionChildrenFieldset.querySelectorAll('input[data-dm-region-child]:checked').length;
             localitiesSummaryCount.textContent = String(checkedCount);
         };
-        const fullscreenToggle = drawRoot.querySelector('[data-dm-fullscreen-toggle]');
-        const ownerTypeAttr = drawRoot.dataset.dmOwner ?? 'project';
-        const ownerIdAttr = drawRoot.dataset.dmOwnerId ?? '';
-        const projectIdAttr = drawRoot.dataset.dmProjectId ?? '';
-        const initialRegionId = drawRoot.dataset.dmActiveRegion ?? '';
+	        const fullscreenToggle = drawRoot.querySelector('[data-dm-fullscreen-toggle]');
 
-        if (!overlay || !fill || !outline || !baseline || !handlesLayer || !stage || !canvas) {
-            return;
-        }
+	        // Resolve owner/project primarily from modal payload (most reliable),
+	        // then fall back to data attributes rendered into the DOM.
+	        const modalPayload = state.modal?.type === 'draw-coordinates' ? state.modal?.payload ?? '' : '';
+	        const payloadResult = modalPayload ? findMapItem(modalPayload) : null;
+	        let ownerTypeAttr = drawRoot.dataset.dmOwner ?? 'project';
+	        let ownerIdAttr = drawRoot.dataset.dmOwnerId ?? '';
+	        let projectIdAttr = drawRoot.dataset.dmProjectId ?? '';
+	        if (payloadResult) {
+	            ownerTypeAttr = payloadResult.type;
+	            ownerIdAttr = String(payloadResult.item?.id ?? modalPayload);
+	            projectIdAttr = String(
+	                payloadResult.type === 'floor'
+	                    ? payloadResult.parent?.id ?? ''
+	                    : payloadResult.item?.id ?? '',
+	            );
+
+	            // Keep DOM dataset in sync so subsequent code (and future renders) behave consistently.
+	            drawRoot.dataset.dmOwner = ownerTypeAttr;
+	            drawRoot.dataset.dmOwnerId = ownerIdAttr;
+	            drawRoot.dataset.dmProjectId = projectIdAttr;
+	        }
+	        const initialRegionId = drawRoot.dataset.dmActiveRegion ?? '';
+
+	        if (!overlay || !fill || !outline || !baseline || !handlesLayer || !stage || !canvas) {
+	            console.error('[Developer Map] Draw modal markup missing required elements', {
+	                overlay: Boolean(overlay),
+	                fill: Boolean(fill),
+	                outline: Boolean(outline),
+	                baseline: Boolean(baseline),
+	                handlesLayer: Boolean(handlesLayer),
+	                stage: Boolean(stage),
+	                canvas: Boolean(canvas),
+	            });
+	            return;
+	        }
 
         const imageEl = drawRoot.querySelector('.dm-draw__image');
 
@@ -4863,13 +4994,15 @@ export async function initDeveloperMap(options) {
             }
         }
 
-        if (!targetEntity) {
-            console.warn(
-                '[Developer Map] Map owner not found while initialising draw modal',
-                ownerIdAttr || ownerTypeAttr,
-            );
-            return;
-        }
+	        if (!targetEntity) {
+	            console.error('[Developer Map] Map owner not found while initialising draw modal', {
+	                modalPayload,
+	                ownerTypeAttr,
+	                ownerIdAttr,
+	                projectIdAttr,
+	            });
+	            return;
+	        }
 
         const isProjectOwner = ownerTypeAttr === 'project';
         const ensureLocationTableSettings = (entity) => {

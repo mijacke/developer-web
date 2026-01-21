@@ -1347,18 +1347,23 @@ function renderDrawModal(state, data) {
 
     return `
         <div class="dm-editor-overlay">
-            <div class="dm-editor">
-                <header class="dm-editor__header">
-                    <div class="dm-editor__header-left">
-                        <h1 class="dm-editor__title">${escapeHtml(surfaceLabel)}</h1>
-                        <span class="dm-editor__subtitle">Editor súradníc</span>
-                    </div>
-                    <button type="button" class="dm-editor__close" aria-label="Zavrieť" data-dm-close-modal>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                </header>
+	            <div class="dm-editor">
+	                <header class="dm-editor__header">
+	                    <div class="dm-editor__header-left">
+	                        <h1 class="dm-editor__title">${escapeHtml(surfaceLabel)}</h1>
+	                        <span class="dm-editor__subtitle">Editor súradníc</span>
+	                    </div>
+
+	                    <div class="dm-editor__mobile-toolbar" aria-label="Navigácia panelov">
+	                        <button type="button" class="dm-editor__mobile-toggle" data-dm-toggle-panel="left">Zóny</button>
+	                        <button type="button" class="dm-editor__mobile-toggle" data-dm-toggle-panel="right">Detail/Lokality</button>
+	                    </div>
+	                    <button type="button" class="dm-editor__close" aria-label="Zavrieť" data-dm-close-modal>
+	                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+	                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+	                        </svg>
+	                    </button>
+	                </header>
                 
                 <div class="dm-editor__body"
                     data-dm-draw-root

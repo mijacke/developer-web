@@ -40,48 +40,72 @@
         </div>
       </div>
     </div>
-    
-    <!-- Messages Table -->
-    <div class="messages-section">
-      <div class="section-header">
-        <h2>Zoznam správ</h2>
-        <div class="filters">
-          <button 
-            :class="{ active: filter === '' }" 
-            @click="filter = ''; loadMessages()"
-          >Všetky</button>
-          <button 
-            :class="{ active: filter === 'unread' }" 
-            @click="filter = 'unread'; loadMessages()"
-          >Neprečítané</button>
-        </div>
-      </div>
-      
-      <div class="messages-table" v-if="messages.length">
-        <div 
-          class="message-row" 
-          v-for="msg in messages" 
-          :key="msg.id"
-          :class="{ unread: !msg.is_read }"
-          @click="openMessage(msg)"
-        >
-          <div class="message-sender">
-            <strong>{{ msg.first_name }} {{ msg.last_name }}</strong>
-            <span>{{ msg.email }}</span>
-          </div>
-          <div class="message-preview">{{ msg.message.substring(0, 100) }}...</div>
-          <div class="message-date">{{ formatDate(msg.created_at) }}</div>
-          <div class="message-actions">
-            <button @click.stop="confirmDelete(msg)" class="btn-delete" title="Zmazať">
-              <img src="/icons/ui/trash.svg" alt="Zmazať" />
-            </button>
-          </div>
-        </div>
-      </div>
-      <div v-else class="no-messages">
-        Žiadne správy
-      </div>
-    </div>
+	
+	    <!-- Messages Table -->
+	    <div class="messages-section">
+	      <div class="section-header">
+	        <h2>Zoznam správ</h2>
+	        <div class="filters">
+	          <button
+	            :class="{ active: filter === '' }"
+	            @click="filter = ''; loadMessages(1)"
+	          >
+	            Všetky
+	          </button>
+	          <button
+	            :class="{ active: filter === 'unread' }"
+	            @click="filter = 'unread'; loadMessages(1)"
+	          >
+	            Neprečítané
+	          </button>
+	        </div>
+	      </div>
+	      
+	      <div class="messages-table" v-if="messages.length">
+	        <div
+	          class="message-row"
+	          v-for="msg in messages"
+	          :key="msg.id"
+	          :class="{ unread: !msg.is_read }"
+	          @click="openMessage(msg)"
+	        >
+	          <div class="message-sender">
+	            <strong>{{ msg.first_name }} {{ msg.last_name }}</strong>
+	            <span>{{ msg.email }}</span>
+	          </div>
+	          <div class="message-preview">{{ msg.message.substring(0, 100) }}...</div>
+	          <div class="message-date">{{ formatDate(msg.created_at) }}</div>
+	          <div class="message-actions">
+	            <button @click.stop="confirmDelete(msg)" class="btn-delete" title="Zmazať">
+	              <img src="/icons/ui/trash.svg" alt="Zmazať" />
+	            </button>
+	          </div>
+	        </div>
+	      </div>
+	      <div v-else class="no-messages">Žiadne správy</div>
+
+	      <div v-if="messagesMeta.total > 0" class="messages-pagination">
+	        <div class="messages-pagination__summary">
+	          Strana {{ messagesMeta.current_page }} z {{ messagesMeta.last_page }} ({{ messagesMeta.total }} správ)
+	        </div>
+	        <div class="messages-pagination__controls">
+	          <button
+	            class="messages-pagination__btn"
+	            :disabled="messagesMeta.current_page <= 1"
+	            @click="loadMessages(messagesMeta.current_page - 1)"
+	          >
+	            Predchádzajúca
+	          </button>
+	          <button
+	            class="messages-pagination__btn"
+	            :disabled="messagesMeta.current_page >= messagesMeta.last_page"
+	            @click="loadMessages(messagesMeta.current_page + 1)"
+	          >
+	            Ďalšia
+	          </button>
+	        </div>
+	      </div>
+	    </div>
     
     <!-- Message Detail Modal -->
     <div class="modal-overlay" v-if="selectedMessage" @click="selectedMessage = null">
@@ -122,27 +146,35 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'admin',
-  middleware: ['auth', 'admin-only']
+  layout: 'admin'
 })
 
-const config = useRuntimeConfig()
-const { token } = useAuth()
+	const config = useRuntimeConfig()
+	const { ensureCsrfCookie, csrfHeaders } = useAuth()
 
-const stats = ref<any>(null)
-const messages = ref<any[]>([])
-const filter = ref('')
-const selectedMessage = ref<any>(null)
-const messageToDelete = ref<any>(null)
-const chartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: any = null
+	const stats = ref<any>(null)
+	const messages = ref<any[]>([])
+	const messagesMeta = ref({
+	  current_page: 1,
+	  last_page: 1,
+	  per_page: 20,
+	  total: 0,
+	})
+	const filter = ref('')
+	const selectedMessage = ref<any>(null)
+	const messageToDelete = ref<any>(null)
+	const chartCanvas = ref<HTMLCanvasElement | null>(null)
+	let chartInstance: any = null
 
 const fetchWithAuth = (url: string, options: any = {}) => {
+  const method = (options?.method || 'GET').toUpperCase()
   return $fetch(url, {
     ...options,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${token.value}`,
-      ...options.headers,
+      Accept: 'application/json',
+      ...(options.headers || {}),
+      ...(method !== 'GET' ? csrfHeaders() : {}),
     },
   })
 }
@@ -157,17 +189,25 @@ const loadStats = async () => {
   }
 }
 
-const loadMessages = async () => {
-  try {
-    const response: any = await fetchWithAuth(`${config.public.apiUrl}/admin/contact-messages?filter=${filter.value}`)
-    messages.value = response.data || []
-  } catch (e: any) {
-    console.error('Failed to load messages:', e)
-  }
-}
+	const loadMessages = async (page: number = messagesMeta.value.current_page) => {
+	  try {
+	    messagesMeta.value.current_page = Math.max(1, page)
+	    const response: any = await fetchWithAuth(`${config.public.apiUrl}/admin/contact-messages`, {
+	      params: {
+	        filter: filter.value || undefined,
+	        page: messagesMeta.value.current_page,
+	      },
+	    })
+	    messages.value = response.data || []
+	    messagesMeta.value = response.meta || messagesMeta.value
+	  } catch (e: any) {
+	    console.error('Failed to load messages:', e)
+	  }
+	}
 
 const markRead = async (id: number) => {
   try {
+    await ensureCsrfCookie()
     await fetchWithAuth(`${config.public.apiUrl}/admin/contact-messages/${id}/read`, { method: 'POST' })
   } catch (e) {
     console.error('Failed to mark as read:', e)
@@ -178,17 +218,22 @@ const confirmDelete = (msg: any) => {
   messageToDelete.value = msg
 }
 
-const deleteMessage = async () => {
-  if (!messageToDelete.value) return
-  try {
-    await fetchWithAuth(`${config.public.apiUrl}/admin/contact-messages/${messageToDelete.value.id}`, { method: 'DELETE' })
-    messageToDelete.value = null
-    loadMessages()
-    loadStats()
-  } catch (e) {
-    console.error('Failed to delete:', e)
-  }
-}
+	const deleteMessage = async () => {
+	  if (!messageToDelete.value) return
+	  try {
+	    await ensureCsrfCookie()
+	    await fetchWithAuth(`${config.public.apiUrl}/admin/contact-messages/${messageToDelete.value.id}`, { method: 'DELETE' })
+	    messageToDelete.value = null
+	    await loadMessages()
+	    if (messagesMeta.value.current_page > messagesMeta.value.last_page) {
+	      messagesMeta.value.current_page = messagesMeta.value.last_page
+	      await loadMessages()
+	    }
+	    loadStats()
+	  } catch (e) {
+	    console.error('Failed to delete:', e)
+	  }
+	}
 
 const openMessage = (msg: any) => {
   selectedMessage.value = msg
@@ -250,10 +295,10 @@ const renderChart = async () => {
   })
 }
 
-onMounted(() => {
-  loadStats()
-  loadMessages()
-})
+	onMounted(() => {
+	  loadStats()
+	  loadMessages()
+	})
 
 onUnmounted(() => {
   if (chartInstance) {

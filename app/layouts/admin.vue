@@ -39,7 +39,7 @@
       >
         <div class="sidebar-header">
           <div class="header-top">
-            <h2>Admin</h2>
+            <h2>{{ user?.name || 'Admin' }}</h2>
             <button class="close-sidebar-btn" @click="closeSidebar">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -50,19 +50,16 @@
         <ul class="nav-links">
           <li>
             <NuxtLink to="/admin" exact-active-class="active" @click="closeSidebar">
-              <span class="icon">🗺️</span>
               Map Editor
             </NuxtLink>
           </li>
           <li v-if="isAdmin">
             <NuxtLink to="/admin/dashboard" active-class="active" @click="closeSidebar">
-              <span class="icon">📊</span>
               Dashboard
             </NuxtLink>
           </li>
           <li v-if="isAdmin">
             <NuxtLink to="/admin/messages" active-class="active" @click="closeSidebar">
-              <span class="icon">✉️</span>
               Správy
             </NuxtLink>
           </li>
@@ -214,7 +211,7 @@ const handleLogout = async () => {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 2147483640;
+  z-index: 100;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
@@ -232,7 +229,7 @@ const handleLogout = async () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 2147483645;
+  z-index: 100;
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -267,7 +264,7 @@ const handleLogout = async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2147483646;
+  z-index: 100;
   display: flex;
   pointer-events: none;
 }
@@ -328,7 +325,7 @@ const handleLogout = async () => {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 2147483647; /* Max Z-Index for mobile */
+    z-index: 100; /* Max Z-Index for mobile */
     transform: translateX(-100%);
     box-shadow: 4px 0 24px rgba(0,0,0,0.3);
     cursor: default;
@@ -459,5 +456,27 @@ const handleLogout = async () => {
     width: 100%;
     padding-top: 3.5rem; /* Space for toggle button */
   }
+}
+
+/* Loading State */
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #1e293b;
+}
+
+.admin-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(203, 155, 81, 0.3);
+  border-top-color: #cb9b51;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

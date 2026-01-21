@@ -1,32 +1,5 @@
 <template>
-  <div class="dm-admin-wrap" :class="{ 'show-left': showLeft, 'show-right': showRight }">
-    
-    <!-- Mobile Editor Toolbar -->
-    <div class="mobile-editor-toolbar">
-      <button 
-        class="editor-toggle-btn" 
-        :class="{ active: showLeft }" 
-        @click="toggleLeft"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-        Zóny
-      </button>
-      
-      <span class="toolbar-divider"></span>
-      
-      <button 
-        class="editor-toggle-btn" 
-        :class="{ active: showRight }" 
-        @click="toggleRight"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Detail
-      </button>
-    </div>
-
-    <!-- Backdrop for drawers -->
-    <div v-if="showLeft || showRight" class="drawer-backdrop" @click="closeDrawers"></div>
-
+  <div class="dm-admin-wrap">
     <div id="dm-root" data-dm-app="developer-map" ref="dmRoot"></div>
   </div>
 </template>
@@ -38,32 +11,12 @@
  */
 
 definePageMeta({
-  layout: 'admin',
-  middleware: 'auth'
+  layout: 'admin'
 })
 
 const config = useRuntimeConfig()
 const { ensureCsrfCookie, csrfHeaders } = useAuth()
 const dmRoot = ref<HTMLElement | null>(null)
-
-// Mobile Drawer State
-const showLeft = ref(false)
-const showRight = ref(false)
-
-const toggleLeft = () => {
-  showLeft.value = !showLeft.value
-  if (showLeft.value) showRight.value = false
-}
-
-const toggleRight = () => {
-  showRight.value = !showRight.value
-  if (showRight.value) showLeft.value = false
-}
-
-const closeDrawers = () => {
-  showLeft.value = false
-  showRight.value = false
-}
 
 // Intercept window.fetch to forcefully inject credentials for all requests to developer-map API
 // This ensures dm.js requests are authenticated via cookies
@@ -188,14 +141,10 @@ useHead({
 .dm-admin-wrap {
   height: 100%;
   width: 100%;
-  position: relative;
-  display: flex; /* Ensure flex context */
-  flex-direction: column;
 }
 
 #dm-root {
   min-height: 100%;
-  flex: 1; /* Take remaining space */
 }
 
 /* Force override DM font families if needed */
@@ -203,154 +152,9 @@ useHead({
   font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
-/* Override sticky header from plugin to unstick it */
+/* Override sticky header from plugin */
 #dm-root.dm-root .dm-topbar {
   position: relative !important;
   top: auto !important;
-}
-
-/* -------------------------------------------------------------------------- */
-/* MOBILE DRAWER SYSTEM (Responsive)                                          */
-/* -------------------------------------------------------------------------- */
-
-.mobile-editor-toolbar {
-  display: none;
-}
-
-.drawer-backdrop {
-  display: none;
-}
-
-/* Target tablets and mobile */
-@media (max-width: 1024px) {
-  /* Toolbar Styles - Fixed at Bottom Center or Floating Top */
-  .mobile-editor-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 10px 16px;
-    background: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    
-    /* Fixed positioning to guarantee visibility regardless of scroll/container */
-    position: fixed; 
-    top: 70px; /* Below standard header if any, or offset */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2147483647; /* Max Z-index */
-    
-    border-radius: 99px;
-    border: 1px solid rgba(0,0,0,0.1);
-    width: auto;
-    max-width: 90%;
-  }
-
-  .editor-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #475569;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .editor-toggle-btn.active {
-    background: #1e293b;
-    color: white;
-    border-color: #1e293b;
-  }
-
-  .toolbar-divider {
-    width: 1px;
-    height: 20px;
-    background: #cbd5e1;
-  }
-
-  /* Backdrop */
-  .drawer-backdrop {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 2147483646; /* Just below toolbar */
-    animation: fadeIn 0.2s;
-    backdrop-filter: blur(2px);
-  }
-
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  /* FIX: Ensure Editor Grid allows positioning */
-  #dm-root.dm-root .dm-editor__body {
-     display: block !important; 
-     position: relative !important;
-     height: auto !important;
-     overflow: hidden !important;
-  }
-
-  /* Force Center Panel (Map) to be always visible and fill space */
-  #dm-root.dm-root .dm-editor__panel--center {
-    display: flex !important;
-    width: 100% !important;
-    height: 100vh !important; /* Full height map */
-    min-height: 600px;
-  }
-  
-  /* HIDE Panels by default using drawers */
-  #dm-root.dm-root .dm-editor__panel--left,
-  #dm-root.dm-root .dm-editor__panel--right {
-    display: none !important;
-    position: fixed !important;
-    top: 0;
-    bottom: 0;
-    width: 85% !important;
-    max-width: 360px !important;
-    background: white !important;
-    z-index: 2147483647 !important; /* On top of everything */
-    box-shadow: 0 0 24px rgba(0,0,0,0.2) !important;
-    overflow-y: auto !important;
-    flex-direction: column !important;
-    border: none !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* Left Panel Drawer (Zones) */
-  #dm-root.dm-root .dm-editor__panel--left {
-    left: 0;
-    transform: translateX(-100%);
-  }
-
-  /* Right Panel Drawer (Detail) */
-  #dm-root.dm-root .dm-editor__panel--right {
-    right: 0;
-    transform: translateX(100%);
-  }
-
-  /* Show States via admin wrapper classes */
-  .dm-admin-wrap.show-left #dm-root.dm-root .dm-editor__panel--left {
-    display: flex !important;
-    transform: translateX(0);
-  }
-
-  .dm-admin-wrap.show-right #dm-root.dm-root .dm-editor__panel--right {
-    display: flex !important;
-    transform: translateX(0);
-  }
-  
-  /* Adjust internal padding of panels for mobile */
-  #dm-root.dm-root .dm-editor__panel-content {
-    padding: 20px !important;
-    padding-bottom: 80px !important; /* Space for bottom nav if needed */
-  }
 }
 </style>

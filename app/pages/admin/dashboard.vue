@@ -85,7 +85,7 @@
                 </td>
                 <td>{{ u.last_login_at ? formatDate(u.last_login_at) : '-' }}</td>
                 <td class="actions">
-                  <div v-if="u.id !== user.id" class="action-buttons">
+                  <div v-if="user && u.id !== user.id" class="action-buttons">
                     <!-- Approval actions -->
                     <template v-if="!u.is_approved">
                       <button @click="approveUser(u)" class="btn-success btn-sm">Schváliť</button>
@@ -146,11 +146,10 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'admin',
-  middleware: ['auth', 'admin-only']
+  layout: 'admin'
 })
 
-const { user, token } = useAuth()
+const { user, ensureCsrfCookie, csrfHeaders } = useAuth()
 const config = useRuntimeConfig()
 
 // State
@@ -158,12 +157,14 @@ const stats = ref<any>(null)
 const usersList = ref<any>(null)
 const currentFilter = ref('all')
 
-// Helper to fetch with auth
+// Helper to fetch with Sanctum SPA (cookies + CSRF for non-GET)
 const authedFetch = (opt: any = {}) => ({
   ...opt,
+  credentials: 'include',
   headers: {
-    Authorization: `Bearer ${token.value}`,
-    Accept: 'application/json'
+    Accept: 'application/json',
+    ...(opt.headers || {}),
+    ...(opt.method && opt.method !== 'GET' ? csrfHeaders() : {}),
   }
 })
 
@@ -201,9 +202,10 @@ const formatDate = (dateStr: string) => {
 const approveUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete schváliť používateľa ${targetUser.name}?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/approve`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -214,9 +216,10 @@ const approveUser = async (targetUser: any) => {
 const rejectUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete odmietnuť a zmazať registráciu ${targetUser.name}?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/reject`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -227,9 +230,10 @@ const rejectUser = async (targetUser: any) => {
 const promoteUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete povýšiť ${targetUser.name} na admina?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/promote`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -240,9 +244,10 @@ const promoteUser = async (targetUser: any) => {
 const demoteUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete degradovať ${targetUser.name} na bežného používateľa?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/demote`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -253,9 +258,10 @@ const demoteUser = async (targetUser: any) => {
 const blockUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete zablokovať používateľa ${targetUser.name}?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/block`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -266,9 +272,10 @@ const blockUser = async (targetUser: any) => {
 const unblockUser = async (targetUser: any) => {
   if (!confirm(`Naozaj chcete odblokovať používateľa ${targetUser.name}?`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}/unblock`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'POST' })
     })
     refresh()
   } catch (e) {
@@ -279,9 +286,10 @@ const unblockUser = async (targetUser: any) => {
 const deleteUser = async (targetUser: any) => {
   if (!confirm(`POZOR: Naozaj chcete natrvalo zmazať používateľa ${targetUser.name}? Táto akcia je nevratná!`)) return
   try {
+    await ensureCsrfCookie()
     await $fetch(`${config.public.apiUrl}/admin/users/${targetUser.id}`, {
       method: 'DELETE',
-      headers: { Authorization: `Bearer ${token.value}` }
+      ...authedFetch({ method: 'DELETE' })
     })
     refresh()
   } catch (e) {
@@ -289,4 +297,3 @@ const deleteUser = async (targetUser: any) => {
   }
 }
 </script>
-

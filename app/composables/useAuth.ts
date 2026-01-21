@@ -1,20 +1,65 @@
 export const useAuth = () => {
     const user = useState('auth-user', () => null as any)
-    const token = useCookie('auth-token')
+    const token = useCookie<string | null>('auth-token', {
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+    })
     const config = useRuntimeConfig()
 
-    const isAuthenticated = computed(() => !!token.value)
+    const isAuthenticated = computed(() => !!user.value)
     const isAdmin = computed(() => user.value?.role === 'admin')
+
+    const getBaseUrl = () => config.public.apiUrl.replace(/\/api\/?$/, '')
+
+    const getCookieValue = (name: string): string | null => {
+        if (process.server) return null
+        if (typeof document === 'undefined') return null
+
+        const parts = document.cookie.split('; ')
+        for (const part of parts) {
+            if (!part.startsWith(`${name}=`)) continue
+            return part.substring(name.length + 1)
+        }
+        return null
+    }
+
+    const getCsrfHeaders = () => {
+        const raw = getCookieValue('XSRF-TOKEN')
+        const xsrf = raw ? decodeURIComponent(raw) : ''
+        return xsrf
+            ? {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-XSRF-TOKEN': xsrf,
+            }
+            : {}
+    }
+
+    const getAuthHeaders = () => {
+        return token.value ? { Authorization: `Bearer ${token.value}` } : {}
+    }
 
     const login = async (credentials: any) => {
         try {
-            const response: any = await $fetch(`${config.public.apiUrl}/auth/login`, {
-                method: 'POST',
-                body: credentials
+            // 1. Get CSRF cookie
+            // We need to strip '/api' from the end of the URL to get the root URL where sanctum lives
+            await $fetch(`${getBaseUrl()}/sanctum/csrf-cookie`, {
+                credentials: 'include'
             })
 
-            token.value = response.token
-            user.value = response.user
+            // 2. Login (browser saves HttpOnly cookie automatically)
+            const loginResponse = await $fetch<{ user: any; token: string }>(`${config.public.apiUrl}/auth/login`, {
+                method: 'POST',
+                body: credentials,
+                credentials: 'include',
+                headers: {
+                    Accept: 'application/json',
+                    ...getCsrfHeaders(),
+                },
+            })
+
+            // 3. Fetch user to update state
+            token.value = loginResponse?.token || null
+            await fetchUser()
 
             return true
         } catch (error: any) {
@@ -27,13 +72,21 @@ export const useAuth = () => {
 
     const register = async (userData: any) => {
         try {
-            const response: any = await $fetch(`${config.public.apiUrl}/auth/register`, {
-                method: 'POST',
-                body: userData
+            await $fetch(`${getBaseUrl()}/sanctum/csrf-cookie`, {
+                credentials: 'include'
             })
 
-            token.value = response.token
-            user.value = response.user
+            await $fetch(`${config.public.apiUrl}/auth/register`, {
+                method: 'POST',
+                body: userData,
+                credentials: 'include',
+                headers: {
+                    Accept: 'application/json',
+                    ...getCsrfHeaders(),
+                },
+            })
+
+            await fetchUser()
 
             return true
         } catch (error) {
@@ -43,37 +96,42 @@ export const useAuth = () => {
 
     const logout = async () => {
         try {
-            if (token.value) {
-                await $fetch(`${config.public.apiUrl}/auth/logout`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${token.value}`
-                    }
-                })
-            }
+            await $fetch(`${config.public.apiUrl}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    Accept: 'application/json',
+                    ...getAuthHeaders(),
+                    ...getCsrfHeaders(),
+                },
+            })
         } catch (e) {
-            // Ignore errors during logout
+            // Ignore errors
         } finally {
-            token.value = null
             user.value = null
+            token.value = null
             navigateTo('/login')
         }
     }
 
     const fetchUser = async () => {
-        if (!token.value) return
-
         try {
             const userData = await $fetch(`${config.public.apiUrl}/auth/me`, {
                 headers: {
-                    Authorization: `Bearer ${token.value}`
-                }
+                    Accept: 'application/json',
+                    ...getAuthHeaders(),
+                },
+                credentials: 'include'
             })
             user.value = userData
         } catch (error) {
-            // Token invalid or expired
-            token.value = null
             user.value = null
+        }
+    }
+
+    const refreshUser = async () => {
+        if (!user.value) {
+            await fetchUser()
         }
     }
 
@@ -85,6 +143,7 @@ export const useAuth = () => {
         login,
         register,
         logout,
-        fetchUser
+        fetchUser,
+        refreshUser
     }
 }

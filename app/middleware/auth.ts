@@ -1,8 +1,8 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
     const { isAuthenticated, isAdmin, fetchUser } = useAuth()
 
-    // Try to fetch user if we have a token but no user data (e.g. page refresh)
-    if (isAuthenticated.value && !useAuth().user.value) {
+    // If user is not present, define logic to try to fetch it
+    if (!useAuth().user.value) {
         await fetchUser()
     }
 

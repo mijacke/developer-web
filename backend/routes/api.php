@@ -18,6 +18,19 @@ use App\Http\Controllers\Api\DeveloperMapStorageController;
 // Contact form API - rate limited to 5 requests per minute per IP (with violation logging)
 Route::middleware('throttle_log:5,1')->post('/contact', [ContactController::class, 'store']);
 
+// Developer Map viewer (public, used by frontend map-viewer.js)
+Route::get('/developer-map/viewer', [\App\Http\Controllers\Api\DeveloperMapViewerController::class, 'show']);
+
+// Public Developer Map API - Read Only
+Route::get('projects', [ProjectController::class, 'index']);
+Route::get('projects/{project}', [ProjectController::class, 'show']);
+Route::get('projects/map/{mapKey}', [ProjectController::class, 'showByMapKey']);
+
+Route::prefix('projects/{project}')->group(function () {
+    Route::get('localities', [LocalityController::class, 'index']);
+    Route::get('localities/{locality}', [LocalityController::class, 'show']);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
@@ -58,15 +71,14 @@ Route::middleware(['auth:sanctum', 'not_blocked'])->group(function () {
         return $request->user();
     });
 
-    // Developer Map API - Projects (all authenticated users)
-    Route::apiResource('projects', ProjectController::class);
-    Route::get('projects/map/{mapKey}', [ProjectController::class, 'showByMapKey']);
+    // Developer Map API - Projects (Write operations)
+    Route::post('projects', [ProjectController::class, 'store']);
+    Route::put('projects/{project}', [ProjectController::class, 'update']);
+    Route::delete('projects/{project}', [ProjectController::class, 'destroy']);
 
-    // Developer Map API - Localities (all authenticated users)
+    // Developer Map API - Localities (Write operations)
     Route::prefix('projects/{project}')->group(function () {
-        Route::get('localities', [LocalityController::class, 'index']);
         Route::post('localities', [LocalityController::class, 'store']);
-        Route::get('localities/{locality}', [LocalityController::class, 'show']);
         Route::put('localities/{locality}', [LocalityController::class, 'update']);
         Route::delete('localities/{locality}', [LocalityController::class, 'destroy']);
         Route::patch('localities/bulk', [LocalityController::class, 'bulkUpdate']);
@@ -114,4 +126,3 @@ Route::middleware(['auth:sanctum', 'not_blocked', 'is_admin'])->prefix('admin')-
     Route::delete('contact-messages/{id}', [AdminController::class, 'deleteMessage']);
     Route::get('contact-stats', [AdminController::class, 'contactStats']);
 });
-

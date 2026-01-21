@@ -19,8 +19,8 @@ const config = useRuntimeConfig()
 const { token } = useAuth()
 const dmRoot = ref<HTMLElement | null>(null)
 
-// Intercept window.fetch to forcefully inject Authorization token for all requests to developer-map API
-// This ensures dm.js requests are authenticated without needing to modify dm.js source code
+// Intercept window.fetch to forcefully inject credentials for all requests to developer-map API
+// This ensures dm.js requests are authenticated via cookies
 let originalFetch: any = null
 
 onMounted(async () => {
@@ -40,19 +40,19 @@ onMounted(async () => {
       // Only intercept requests to our API
       if (url.includes('/developer-map') || url.includes('/api/developer-map')) {
         init = init || {}
-        init.headers = init.headers || {}
+        // Ensure cookies are sent
+        init.credentials = 'include'
         
-        if (token.value) {
-          // Handle both Headers object and plain object
-          if (init.headers instanceof Headers) {
-            init.headers.set('Authorization', `Bearer ${token.value}`)
-            init.headers.set('Accept', 'application/json')
-          } else {
-            // @ts-ignore
-            init.headers['Authorization'] = `Bearer ${token.value}`
-            // @ts-ignore
-            init.headers['Accept'] = 'application/json'
-          }
+        init.headers = init.headers || {}
+        // Handle both Headers object and plain object
+        if (init.headers instanceof Headers) {
+          init.headers.set('Accept', 'application/json')
+          if (token.value) init.headers.set('Authorization', `Bearer ${token.value}`)
+        } else {
+          // @ts-ignore
+          init.headers['Accept'] = 'application/json'
+          // @ts-ignore
+          if (token.value) init.headers['Authorization'] = `Bearer ${token.value}`
         }
       }
       
@@ -66,8 +66,8 @@ onMounted(async () => {
       ver: Date.now(),
       // Also provide headers here in case dm.js supports it (future proofing)
       headers: {
-        'Authorization': `Bearer ${token.value}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        ...(token.value ? { Authorization: `Bearer ${token.value}` } : {})
       }
     }
     
@@ -76,9 +76,10 @@ onMounted(async () => {
     // 3. Load bootstrap data securely
     try {
       const response = await fetch(`${config.public.apiUrl}/developer-map/bootstrap`, {
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token.value}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          ...(token.value ? { Authorization: `Bearer ${token.value}` } : {})
         }
       })
       if (response.ok) {

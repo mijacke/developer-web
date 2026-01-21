@@ -26,7 +26,6 @@ class ProjectController extends Controller
                     'image' => $project->image,
                     'map_key' => $project->map_key,
                     'settings' => $project->settings,
-                    'is_active' => $project->is_active,
                     'localities_count' => $project->localities->count(),
                     'available_count' => $project->localities->where('status', 'available')->count(),
                     'floors' => $project->localities->map(fn($l) => [
@@ -59,7 +58,6 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|string',
             'settings' => 'nullable|array',
-            'is_active' => 'boolean',
         ]);
 
         $validated['map_key'] = Str::slug($validated['name']) . '-' . Str::random(6);
@@ -86,7 +84,6 @@ class ProjectController extends Controller
             'image' => $project->image,
             'map_key' => $project->map_key,
             'settings' => $project->settings,
-            'is_active' => $project->is_active,
             'floors' => $project->localities->map(fn($l) => [
                 'id' => $l->id,
                 'name' => $l->name,
@@ -112,7 +109,6 @@ class ProjectController extends Controller
     {
         $project = Project::with('localities')
             ->where('map_key', $mapKey)
-            ->where('is_active', true)
             ->firstOrFail();
 
         return $this->show($project);
@@ -128,7 +124,6 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|string',
             'settings' => 'nullable|array',
-            'is_active' => 'boolean',
         ]);
 
         $project->update($validated);

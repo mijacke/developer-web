@@ -189,10 +189,13 @@ useHead({
   height: 100%;
   width: 100%;
   position: relative;
+  display: flex; /* Ensure flex context */
+  flex-direction: column;
 }
 
 #dm-root {
   min-height: 100%;
+  flex: 1; /* Take remaining space */
 }
 
 /* Force override DM font families if needed */
@@ -207,7 +210,7 @@ useHead({
 }
 
 /* -------------------------------------------------------------------------- */
-/* MOBILE DRAWER SYSTEM (<1024px)                                             */
+/* MOBILE DRAWER SYSTEM (Responsive)                                          */
 /* -------------------------------------------------------------------------- */
 
 .mobile-editor-toolbar {
@@ -218,19 +221,29 @@ useHead({
   display: none;
 }
 
-@media (max-width: 1023px) {
-  /* Toolbar Styles */
+/* Target tablets and mobile */
+@media (max-width: 1024px) {
+  /* Toolbar Styles - Fixed at Bottom Center or Floating Top */
   .mobile-editor-toolbar {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 10px;
+    padding: 10px 16px;
     background: white;
-    border-bottom: 1px solid #e2e8f0;
-    position: sticky;
-    top: 0;
-    z-index: 900;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    
+    /* Fixed positioning to guarantee visibility regardless of scroll/container */
+    position: fixed; 
+    top: 70px; /* Below standard header if any, or offset */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483647; /* Max Z-index */
+    
+    border-radius: 99px;
+    border: 1px solid rgba(0,0,0,0.1);
+    width: auto;
+    max-width: 90%;
   }
 
   .editor-toggle-btn {
@@ -239,25 +252,26 @@ useHead({
     gap: 8px;
     padding: 8px 16px;
     border-radius: 20px;
-    border: 1px solid #cbd5e1;
-    background: transparent;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
     color: #475569;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .editor-toggle-btn.active {
-    background: #cb9b51;
+    background: #1e293b;
     color: white;
-    border-color: #cb9b51;
+    border-color: #1e293b;
   }
 
   .toolbar-divider {
     width: 1px;
     height: 20px;
-    background: #e2e8f0;
+    background: #cbd5e1;
   }
 
   /* Backdrop */
@@ -268,31 +282,31 @@ useHead({
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.4);
-    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    z-index: 2147483646; /* Just below toolbar */
     animation: fadeIn 0.2s;
+    backdrop-filter: blur(2px);
   }
 
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* FIX: Ensure Editor Grid allows positioning */
   #dm-root.dm-root .dm-editor__body {
-     display: block !important; /* Stack context, but we use drawers */
+     display: block !important; 
      position: relative !important;
      height: auto !important;
-     overflow: hidden !important; /* To contain map */
+     overflow: hidden !important;
   }
 
-  /* Force Center Panel (Map) to be always visible and full height */
+  /* Force Center Panel (Map) to be always visible and fill space */
   #dm-root.dm-root .dm-editor__panel--center {
     display: flex !important;
     width: 100% !important;
-    height: calc(100vh - 140px) !important; /* Subtract header/toolbar height approx */
-    grid-row: auto !important;
-    grid-column: auto !important;
+    height: 100vh !important; /* Full height map */
+    min-height: 600px;
   }
   
-  /* HIDE Panels by default */
+  /* HIDE Panels by default using drawers */
   #dm-root.dm-root .dm-editor__panel--left,
   #dm-root.dm-root .dm-editor__panel--right {
     display: none !important;
@@ -300,9 +314,9 @@ useHead({
     top: 0;
     bottom: 0;
     width: 85% !important;
-    max-width: 320px !important;
+    max-width: 360px !important;
     background: white !important;
-    z-index: 1100 !important; /* Above backdrop */
+    z-index: 2147483647 !important; /* On top of everything */
     box-shadow: 0 0 24px rgba(0,0,0,0.2) !important;
     overflow-y: auto !important;
     flex-direction: column !important;
@@ -322,7 +336,7 @@ useHead({
     transform: translateX(100%);
   }
 
-  /* Show States */
+  /* Show States via admin wrapper classes */
   .dm-admin-wrap.show-left #dm-root.dm-root .dm-editor__panel--left {
     display: flex !important;
     transform: translateX(0);
@@ -335,7 +349,8 @@ useHead({
   
   /* Adjust internal padding of panels for mobile */
   #dm-root.dm-root .dm-editor__panel-content {
-    padding: 16px !important;
+    padding: 20px !important;
+    padding-bottom: 80px !important; /* Space for bottom nav if needed */
   }
 }
 </style>

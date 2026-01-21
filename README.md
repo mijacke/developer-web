@@ -2,6 +2,11 @@
 
 Webová aplikácia pre developerský projekt Rezidencia Žilina s interaktívnou mapou bytov a admin rozhraním.
 
+## 📄 Dokumentácia (VAII)
+
+- Podmienky k semestrálnej práci: `docs/Verzia 2.0 - Podmienky pre odovzdanie semestrálnej práce z predmetu VAII.pdf`
+- Označenie použitia generatívnej AI: `docs/AI_GENERATED.md`
+
 ## 🏗️ Technológie
 
 | Vrstva | Technológia |

@@ -185,7 +185,7 @@ const handleLogout = async () => {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 90;
+  z-index: 9990;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.5rem;
@@ -203,7 +203,7 @@ const handleLogout = async () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 98;
+  z-index: 9998;
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -287,7 +287,7 @@ const handleLogout = async () => {
   flex-direction: column;
   flex-shrink: 0;
   transition: transform 0.3s ease, width 0.3s ease;
-  z-index: 100;
+  z-index: 10000;
   cursor: grab; /* Indicate draggable */
   user-select: none;
 }

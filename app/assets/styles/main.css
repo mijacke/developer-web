@@ -8,6 +8,9 @@
 @import './base/_typography.css';
 @import './base/_utilities.css';
 
+/* Vendor Styles */
+@import './vendor/_splide.css';
+
 /* Component Styles */
 @import './components/_header.css';
 @import './components/_footer.css';
@@ -15,6 +18,7 @@
 @import './components/_layout.css';
 @import './components/_amenities-grid.css';
 @import './components/_cta-section.css';
+@import './components/_cookie-consent-demo.css';
 
 /* Page Styles */
 @import './pages/_home.css';
@@ -24,7 +28,9 @@
 @import './pages/_parking.css';
 @import './pages/_contact.css';
 @import './pages/_apartment.css';
+@import './pages/_byt-detail.css';
 @import './pages/_admin.css';
 @import './pages/_admin-dashboard.css';
 @import './pages/_admin-messages.css';
 @import './pages/_auth.css';
+@import './pages/_legal-pages.css';

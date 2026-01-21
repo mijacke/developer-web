@@ -158,4 +158,21 @@ useHead({
   position: relative !important;
   top: auto !important;
 }
+
+/* FIX: Prevent editor panels from disappearing on tablet/mobile (<1024px) */
+/* The plugin attempts a "stepper" UI that is broken or missing JS logic */
+@media (max-width: 1023px) {
+  #dm-root.dm-root .dm-editor__body {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  #dm-root.dm-root .dm-editor__panel {
+    display: flex !important; /* Force show all panels */
+    min-width: 100% !important;
+  }
+}
 </style>

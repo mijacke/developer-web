@@ -11,6 +11,20 @@ export const useAuth = () => {
     }
 
     type CsrfHeaders = Record<string, string>
+    type RegisterPayload = {
+        name: string
+        email: string
+        password: string
+        password_confirmation: string
+    }
+    type RegisterResponse = {
+        message: string
+        user: {
+            id: number
+            name: string
+            email: string
+        }
+    }
 
     const user = useState<AuthUser | null>('auth-user', () => null)
     const config = useRuntimeConfig()
@@ -78,26 +92,18 @@ export const useAuth = () => {
         }
     }
 
-    const register = async (userData: any) => {
-        try {
-            await ensureCsrfCookie()
+    const register = async (userData: RegisterPayload): Promise<RegisterResponse> => {
+        await ensureCsrfCookie()
 
-            await $fetch(`${config.public.apiUrl}/auth/register`, {
-                method: 'POST',
-                body: userData,
-                credentials: 'include',
-                headers: {
-                    Accept: 'application/json',
-                    ...getCsrfHeaders(),
-                },
-            })
-
-            await fetchUser()
-
-            return true
-        } catch (error) {
-            throw error
-        }
+        return await $fetch<RegisterResponse>(`${config.public.apiUrl}/auth/register`, {
+            method: 'POST',
+            body: userData,
+            credentials: 'include',
+            headers: {
+                Accept: 'application/json',
+                ...getCsrfHeaders(),
+            },
+        })
     }
 
     const logout = async () => {

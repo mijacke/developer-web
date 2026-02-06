@@ -120,7 +120,7 @@ export function createStorageClient(runtimeConfig = {}) {
             headers: {
                 'Accept': 'application/json',
             },
-            credentials: 'same-origin',
+            credentials: 'include',
         };
 
         if (restNonce) {

@@ -17,9 +17,10 @@ definePageMeta({
 const config = useRuntimeConfig()
 const { ensureCsrfCookie, csrfHeaders } = useAuth()
 const dmRoot = ref<HTMLElement | null>(null)
+const apiBase = config.public.apiUrl.replace(/\/+$/, '')
 
-// Intercept window.fetch to forcefully inject credentials for all requests to developer-map API
-// This ensures dm.js requests are authenticated via cookies
+// Intercept window.fetch to forcefully inject credentials for all backend API requests.
+// This ensures dm.js CRUD requests are authenticated via cookies.
 let originalFetch: any = null
 
 onMounted(async () => {
@@ -42,8 +43,23 @@ onMounted(async () => {
         url = input.url
       }
 
-      // Only intercept requests to our API
-      if (url.includes('/developer-map') || url.includes('/api/developer-map')) {
+      const isApiRequest = (() => {
+        if (!url) return false
+        if (url.startsWith('/api/')) return true
+        if (url.startsWith(apiBase)) return true
+
+        try {
+          const target = new URL(url, window.location.origin)
+          const apiUrl = new URL(apiBase)
+          const apiPath = apiUrl.pathname.replace(/\/+$/, '')
+          return target.origin === apiUrl.origin && target.pathname.startsWith(`${apiPath}/`)
+        } catch {
+          return url.includes('/api/')
+        }
+      })()
+
+      // Intercept all requests that hit backend API endpoints.
+      if (isApiRequest) {
         init = init || {}
         // Ensure cookies are sent
         init.credentials = 'include'

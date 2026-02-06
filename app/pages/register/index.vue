@@ -87,7 +87,7 @@ definePageMeta({
   middleware: 'guest'
 })
 
-const config = useRuntimeConfig()
+const { register } = useAuth()
 const name = ref('')
 const email = ref('')
 const password = ref('')
@@ -95,6 +95,27 @@ const passwordConfirmation = ref('')
 const error = ref('')
 const success = ref('')
 const loading = ref(false)
+
+const resolveRegisterError = (e: any) => {
+  const validationErrors = e?.response?._data?.errors
+  if (validationErrors && typeof validationErrors === 'object') {
+    for (const value of Object.values(validationErrors)) {
+      if (Array.isArray(value) && typeof value[0] === 'string' && value[0]) {
+        return value[0]
+      }
+      if (typeof value === 'string' && value) {
+        return value
+      }
+    }
+  }
+
+  const message = e?.response?._data?.message || e?.message
+  if (typeof message === 'string' && message.trim()) {
+    return message
+  }
+
+  return 'Nepodarilo sa zaregistrovať.'
+}
 
 const handleRegister = async () => {
   error.value = ''
@@ -112,24 +133,16 @@ const handleRegister = async () => {
   loading.value = true
   
   try {
-    await $fetch(`${config.public.apiUrl}/auth/register`, {
-      method: 'POST',
-      body: {
-        name: name.value,
-        email: email.value,
-        password: password.value,
-        password_confirmation: passwordConfirmation.value
-      }
+    const response = await register({
+      name: name.value.trim(),
+      email: email.value.trim(),
+      password: password.value,
+      password_confirmation: passwordConfirmation.value
     })
     
-    success.value = 'Registrácia úspešná! Váš účet čaká na schválenie administrátorom.'
+    success.value = response.message || 'Registrácia úspešná! Váš účet čaká na schválenie administrátorom.'
   } catch (e: any) {
-    const msg = e.response?._data?.message || e.message || ''
-    if (msg.includes('already been taken')) {
-      error.value = 'Používateľ s týmto emailom už existuje.'
-    } else {
-      error.value = msg || 'Nepodarilo sa zaregistrovať.'
-    }
+    error.value = resolveRegisterError(e)
   } finally {
     loading.value = false
   }

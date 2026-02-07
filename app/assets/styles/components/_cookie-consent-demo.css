@@ -37,7 +37,7 @@
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 1rem;
+    bottom: 0;
     width: calc(100% - 2rem);
     max-width: 980px;
     background: var(--color-bg-white);
@@ -162,14 +162,6 @@
 @media (max-width: 820px) {
     .cookie-demo__panel {
         padding: 1rem 1.125rem;
-    }
-}
-
-@media (min-width: 900px) {
-    .cookie-demo__panel {
-        top: 50%;
-        bottom: auto;
-        transform: translate(-50%, -50%);
     }
 }
 

@@ -7,7 +7,10 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\LocalityController;
-use App\Http\Controllers\Api\DeveloperMapStorageController;
+use App\Http\Controllers\Api\DeveloperMapReadController;
+use App\Http\Controllers\Api\DeveloperMapWriteController;
+use App\Http\Controllers\Api\DeveloperMapMediaController;
+use App\Http\Controllers\Api\DeveloperMapPaletteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,12 +74,12 @@ Route::middleware(['auth:sanctum', 'not_blocked'])->group(function () {
         return $request->user();
     });
 
-    // Developer Map API - Projects (Write operations)
+    // Projects
     Route::post('projects', [ProjectController::class, 'store']);
     Route::put('projects/{project}', [ProjectController::class, 'update']);
     Route::delete('projects/{project}', [ProjectController::class, 'destroy']);
 
-    // Developer Map API - Localities (Write operations)
+    // Localities
     Route::prefix('projects/{project}')->group(function () {
         Route::post('localities', [LocalityController::class, 'store']);
         Route::put('localities/{locality}', [LocalityController::class, 'update']);
@@ -86,18 +89,18 @@ Route::middleware(['auth:sanctum', 'not_blocked'])->group(function () {
 
     // Developer Map Storage API (all authenticated users)
     Route::prefix('developer-map')->group(function () {
-        Route::get('list', [DeveloperMapStorageController::class, 'list']);
-        Route::get('get', [DeveloperMapStorageController::class, 'get']);
-        Route::post('set', [DeveloperMapStorageController::class, 'set']);
-        Route::delete('remove', [DeveloperMapStorageController::class, 'remove']);
-        Route::post('migrate', [DeveloperMapStorageController::class, 'migrate']);
-        Route::post('image', [DeveloperMapStorageController::class, 'saveImage']);
-        Route::post('upload', [DeveloperMapStorageController::class, 'uploadImage']);
-        Route::get('bootstrap', [DeveloperMapStorageController::class, 'bootstrap']);
+        Route::get('list', [DeveloperMapReadController::class, 'list']);
+        Route::get('get', [DeveloperMapReadController::class, 'get']);
+        Route::post('set', [DeveloperMapWriteController::class, 'set']);
+        Route::delete('remove', [DeveloperMapWriteController::class, 'remove']);
+        Route::post('migrate', [DeveloperMapWriteController::class, 'migrate']);
+        Route::post('image', [DeveloperMapMediaController::class, 'saveImage']);
+        Route::post('upload', [DeveloperMapMediaController::class, 'uploadImage']);
+        Route::get('bootstrap', [DeveloperMapReadController::class, 'bootstrap']);
 
         // Delete endpoints for types and statuses
-        Route::delete('types/{id}', [DeveloperMapStorageController::class, 'deleteType']);
-        Route::delete('statuses/{id}', [DeveloperMapStorageController::class, 'deleteStatus']);
+        Route::delete('types/{id}', [DeveloperMapPaletteController::class, 'deleteType']);
+        Route::delete('statuses/{id}', [DeveloperMapPaletteController::class, 'deleteStatus']);
     });
 });
 

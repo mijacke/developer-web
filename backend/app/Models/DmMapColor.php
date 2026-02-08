@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DmMapColor extends Model
 {
-    protected $table = 'dm_map_colors';
+    protected $table = 'colors_table';
 
     protected $fillable = ['name', 'label', 'value', 'sort_order'];
 }

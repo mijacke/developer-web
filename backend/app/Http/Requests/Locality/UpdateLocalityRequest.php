@@ -14,6 +14,7 @@ class UpdateLocalityRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'dm_id' => ['sometimes', 'nullable', 'string', 'max:255'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'max:100'],
             'status' => ['sometimes', 'required', 'string', 'max:50'],
@@ -25,9 +26,9 @@ class UpdateLocalityRequest extends FormRequest
             'floor' => ['nullable', 'string', 'max:50'],
             'image' => ['nullable', 'string'],
             'svg_path' => ['nullable', 'string'],
+            'regions' => ['sometimes', 'nullable', 'array'],
             'metadata' => ['nullable', 'array'],
             'sort_order' => ['nullable', 'integer'],
         ];
     }
 }
-

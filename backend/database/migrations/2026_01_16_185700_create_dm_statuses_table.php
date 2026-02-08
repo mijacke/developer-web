@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('dm_statuses', function (Blueprint $table) {
+        Schema::create('statuses_table', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('label');
@@ -19,7 +19,7 @@ return new class extends Migration
         });
 
         // Seed default statuses
-        \DB::table('dm_statuses')->insert([
+        \DB::table('statuses_table')->insert([
             ['name' => 'Voľné', 'label' => 'Voľné', 'color' => '#49CD40', 'is_default' => true, 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Rezervované', 'label' => 'Rezervované', 'color' => '#F59E0B', 'is_default' => false, 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Predané', 'label' => 'Predané', 'color' => '#EF4444', 'is_default' => false, 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
@@ -29,6 +29,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('dm_statuses');
+        Schema::dropIfExists('statuses_table');
     }
 };

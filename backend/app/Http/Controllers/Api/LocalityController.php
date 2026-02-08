@@ -8,33 +8,24 @@ use App\Http\Requests\Locality\StoreLocalityRequest;
 use App\Http\Requests\Locality\UpdateLocalityRequest;
 use App\Models\Locality;
 use App\Models\Project;
+use App\Services\LocalityCrudService;
 use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class LocalityController extends Controller
 {
-    /**
-     * Display a listing of localities for a project
-     */
-    public function index(Project $project): JsonResponse
+    public function __construct(private readonly LocalityCrudService $localityCrudService)
     {
-        $localities = $project->localities()
-            ->orderBy('sort_order')
-            ->get();
-
-        return response()->json($localities);
     }
 
-    /**
-     * Store a newly created locality
-     */
+    public function index(Project $project): JsonResponse
+    {
+        return response()->json($this->localityCrudService->list($project));
+    }
+
     public function store(StoreLocalityRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validated();
-
-        $validated['project_id'] = $project->id;
-        $validated['sort_order'] = $validated['sort_order'] ?? $project->localities()->count();
-
-        $locality = Locality::create($validated);
+        $locality = $this->localityCrudService->create($project, $request->validated());
 
         return response()->json([
             'message' => 'Lokalita bola úspešne vytvorená',
@@ -42,66 +33,47 @@ class LocalityController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified locality
-     */
     public function show(Project $project, Locality $locality): JsonResponse
     {
-        if ($locality->project_id !== $project->id) {
-            return response()->json(['message' => 'Lokalita nepatrí k tomuto projektu'], 404);
+        try {
+            $result = $this->localityCrudService->show($project, $locality);
+        } catch (NotFoundHttpException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 404);
         }
 
-        return response()->json($locality);
+        return response()->json($result);
     }
 
-    /**
-     * Update the specified locality
-     */
     public function update(UpdateLocalityRequest $request, Project $project, Locality $locality): JsonResponse
     {
-        if ($locality->project_id !== $project->id) {
-            return response()->json(['message' => 'Lokalita nepatrí k tomuto projektu'], 404);
+        try {
+            $updated = $this->localityCrudService->update($project, $locality, $request->validated());
+        } catch (NotFoundHttpException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 404);
         }
-
-        $validated = $request->validated();
-
-        $locality->update($validated);
 
         return response()->json([
             'message' => 'Lokalita bola úspešne aktualizovaná',
-            'locality' => $locality->fresh(),
+            'locality' => $updated,
         ]);
     }
 
-    /**
-     * Remove the specified locality
-     */
     public function destroy(Project $project, Locality $locality): JsonResponse
     {
-        if ($locality->project_id !== $project->id) {
-            return response()->json(['message' => 'Lokalita nepatrí k tomuto projektu'], 404);
+        try {
+            $this->localityCrudService->delete($project, $locality);
+        } catch (NotFoundHttpException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 404);
         }
-
-        $locality->delete();
 
         return response()->json([
             'message' => 'Lokalita bola úspešne odstránená',
         ]);
     }
 
-    /**
-     * Bulk update localities (for sorting, status changes, etc.)
-     */
     public function bulkUpdate(BulkUpdateLocalitiesRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validated();
-
-        foreach ($validated['localities'] as $localityData) {
-            $locality = Locality::find($localityData['id']);
-            if ($locality && $locality->project_id === $project->id) {
-                $locality->update(array_filter($localityData, fn($key) => $key !== 'id', ARRAY_FILTER_USE_KEY));
-            }
-        }
+        $this->localityCrudService->bulkUpdate($project, $request->validated()['localities']);
 
         return response()->json([
             'message' => 'Lokality boli úspešne aktualizované',

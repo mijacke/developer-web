@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DmStatus extends Model
 {
-    protected $table = 'dm_statuses';
+    protected $table = 'statuses_table';
 
     protected $fillable = ['name', 'label', 'color', 'is_default', 'sort_order'];
 

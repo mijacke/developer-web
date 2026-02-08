@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('dm_types', function (Blueprint $table) {
+        Schema::create('types_table', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('label');
@@ -18,7 +18,7 @@ return new class extends Migration
         });
 
         // Seed default types
-        \DB::table('dm_types')->insert([
+        \DB::table('types_table')->insert([
             ['name' => 'Bytovka', 'label' => 'Bytovka', 'color' => '#405ECD', 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Dom', 'label' => 'Dom', 'color' => '#9333EA', 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Pozemok', 'label' => 'Pozemok', 'color' => '#14B8A6', 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
@@ -28,6 +28,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('dm_types');
+        Schema::dropIfExists('types_table');
     }
 };

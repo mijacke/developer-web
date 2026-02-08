@@ -169,6 +169,36 @@ export function createStorageClient(runtimeConfig = {}) {
         getQueueSize: () => queue.length,
         onQueueUpdate,
         flushQueue,
+        listProjects() {
+            return request('../projects');
+        },
+        getProject(projectId) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}`);
+        },
+        createProject(payload) {
+            return request('../projects', { method: 'POST', body: payload });
+        },
+        updateProject(projectId, payload) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}`, { method: 'PUT', body: payload });
+        },
+        deleteProject(projectId) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}`, { method: 'DELETE' });
+        },
+        listLocalities(projectId) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}/localities`);
+        },
+        getLocality(projectId, localityId) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}/localities/${encodeURIComponent(String(localityId))}`);
+        },
+        createLocality(projectId, payload) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}/localities`, { method: 'POST', body: payload });
+        },
+        updateLocality(projectId, localityId, payload) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}/localities/${encodeURIComponent(String(localityId))}`, { method: 'PUT', body: payload });
+        },
+        deleteLocality(projectId, localityId) {
+            return request(`../projects/${encodeURIComponent(String(projectId))}/localities/${encodeURIComponent(String(localityId))}`, { method: 'DELETE' });
+        },
         list() {
             return request('list');
         },

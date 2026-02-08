@@ -6,57 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
+use App\Services\ProjectCrudService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of projects
-     */
-    public function index(): JsonResponse
+    public function __construct(private readonly ProjectCrudService $projectCrudService)
     {
-        $projects = Project::with('localities')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($project) {
-                return [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'image' => $project->image,
-                    'map_key' => $project->map_key,
-                    'localities_count' => $project->localities->count(),
-                    'available_count' => $project->localities->where('status', 'available')->count(),
-                    'floors' => $project->localities->map(fn($l) => [
-                        'id' => $l->id,
-                        'name' => $l->name,
-                        'type' => $l->type,
-                        'status' => $l->status,
-                        'statusLabel' => $l->status_label,
-                        'statusColor' => $l->status_color,
-                        'area' => $l->area,
-                        'price' => $l->price,
-                        'rent' => $l->rent,
-                        'floor' => $l->floor,
-                        'image' => $l->image,
-                        'svgPath' => $l->svg_path,
-                    ]),
-                ];
-            });
-
-        return response()->json($projects);
     }
 
-    /**
-     * Store a newly created project
-     */
+    public function index(): JsonResponse
+    {
+        return response()->json($this->projectCrudService->list());
+    }
+
     public function store(StoreProjectRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-
-        $validated['map_key'] = Str::slug($validated['name']) . '-' . Str::random(6);
-
-        $project = Project::create($validated);
+        $project = $this->projectCrudService->create($request->validated());
 
         return response()->json([
             'message' => 'Projekt bol úspešne vytvorený',
@@ -64,69 +30,29 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified project
-     */
     public function show(Project $project): JsonResponse
     {
-        $project->load('localities');
-
-        return response()->json([
-            'id' => $project->id,
-            'name' => $project->name,
-            'image' => $project->image,
-            'map_key' => $project->map_key,
-            'floors' => $project->localities->map(fn($l) => [
-                'id' => $l->id,
-                'name' => $l->name,
-                'type' => $l->type,
-                'status' => $l->status,
-                'statusLabel' => $l->status_label,
-                'statusColor' => $l->status_color,
-                'area' => $l->area,
-                'price' => $l->price,
-                'rent' => $l->rent,
-                'floor' => $l->floor,
-                'image' => $l->image,
-                'svgPath' => $l->svg_path,
-                'metadata' => $l->metadata,
-            ]),
-        ]);
+        return response()->json($this->projectCrudService->show($project));
     }
 
-    /**
-     * Display project by map_key (for frontend)
-     */
     public function showByMapKey(string $mapKey): JsonResponse
     {
-        $project = Project::with('localities')
-            ->where('map_key', $mapKey)
-            ->firstOrFail();
-
-        return $this->show($project);
+        return response()->json($this->projectCrudService->showByMapKey($mapKey));
     }
 
-    /**
-     * Update the specified project
-     */
     public function update(UpdateProjectRequest $request, Project $project): JsonResponse
     {
-        $validated = $request->validated();
-
-        $project->update($validated);
+        $updated = $this->projectCrudService->update($project, $request->validated());
 
         return response()->json([
             'message' => 'Projekt bol úspešne aktualizovaný',
-            'project' => $project->fresh(),
+            'project' => $updated,
         ]);
     }
 
-    /**
-     * Remove the specified project
-     */
     public function destroy(Project $project): JsonResponse
     {
-        $project->delete();
+        $this->projectCrudService->delete($project);
 
         return response()->json([
             'message' => 'Projekt bol úspešne odstránený',

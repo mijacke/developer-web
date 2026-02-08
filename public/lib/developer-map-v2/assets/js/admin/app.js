@@ -936,6 +936,244 @@ export async function initDeveloperMap(options) {
         persistValue('dm-projects', storageCache.projects);
     }
 
+    function toNumericId(value, prefix = '') {
+        if (value === null || value === undefined) {
+            return null;
+        }
+        if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+            return value;
+        }
+        const raw = String(value).trim();
+        if (!raw) {
+            return null;
+        }
+        if (/^\d+$/.test(raw)) {
+            return Number(raw);
+        }
+        if (prefix && raw.startsWith(`${prefix}-`)) {
+            const part = raw.slice(prefix.length + 1).trim();
+            if (/^\d+$/.test(part)) {
+                return Number(part);
+            }
+        }
+        return null;
+    }
+
+    function resolveProjectDbId(project) {
+        if (!project || typeof project !== 'object') {
+            return null;
+        }
+        return toNumericId(project.dbId) ?? toNumericId(project.id, 'project');
+    }
+
+    function resolveLocalityDbId(locality) {
+        if (!locality || typeof locality !== 'object') {
+            return null;
+        }
+        return toNumericId(locality.dbId) ?? toNumericId(locality.id, 'floor');
+    }
+
+    function findProjectByAnyId(projectId) {
+        if (!Array.isArray(data.projects)) {
+            return null;
+        }
+        const key = String(projectId ?? '').trim();
+        if (!key) {
+            return null;
+        }
+        return data.projects.find((project) => String(project?.id ?? '') === key) ?? null;
+    }
+
+    function findParentProjectForFloorId(floorId) {
+        if (!Array.isArray(data.projects)) {
+            return null;
+        }
+        const floorKey = String(floorId ?? '').trim();
+        if (!floorKey) {
+            return null;
+        }
+        return data.projects.find((project) =>
+            Array.isArray(project?.floors) &&
+            project.floors.some((floor) => String(floor?.id ?? '') === floorKey)
+        ) ?? null;
+    }
+
+    function normaliseCrudNumber(value) {
+        if (value === null || value === undefined || value === '') {
+            return null;
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+        const raw = String(value).trim();
+        if (!raw) {
+            return null;
+        }
+        const normalised = raw.replace(/\s+/g, '').replace(',', '.');
+        const parsed = Number(normalised);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function buildProjectCrudPayload(project, sortOrder = null) {
+        const parentProject = project?.parentId ? findProjectByAnyId(project.parentId) : null;
+        const parentDbId = resolveProjectDbId(parentProject);
+        let parentIdPayload = null;
+        if (project?.parentId) {
+            parentIdPayload = parentDbId ?? undefined;
+        }
+        return {
+            dm_id: typeof project?.id === 'string' ? project.id : null,
+            parent_id: parentIdPayload,
+            name: String(project?.name ?? 'Nový projekt').trim() || 'Nový projekt',
+            type: project?.type ?? null,
+            image: project?.imageUrl ?? project?.image ?? null,
+            map_key: project?.publicKey ?? null,
+            sort_order: Number.isInteger(sortOrder) ? sortOrder : null,
+            regions: Array.isArray(project?.regions) ? project.regions : [],
+            frontend: project?.frontend && typeof project.frontend === 'object' ? project.frontend : null,
+        };
+    }
+
+    function buildLocalityCrudPayload(locality, sortOrder = null) {
+        const metadata = {
+            designation: locality?.designation ?? null,
+            prefix: locality?.prefix ?? null,
+            suffix: locality?.suffix ?? null,
+            url: locality?.url ?? null,
+            detailUrl: locality?.detailUrl ?? null,
+            statusId: locality?.statusId ?? null,
+        };
+        const cleanedMetadata = Object.fromEntries(
+            Object.entries(metadata).filter(([, value]) => value !== null && value !== '')
+        );
+        const statusValue = String(locality?.status ?? locality?.statusLabel ?? 'available').trim() || 'available';
+        return {
+            dm_id: typeof locality?.id === 'string' ? locality.id : null,
+            name: String(locality?.name ?? locality?.label ?? 'Lokalita').trim() || 'Lokalita',
+            type: locality?.type ?? null,
+            status: statusValue,
+            status_label: locality?.statusLabel ?? statusValue,
+            status_color: locality?.statusColor ?? null,
+            area: normaliseCrudNumber(locality?.area),
+            price: normaliseCrudNumber(locality?.price),
+            rent: normaliseCrudNumber(locality?.rent),
+            floor: locality?.floor ?? null,
+            image: locality?.imageUrl ?? locality?.image ?? null,
+            svg_path: locality?.svgPath ?? null,
+            regions: Array.isArray(locality?.regions) ? locality.regions : [],
+            metadata: cleanedMetadata,
+            sort_order: Number.isInteger(sortOrder) ? sortOrder : null,
+        };
+    }
+
+    function syncProjectCrud(project) {
+        if (!storage || !project || typeof project !== 'object') {
+            return;
+        }
+        const projectIndex = Array.isArray(data.projects)
+            ? data.projects.findIndex((item) => String(item?.id ?? '') === String(project?.id ?? ''))
+            : -1;
+        const payload = buildProjectCrudPayload(project, projectIndex >= 0 ? projectIndex + 1 : null);
+        const dbId = resolveProjectDbId(project);
+        const requestPromise = dbId && typeof storage.updateProject === 'function'
+            ? storage.updateProject(dbId, payload)
+            : (typeof storage.createProject === 'function' ? storage.createProject(payload) : null);
+
+        if (!requestPromise) {
+            return;
+        }
+
+        Promise.resolve(requestPromise)
+            .then((response) => {
+                const apiProject = response?.project && typeof response.project === 'object'
+                    ? response.project
+                    : (response && typeof response === 'object' ? response : null);
+                if (!apiProject) {
+                    return;
+                }
+                if (apiProject.id !== undefined && apiProject.id !== null) {
+                    project.dbId = apiProject.id;
+                }
+                if (typeof apiProject.dm_id === 'string' && apiProject.dm_id.trim()) {
+                    project.id = apiProject.dm_id.trim();
+                }
+                if (typeof apiProject.map_key === 'string' && apiProject.map_key.trim()) {
+                    project.publicKey = apiProject.map_key.trim();
+                }
+            })
+            .catch((error) => {
+                console.warn('[Developer Map] Project CRUD sync failed', error);
+            });
+    }
+
+    function deleteProjectCrud(project) {
+        if (!storage || typeof storage.deleteProject !== 'function' || !project) {
+            return;
+        }
+        const dbId = resolveProjectDbId(project);
+        if (!dbId) {
+            return;
+        }
+        Promise.resolve(storage.deleteProject(dbId)).catch((error) => {
+            console.warn('[Developer Map] Project DELETE sync failed', error);
+        });
+    }
+
+    function syncLocalityCrud(project, locality) {
+        if (!storage || !project || !locality || typeof locality !== 'object') {
+            return;
+        }
+        const projectDbId = resolveProjectDbId(project);
+        if (!projectDbId) {
+            return;
+        }
+        const localityIndex = Array.isArray(project?.floors)
+            ? project.floors.findIndex((item) => String(item?.id ?? '') === String(locality?.id ?? ''))
+            : -1;
+        const payload = buildLocalityCrudPayload(locality, localityIndex >= 0 ? localityIndex + 1 : null);
+        const localityDbId = resolveLocalityDbId(locality);
+        const requestPromise = localityDbId && typeof storage.updateLocality === 'function'
+            ? storage.updateLocality(projectDbId, localityDbId, payload)
+            : (typeof storage.createLocality === 'function' ? storage.createLocality(projectDbId, payload) : null);
+
+        if (!requestPromise) {
+            return;
+        }
+
+        Promise.resolve(requestPromise)
+            .then((response) => {
+                const apiLocality = response?.locality && typeof response.locality === 'object'
+                    ? response.locality
+                    : (response && typeof response === 'object' ? response : null);
+                if (!apiLocality) {
+                    return;
+                }
+                if (apiLocality.id !== undefined && apiLocality.id !== null) {
+                    locality.dbId = apiLocality.id;
+                }
+                if (typeof apiLocality.dm_id === 'string' && apiLocality.dm_id.trim()) {
+                    locality.id = apiLocality.dm_id.trim();
+                }
+            })
+            .catch((error) => {
+                console.warn('[Developer Map] Locality CRUD sync failed', error);
+            });
+    }
+
+    function deleteLocalityCrud(project, locality) {
+        if (!storage || typeof storage.deleteLocality !== 'function' || !project || !locality) {
+            return;
+        }
+        const projectDbId = resolveProjectDbId(project);
+        const localityDbId = resolveLocalityDbId(locality);
+        if (!projectDbId || !localityDbId) {
+            return;
+        }
+        Promise.resolve(storage.deleteLocality(projectDbId, localityDbId)).catch((error) => {
+            console.warn('[Developer Map] Locality DELETE sync failed', error);
+        });
+    }
+
     // Load types from storage cache
     function loadTypes() {
         if (Array.isArray(storageCache.types)) {
@@ -3456,6 +3694,7 @@ export async function initDeveloperMap(options) {
                 }
             }
             result.item.parentId = sanitisedParentId;
+            syncProjectCrud(result.item);
             saveProjects(data.projects);
             setState({ modal: null });
             return;
@@ -3537,6 +3776,10 @@ export async function initDeveloperMap(options) {
             }
         }
 
+        const finalParentProject = findParentProjectForFloorId(result.item.id);
+        if (finalParentProject) {
+            syncLocalityCrud(finalParentProject, result.item);
+        }
         saveProjects(data.projects);
         setState({ modal: null, activeProjectId: newActiveProjectId });
     }
@@ -3645,6 +3888,10 @@ export async function initDeveloperMap(options) {
             }
         }
 
+        const finalParentProject = findParentProjectForFloorId(result.item.id);
+        if (finalParentProject) {
+            syncLocalityCrud(finalParentProject, result.item);
+        }
         saveProjects(data.projects);
         setState({ modal: null, activeProjectId: newActiveProjectId });
     }
@@ -3724,6 +3971,7 @@ export async function initDeveloperMap(options) {
                 persistEntityImage('floor', newFloorId, imageSelection);
             }
 
+            syncLocalityCrud(parentProject, newFloor);
             saveProjects(data.projects);
             setState({ modal: null, activeProjectId: String(parentProject.id) });
             return;
@@ -3754,7 +4002,7 @@ export async function initDeveloperMap(options) {
             const badge = ensureBadge(name);
             const projectImage = imageData || '';
             const publicKey = generateProjectPublicKey(name, data.projects);
-            data.projects.push({
+            const newProject = {
                 id: newProjectId,
                 name,
                 type,
@@ -3766,10 +4014,12 @@ export async function initDeveloperMap(options) {
                 image_id: imageSelection?.id ?? null,
                 imageAlt: imageSelection?.alt || name,
                 floors: [],
-            });
+            };
+            data.projects.push(newProject);
             if (imageSelection?.id) {
                 persistEntityImage('project', newProjectId, imageSelection);
             }
+            syncProjectCrud(newProject);
             newActiveProjectId = newProjectId;
         } else {
             const parentProject = data.projects.find((project) => String(project.id) === String(parentId));
@@ -3799,6 +4049,7 @@ export async function initDeveloperMap(options) {
             if (imageSelection?.id) {
                 persistEntityImage('project', newProjectId, imageSelection);
             }
+            syncProjectCrud(newProject);
             newActiveProjectId = newProjectId;
         }
 
@@ -4085,6 +4336,7 @@ export async function initDeveloperMap(options) {
                         // Najprv vymaž všetky podradené projekty tohto projektu
                         deleteProjectRecursively(childProject.id);
 
+                        deleteProjectCrud(childProject);
                         // Potom vymaž tento projekt
                         const childIndex = data.projects.findIndex((p) => p.id === childProject.id);
                         if (childIndex !== -1) {
@@ -4096,6 +4348,7 @@ export async function initDeveloperMap(options) {
                 // Vymaž všetky podradené projekty
                 deleteProjectRecursively(removedId);
 
+                deleteProjectCrud(projectToDelete);
                 // Vymaž samotný projekt z poľa (znovu nájdi index, pretože sa mohol zmeniť)
                 const finalIndex = data.projects.findIndex((p) => p.id === result.item.id);
                 if (finalIndex !== -1) {
@@ -4116,6 +4369,7 @@ export async function initDeveloperMap(options) {
             // Vymazanie lokality z projektu
             if (Array.isArray(result.parent.floors)) {
                 const floorToDelete = result.item;
+                const parentProject = result.parent;
 
                 // Vymaž obrázok lokality
                 if (storageCache.images && typeof storageCache.images === 'object') {
@@ -4128,6 +4382,7 @@ export async function initDeveloperMap(options) {
 
                 // Vymaž lokalitu z projektu
                 result.parent.floors = result.parent.floors.filter((floor) => floor.id !== result.item.id);
+                deleteLocalityCrud(parentProject, floorToDelete);
 
                 // Ulož projekty do databázy
                 saveProjects(data.projects);

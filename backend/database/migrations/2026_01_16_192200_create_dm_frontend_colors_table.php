@@ -8,11 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Rename dm_colors to dm_map_colors
-        Schema::rename('dm_colors', 'dm_map_colors');
-        
-        // Create dm_frontend_colors table (simplified - name, value, is_active)
-        Schema::create('dm_frontend_colors', function (Blueprint $table) {
+        Schema::create('frontend_colors_table', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('value', 7)->default('#6366F1');
@@ -21,7 +17,7 @@ return new class extends Migration
         });
 
         // Seed frontend colors (4 presets + 1 custom)
-        \DB::table('dm_frontend_colors')->insert([
+        \DB::table('frontend_colors_table')->insert([
             ['name' => 'Fialová', 'value' => '#6366F1', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Červená', 'value' => '#EF4444', 'is_active' => false, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Zelená', 'value' => '#10B981', 'is_active' => false, 'created_at' => now(), 'updated_at' => now()],
@@ -32,7 +28,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('dm_frontend_colors');
-        Schema::rename('dm_map_colors', 'dm_colors');
+        Schema::dropIfExists('frontend_colors_table');
     }
 };

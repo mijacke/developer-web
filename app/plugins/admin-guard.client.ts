@@ -11,7 +11,6 @@ export default defineNuxtPlugin(() => {
             return true
         }
 
-        // Skip on server - let client handle auth check
         if (import.meta.server) {
             return true
         }
@@ -21,7 +20,6 @@ export default defineNuxtPlugin(() => {
         // Always fetch fresh user data to verify session
         await fetchUser()
 
-        // If not authenticated, redirect to login
         if (!user.value) {
             return {
                 path: '/login',
@@ -29,7 +27,6 @@ export default defineNuxtPlugin(() => {
             }
         }
 
-        // For admin-only pages (dashboard, messages), check admin role
         const adminOnlyPaths = ['/admin/dashboard', '/admin/messages']
         if (adminOnlyPaths.some(p => to.path.startsWith(p))) {
             if (user.value.role !== 'admin') {

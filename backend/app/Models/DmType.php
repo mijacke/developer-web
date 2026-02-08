@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DmType extends Model
 {
-    protected $table = 'dm_types';
+    protected $table = 'types_table';
 
     protected $fillable = ['name', 'label', 'color', 'sort_order'];
 }

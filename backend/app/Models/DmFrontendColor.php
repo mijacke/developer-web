@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DmFrontendColor extends Model
 {
-    protected $table = 'dm_frontend_colors';
+    protected $table = 'frontend_colors_table';
 
     protected $fillable = ['name', 'value', 'is_active'];
 
@@ -14,17 +14,11 @@ class DmFrontendColor extends Model
         'is_active' => 'boolean',
     ];
 
-    /**
-     * Get the currently selected/active color.
-     */
     public static function getSelected(): ?self
     {
         return static::where('is_active', true)->first();
     }
 
-    /**
-     * Set a color as active (deactivates all others).
-     */
     public static function setActive(int $id): void
     {
         static::query()->update(['is_active' => false]);

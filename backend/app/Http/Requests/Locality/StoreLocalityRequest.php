@@ -14,6 +14,7 @@ class StoreLocalityRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'dm_id' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'type' => ['nullable', 'string', 'max:100'],
             'status' => ['required', 'string', 'max:50'],
@@ -25,9 +26,9 @@ class StoreLocalityRequest extends FormRequest
             'floor' => ['nullable', 'string', 'max:50'],
             'image' => ['nullable', 'string'],
             'svg_path' => ['nullable', 'string'],
+            'regions' => ['nullable', 'array'],
             'metadata' => ['nullable', 'array'],
             'sort_order' => ['nullable', 'integer'],
         ];
     }
 }
-

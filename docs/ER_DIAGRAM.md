@@ -36,6 +36,46 @@ erDiagram
     DATETIME updated_at
   }
 
+  STATUSES_TABLE {
+    BIGINT id PK
+    STRING name
+    STRING label
+    STRING color
+    BOOL is_default
+    INT sort_order
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  TYPES_TABLE {
+    BIGINT id PK
+    STRING name
+    STRING label
+    STRING color
+    INT sort_order
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  COLORS_TABLE {
+    BIGINT id PK
+    STRING name
+    STRING label
+    STRING value
+    INT sort_order
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  FRONTEND_COLORS_TABLE {
+    BIGINT id PK
+    STRING name
+    STRING value
+    BOOL is_active
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
   USERS {
     BIGINT id PK
     STRING email "unique"
@@ -86,4 +126,3 @@ erDiagram
   PROJECTS ||--o{ PROJECTS : "parent_id"
   USERS ||--o{ AUDIT_LOGS : "1:N"
 ```
-
